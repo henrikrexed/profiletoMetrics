@@ -1,6 +1,6 @@
 module github.com/henrikrexed/profiletoMetrics/connector/profiletometricsconnector
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/henrikrexed/profiletoMetrics v0.1.0
