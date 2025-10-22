@@ -175,29 +175,6 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 	}
 }
 
-func TestConverter_extractFromStringTable(t *testing.T) {
-	config := &ConverterConfig{
-		Attributes: []AttributeConfig{
-			{
-				Name:  "test_attr",
-				Value: "test_value",
-			},
-		},
-	}
-	converter, err := NewConverter(config)
-	require.NoError(t, err)
-	profile := pprofile.NewProfile()
-
-	// Test with a simple attribute config
-	attr := AttributeConfig{
-		Name:  "test_key",
-		Value: "test_value",
-	}
-
-	result := converter.extractFromStringTable(profile, attr)
-	assert.Equal(t, "test_value", result)
-}
-
 func TestConverter_matchesPatternFilter(t *testing.T) {
 	tests := []struct {
 		name           string

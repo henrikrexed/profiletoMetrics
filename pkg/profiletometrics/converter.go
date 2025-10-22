@@ -108,16 +108,6 @@ func (c *Converter) extractAttributeValue(profile pprofile.Profile, attr Attribu
 	}
 }
 
-// extractFromStringTable extracts values from the profile's string table
-// Note: The pprofile API has changed and no longer exposes StringTable directly
-// This is a simplified implementation that returns the configured value
-func (c *Converter) extractFromStringTable(profile pprofile.Profile, attr AttributeConfig) string {
-	// For now, return the configured value directly
-	// In a real implementation, you would need to access string data through
-	// the profile's attribute system or other available methods
-	return attr.Value
-}
-
 // generateMetricsFromProfile generates metrics from profile data
 func (c *Converter) generateMetricsFromProfile(profile pprofile.Profile, attributes map[string]string, resourceMetrics pmetric.ResourceMetrics) {
 	// Apply pattern filtering if enabled
