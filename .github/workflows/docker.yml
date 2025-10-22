@@ -84,7 +84,22 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: '1.24'
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      run: |
+        go mod download
+        go mod verify
 
     - name: Test Docker image functionality
       run: |
@@ -95,9 +110,10 @@ jobs:
         docker run -d --name otelcol-test \
           -p 4317:4317 \
           -p 4318:4318 \
-          -v $(pwd)/examples/final-debug-config.yaml:/etc/otelcol/config.yaml \
+          -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-          --config=/etc/otelcol/config.yaml
+          --config=/etc/otelcol/config.yaml \
+          --feature-gates=+service.profilesSupport
         
         # Wait for collector to start
         sleep 10
@@ -178,6 +194,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Run Trivy vulnerability scanner on Docker image
+      id: trivy
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
@@ -186,7 +203,7 @@ jobs:
 
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && steps.trivy.outcome == 'success'
       with:
         sarif_file: 'trivy-docker-results.sarif'
 
@@ -209,12 +226,14 @@ jobs:
         # Test startup time
         time docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --help
         
-        # Test memory usage
+        # Test memory usage with proper config
         docker run -d --name otelcol-perf \
           -p 4317:4317 \
           -p 4318:4318 \
+          -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-          --config=/dev/null
+          --config=/etc/otelcol/config.yaml \
+          --feature-gates=+service.profilesSupport
         
         sleep 5
         
