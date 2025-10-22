@@ -57,6 +57,7 @@ graph TB
 - [Development](#development)
 - [Testing](#testing)
 - [API Reference](#api-reference)
+- [Documentation](#-documentation)
 - [Contributing](#contributing)
 
 ## 🛠 Installation
@@ -548,15 +549,43 @@ Checks if attributes match the pattern filter criteria.
 - Follow the existing code style
 - Ensure all tests pass
 
+## 📚 Documentation
+
+Comprehensive documentation is available at [https://henrikrexed.github.io/profiletoMetrics](https://henrikrexed.github.io/profiletoMetrics).
+
+### Documentation Features
+
+- **Getting Started**: Installation, configuration, and quick start guides
+- **API Reference**: Complete API documentation with examples
+- **Deployment Guides**: Docker and Kubernetes deployment instructions
+- **Testing**: Unit tests, integration tests, and debugging guides
+- **Development**: Architecture overview and contributing guidelines
+
+### Building Documentation Locally
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Build documentation
+mkdocs build
+
+# Serve locally with live reload
+mkdocs serve
+
+# Deploy to GitHub Pages
+mkdocs gh-deploy
+```
+
 ## 📄 License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-org/profiletoMetrics/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/profiletoMetrics/discussions)
-- **Documentation**: [Project Wiki](https://github.com/your-org/profiletoMetrics/wiki)
+- **Issues**: [GitHub Issues](https://github.com/henrikrexed/profiletoMetrics/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/henrikrexed/profiletoMetrics/discussions)
+- **Documentation**: [https://henrikrexed.github.io/profiletoMetrics](https://henrikrexed.github.io/profiletoMetrics)
 
 ## 🙏 Acknowledgments
 

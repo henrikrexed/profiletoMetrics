@@ -1,0 +1,361 @@
+# Connector Configuration
+
+The ProfileToMetrics connector supports comprehensive configuration options for metrics generation, attribute extraction, and filtering.
+
+## Basic Configuration
+
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        metric_name: "cpu_time"
+      memory:
+        enabled: true
+        metric_name: "memory_allocation"
+    attributes:
+      - key: "service.name"
+        value: "my-service"
+```
+
+## Configuration Reference
+
+### Metrics Configuration
+
+#### CPU Metrics
+
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true                    # Enable CPU metrics
+        metric_name: "cpu_time"         # Metric name
+        description: "CPU time in seconds" # Metric description
+        unit: "s"                       # Metric unit
+```
+
+#### Memory Metrics
+
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      memory:
+        enabled: true                   # Enable memory metrics
+        metric_name: "memory_allocation" # Metric name
+        description: "Memory allocation in bytes" # Metric description
+        unit: "bytes"                   # Metric unit
+```
+
+### Attribute Configuration
+
+Extract attributes from the profiling data's string table.
+
+#### Literal Values
+
+```yaml
+connectors:
+  profiletometrics:
+    attributes:
+      - key: "service.name"
+        value: "my-service"            # Literal value
+      - key: "environment"
+        value: "production"
+```
+
+#### Regular Expressions
+
+```yaml
+connectors:
+  profiletometrics:
+    attributes:
+      - key: "service.name"
+        value: "service-.*"           # Regex pattern
+      - key: "version"
+        value: "v[0-9]+\\.[0-9]+"      # Version pattern
+```
+
+### Filtering Configuration
+
+#### Process Filtering
+
+Filter metrics based on process names:
+
+```yaml
+connectors:
+  profiletometrics:
+    process_filter:
+      enabled: true                     # Enable process filtering
+      pattern: "my-app.*"              # Regex pattern for process names
+```
+
+#### Thread Filtering
+
+Filter metrics based on thread names:
+
+```yaml
+connectors:
+  profiletometrics:
+    thread_filter:
+      enabled: true                    # Enable thread filtering
+      pattern: "worker-.*"            # Regex pattern for thread names
+```
+
+#### Pattern Filtering
+
+Filter metrics based on attribute patterns:
+
+```yaml
+connectors:
+  profiletometrics:
+    pattern_filter:
+      enabled: true                    # Enable pattern filtering
+      pattern: "service-.*"           # Regex pattern for attributes
+```
+
+## Complete Configuration Example
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+connectors:
+  profiletometrics:
+    # Metrics configuration
+    metrics:
+      cpu:
+        enabled: true
+        metric_name: "cpu_time"
+        description: "CPU time in seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        metric_name: "memory_allocation"
+        description: "Memory allocation in bytes"
+        unit: "bytes"
+    
+    # Attribute extraction
+    attributes:
+      - key: "service.name"
+        value: "my-service"
+      - key: "environment"
+        value: "production"
+      - key: "version"
+        value: "v[0-9]+\\.[0-9]+"
+      - key: "instance.id"
+        value: "instance-.*"
+    
+    # Filtering
+    process_filter:
+      enabled: true
+      pattern: "my-app.*"
+    
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
+    
+    pattern_filter:
+      enabled: true
+      pattern: "service-.*"
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlp:
+    endpoint: "http://observability-platform:4317"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      connectors: [profiletometrics]
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug, otlp]
+  
+  telemetry:
+    logs:
+      level: debug
+      development: true
+```
+
+## Configuration Validation
+
+### Required Fields
+
+- `metrics.cpu.enabled` or `metrics.memory.enabled` must be `true`
+- At least one attribute must be configured
+- Valid regex patterns for filters
+
+### Optional Fields
+
+- `metrics.cpu.metric_name` (default: "cpu_time")
+- `metrics.memory.metric_name` (default: "memory_allocation")
+- All filtering options are optional
+
+## Advanced Configuration
+
+### Multiple Attribute Rules
+
+```yaml
+connectors:
+  profiletometrics:
+    attributes:
+      - key: "service.name"
+        value: "my-service"
+      - key: "service.version"
+        value: "v[0-9]+\\.[0-9]+"
+      - key: "deployment.environment"
+        value: "production"
+      - key: "k8s.pod.name"
+        value: "pod-.*"
+```
+
+### Complex Filtering
+
+```yaml
+connectors:
+  profiletometrics:
+    process_filter:
+      enabled: true
+      pattern: "(my-app|worker|scheduler).*"
+    
+    thread_filter:
+      enabled: true
+      pattern: "(main|worker|background)-.*"
+    
+    pattern_filter:
+      enabled: true
+      pattern: "(service|deployment|k8s)-.*"
+```
+
+### Debug Configuration
+
+```yaml
+connectors:
+  profiletometrics:
+    # ... other configuration ...
+    
+    # Enable debug logging
+    debug:
+      enabled: true
+      log_level: "debug"
+      log_samples: true
+      log_attributes: true
+```
+
+## Configuration Examples
+
+### Simple Setup
+
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+      memory:
+        enabled: true
+    attributes:
+      - key: "service.name"
+        value: "my-service"
+```
+
+### Production Setup
+
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        metric_name: "application_cpu_time"
+        description: "Application CPU time"
+        unit: "s"
+      memory:
+        enabled: true
+        metric_name: "application_memory_allocation"
+        description: "Application memory allocation"
+        unit: "bytes"
+    
+    attributes:
+      - key: "service.name"
+        value: "my-service"
+      - key: "service.version"
+        value: "v[0-9]+\\.[0-9]+"
+      - key: "deployment.environment"
+        value: "production"
+      - key: "k8s.namespace"
+        value: "default"
+      - key: "k8s.pod.name"
+        value: "pod-.*"
+    
+    process_filter:
+      enabled: true
+      pattern: "my-app.*"
+    
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
+```
+
+## Troubleshooting Configuration
+
+### Common Issues
+
+#### 1. Invalid Regex Patterns
+
+```yaml
+# ❌ Invalid - unescaped dots
+pattern: "service.*"
+
+# ✅ Valid - escaped dots
+pattern: "service\\..*"
+```
+
+#### 2. Missing Required Fields
+
+```yaml
+# ❌ Invalid - no metrics enabled
+connectors:
+  profiletometrics:
+    attributes:
+      - key: "service.name"
+        value: "my-service"
+
+# ✅ Valid - at least one metric enabled
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+    attributes:
+      - key: "service.name"
+        value: "my-service"
+```
+
+#### 3. Configuration Validation
+
+```bash
+# Validate configuration
+otelcol --config config.yaml --dry-run
+```
+
+### Debug Configuration
+
+Enable debug logging to troubleshoot configuration issues:
+
+```yaml
+service:
+  telemetry:
+    logs:
+      level: debug
+      development: true
+```

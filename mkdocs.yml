@@ -1,0 +1,124 @@
+site_name: ProfileToMetrics Connector
+site_description: OpenTelemetry Profile-to-Metrics Connector Documentation
+site_author: Henrik Rexed
+site_url: https://henrikrexed.github.io/profiletoMetrics
+
+repo_name: henrikrexed/profiletoMetrics
+repo_url: https://github.com/henrikrexed/profiletoMetrics
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - content.action.view
+
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.emoji
+  - pymdownx.arithmatex
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - tables
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Overview: getting-started/overview.md
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+  - Configuration:
+    - Connector Config: configuration/connector-config.md
+    - Collector Config: configuration/collector-config.md
+    - Examples: configuration/examples.md
+  - Deployment:
+    - Docker: deployment/docker.md
+    - Kubernetes: deployment/kubernetes.md
+    - Development: deployment/development.md
+  - Testing:
+    - Unit Tests: testing/unit-tests.md
+    - Integration Tests: testing/integration-tests.md
+    - Debug Testing: testing/debug-testing.md
+  - Development:
+    - Architecture: development/architecture.md
+    - Contributing: development/contributing.md
+    - GitHub Workflows: development/github-workflows.md
+  - API Reference:
+    - Connector API: api/connector-api.md
+    - Configuration API: api/configuration-api.md
+    - Converter API: api/converter-api.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/henrikrexed
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/henrikrexed
+  version:
+    provider: mike
