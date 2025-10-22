@@ -74,7 +74,6 @@ jobs:
   test-docker:
     name: Test Docker Image
     runs-on: ubuntu-latest
-    needs: build-and-push
     if: github.event_name == 'push'
     
     steps:
@@ -101,17 +100,21 @@ jobs:
         go mod download
         go mod verify
 
+    - name: Build Docker image for testing
+      run: |
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test -f docker/Dockerfile .
+
     - name: Test Docker image functionality
       run: |
         # Test basic functionality
-        docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --help
+        docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test --help
         
         # Test with debug configuration
         docker run -d --name otelcol-test \
           -p 4317:4317 \
           -p 4318:4318 \
           -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test \
           --config=/etc/otelcol/config.yaml \
           --feature-gates=+service.profilesSupport
         
