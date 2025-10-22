@@ -23,11 +23,10 @@ processors:
 
 connectors:
   # Custom profile-to-metrics connector
-  - gomod: github.com/henrikrexed/profiletoMetrics/connector/profiletometricsconnector v0.1.0
+  - gomod: github.com/henrikrexed/profiletoMetrics v0.1.0
 
 replaces:
   - github.com/henrikrexed/profiletoMetrics => /app
-  - github.com/henrikrexed/profiletoMetrics/connector/profiletometricsconnector => /app/connector/profiletometricsconnector
 
 build:
   # Build configuration

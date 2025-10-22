@@ -45,12 +45,15 @@ jobs:
         go mod download
         go mod verify
 
-    - name: Build collector
+    - name: Build collector using Docker
       run: |
-        # Build the collector using OCB
-        cd ocb
-        go run go.opentelemetry.io/collector/cmd/builder@v0.137.0 --config=manifest.yaml
-        cp dist/otelcol-profiletometrics_linux_amd64/otelcol-profiletometrics ../otelcol-profiletometrics
+        # Build the collector using Docker (which handles OCB internally)
+        make docker-build DOCKER_IMAGE=otelcol-profiletometrics DOCKER_TAG=test
+        # Extract the binary from the Docker image
+        docker create --name temp-container otelcol-profiletometrics:test
+        docker cp temp-container:/otelcol-profiletometrics ./otelcol-profiletometrics
+        docker rm temp-container
+        chmod +x ./otelcol-profiletometrics
 
     - name: Test configuration ${{ matrix.config }}
       run: |
@@ -89,12 +92,15 @@ jobs:
         go mod download
         go mod verify
 
-    - name: Build collector
+    - name: Build collector using Docker
       run: |
-        # Build the collector using OCB
-        cd ocb
-        go run go.opentelemetry.io/collector/cmd/builder@v0.137.0 --config=manifest.yaml
-        cp dist/otelcol-profiletometrics_linux_amd64/otelcol-profiletometrics ../otelcol-profiletometrics
+        # Build the collector using Docker (which handles OCB internally)
+        make docker-build DOCKER_IMAGE=otelcol-profiletometrics DOCKER_TAG=test
+        # Extract the binary from the Docker image
+        docker create --name temp-container otelcol-profiletometrics:test
+        docker cp temp-container:/otelcol-profiletometrics ./otelcol-profiletometrics
+        docker rm temp-container
+        chmod +x ./otelcol-profiletometrics
 
     - name: Start collector with debug config
       run: |
