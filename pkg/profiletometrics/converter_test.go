@@ -193,7 +193,7 @@ func TestConverter_CalculateCPUTime(t *testing.T) {
 	// Add samples with CPU time values
 	for i := 0; i < 3; i++ {
 		sample := profile.Sample().AppendEmpty()
-		values := sample.Values()
+		values := sample.Value()
 		values.Append(int64(1000 + i*100)) // 1000, 1100, 1200
 	}
 
@@ -220,7 +220,7 @@ func TestConverter_CalculateMemoryAllocation(t *testing.T) {
 	// Add samples with memory allocation values (assuming second value is memory)
 	for i := 0; i < 2; i++ {
 		sample := profile.Sample().AppendEmpty()
-		values := sample.Values()
+		values := sample.Value()
 		values.Append(1000)                // CPU time
 		values.Append(int64(2000 + i*500)) // Memory: 2000, 2500
 	}
