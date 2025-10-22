@@ -1,0 +1,41 @@
+# OpenTelemetry Collector Builder (OCB) Manifest
+# Based on the working pattern from henrikrexed/spanEventstoLog
+
+dist:
+  name: otelcol-profiletometrics
+  description: "OpenTelemetry Collector with Profile to Metrics Connector"
+  output_path: ./dist
+
+exporters:
+  # OTLP exporters
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.137.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.137.0
+  # Debug exporter
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.137.0
+
+receivers:
+  # OTLP receiver
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.137.0
+
+processors:
+  # Batch processor
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.137.0
+
+connectors:
+  # Custom profile-to-metrics connector
+  - gomod: github.com/henrikrexed/profiletoMetrics/connector/profiletometricsconnector v0.1.0
+
+replaces:
+  - github.com/henrikrexed/profiletoMetrics => /app
+  - github.com/henrikrexed/profiletoMetrics/connector/profiletometricsconnector => /app/connector/profiletometricsconnector
+
+build:
+  # Build configuration
+  go: "1.24"
+  ldflags: "-X go.opentelemetry.io/collector/cmd/builder/internal.Version=0.137.0"
+  # Skip tests during build (set to false to run tests)
+  skip_tests: false
+  # Build tags
+  build_tags: []
+  # Debug build
+  debug: false

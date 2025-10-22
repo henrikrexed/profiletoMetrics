@@ -1,0 +1,261 @@
+name: OSS Scorecard
+
+on:
+  schedule:
+    # Run OSS Scorecard weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+  id-token: write
+
+jobs:
+  # OSS Scorecard analysis
+  oss-scorecard:
+    name: OSS Scorecard Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run OSS Scorecard
+      uses: ossf/scorecard-action@v2.3.1
+      with:
+        results_file: results.sarif
+        results_format: sarif
+        publish_results: true
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload OSS Scorecard results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: results.sarif
+
+  # Security policy check
+  security-policy:
+    name: Security Policy Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for security policy
+      run: |
+        if [ -f "SECURITY.md" ]; then
+          echo "✓ SECURITY.md found"
+        else
+          echo "✗ SECURITY.md not found"
+          echo "Creating SECURITY.md template..."
+          cat > SECURITY.md << 'EOF'
+          # Security Policy
+          
+          ## Supported Versions
+          
+          | Version | Supported          |
+          | ------- | ------------------ |
+          | 1.x.x   | :white_check_mark: |
+          | < 1.0   | :x:                |
+          
+          ## Reporting a Vulnerability
+          
+          Please report security vulnerabilities to security@example.com
+          
+          ## Security Measures
+          
+          - All dependencies are regularly updated
+          - Security scanning is performed on every build
+          - OSS Scorecard is run weekly
+          EOF
+        fi
+
+    - name: Check for security headers
+      run: |
+        echo "Checking for security-related files..."
+        
+        # Check for .gitignore security patterns
+        if grep -q "*.key" .gitignore; then
+          echo "✓ .gitignore contains key files pattern"
+        else
+          echo "✗ .gitignore should exclude key files"
+        fi
+        
+        # Check for secrets in code
+        if grep -r "password\|secret\|key" --include="*.go" --include="*.yaml" --include="*.yml" . | grep -v "test\|example\|TODO\|FIXME"; then
+          echo "✗ Potential secrets found in code"
+        else
+          echo "✓ No obvious secrets found in code"
+        fi
+
+  # License compliance
+  license-compliance:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for license file
+      run: |
+        if [ -f "LICENSE" ] || [ -f "LICENSE.txt" ] || [ -f "LICENSE.md" ]; then
+          echo "✓ License file found"
+        else
+          echo "✗ No license file found"
+          echo "Creating LICENSE template..."
+          cat > LICENSE << 'EOF'
+          MIT License
+          
+          Copyright (c) 2024 Henrik Rexed
+          
+          Permission is hereby granted, free of charge, to any person obtaining a copy
+          of this software and associated documentation files (the "Software"), to deal
+          in the Software without restriction, including without limitation the rights
+          to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+          copies of the Software, and to permit persons to whom the Software is
+          furnished to do so, subject to the following conditions:
+          
+          The above copyright notice and this permission notice shall be included in all
+          copies or substantial portions of the Software.
+          
+          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+          IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+          FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+          AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+          LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+          OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+          SOFTWARE.
+          EOF
+        fi
+
+    - name: Check license compatibility
+      run: |
+        # Check if go.mod has proper license information
+        if grep -q "license" go.mod; then
+          echo "✓ License information found in go.mod"
+        else
+          echo "✗ No license information in go.mod"
+        fi
+
+  # Documentation quality
+  documentation-quality:
+    name: Documentation Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for README
+      run: |
+        if [ -f "README.md" ]; then
+          echo "✓ README.md found"
+        else
+          echo "✗ README.md not found"
+        fi
+
+    - name: Check for contributing guidelines
+      run: |
+        if [ -f "CONTRIBUTING.md" ]; then
+          echo "✓ CONTRIBUTING.md found"
+        else
+          echo "✗ CONTRIBUTING.md not found"
+          echo "Creating CONTRIBUTING.md template..."
+          cat > CONTRIBUTING.md << 'EOF'
+          # Contributing
+          
+          Thank you for your interest in contributing to this project!
+          
+          ## Getting Started
+          
+          1. Fork the repository
+          2. Create a feature branch
+          3. Make your changes
+          4. Add tests
+          5. Submit a pull request
+          
+          ## Development
+          
+          ### Prerequisites
+          
+          - Go 1.23+
+          - Docker
+          - Make
+          
+          ### Building
+          
+          ```bash
+          make build
+          ```
+          
+          ### Testing
+          
+          ```bash
+          make test
+          ```
+          
+          ## Code Style
+          
+          - Follow Go conventions
+          - Add tests for new features
+          - Update documentation
+          
+          ## Pull Request Process
+          
+          1. Ensure all tests pass
+          2. Update documentation
+          3. Add changelog entry
+          4. Request review
+          EOF
+        fi
+
+    - name: Check for changelog
+      run: |
+        if [ -f "CHANGELOG.md" ]; then
+          echo "✓ CHANGELOG.md found"
+        else
+          echo "✗ CHANGELOG.md not found"
+          echo "Creating CHANGELOG.md template..."
+          cat > CHANGELOG.md << 'EOF'
+          # Changelog
+          
+          All notable changes to this project will be documented in this file.
+          
+          The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+          and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+          
+          ## [Unreleased]
+          
+          ### Added
+          - Initial release
+          - Profile to Metrics connector
+          - Debug logging support
+          - Docker image with custom collector
+          
+          ### Changed
+          - N/A
+          
+          ### Deprecated
+          - N/A
+          
+          ### Removed
+          - N/A
+          
+          ### Fixed
+          - N/A
+          
+          ### Security
+          - N/A
+          EOF
+        fi

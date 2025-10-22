@@ -1,0 +1,169 @@
+name: Security Scan
+
+on:
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+  id-token: write
+
+jobs:
+  # Dependency Scanning
+  dependency-scan:
+    name: Dependency Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Run Go vulnerability check
+      run: |
+        go install golang.org/x/vuln/cmd/govulncheck@latest
+        govulncheck ./...
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # CodeQL Analysis
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'go' ]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  # OSS Scorecard
+  oss-scorecard:
+    name: OSS Scorecard
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run OSS Scorecard
+      uses: ossf/scorecard-action@v2.3.1
+      with:
+        results_file: results.sarif
+        results_format: sarif
+        publish_results: true
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload OSS Scorecard results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: results.sarif
+
+  # Security Headers Check
+  security-headers:
+    name: Security Headers Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for security-related files
+      run: |
+        echo "Checking for security-related files..."
+        
+        # Check for security.md
+        if [ ! -f "SECURITY.md" ]; then
+          echo "Warning: SECURITY.md not found"
+        else
+          echo "SECURITY.md found"
+        fi
+        
+        # Check for .gitignore security patterns
+        if grep -q "*.key" .gitignore; then
+          echo "✓ .gitignore contains key files pattern"
+        else
+          echo "Warning: .gitignore should exclude key files"
+        fi
+        
+        # Check for secrets in code
+        if grep -r "password\|secret\|key" --include="*.go" --include="*.yaml" --include="*.yml" . | grep -v "test\|example\|TODO\|FIXME"; then
+          echo "Warning: Potential secrets found in code"
+        else
+          echo "✓ No obvious secrets found in code"
+        fi
+
+  # License Check
+  license-check:
+    name: License Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for license file
+      run: |
+        if [ -f "LICENSE" ] || [ -f "LICENSE.txt" ] || [ -f "LICENSE.md" ]; then
+          echo "✓ License file found"
+        else
+          echo "Warning: No license file found"
+        fi
+
+    - name: Check license compatibility
+      run: |
+        # Check if go.mod has proper license information
+        if grep -q "license" go.mod; then
+          echo "✓ License information found in go.mod"
+        else
+          echo "Warning: No license information in go.mod"
+        fi

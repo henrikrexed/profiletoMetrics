@@ -1,0 +1,273 @@
+# OpenTelemetry Collector Configuration with Profile to Metrics Connector
+# This configuration demonstrates how to use the profile-to-metrics connector
+# with various receivers, processors, and exporters.
+
+receivers:
+  # OTLP receiver for receiving profiling data
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+        max_recv_msg_size: 4194304
+        max_concurrent_streams: 16
+      http:
+        endpoint: 0.0.0.0:4318
+        max_request_body_size: 4194304
+        cors:
+          allowed_origins:
+            - "http://*"
+            - "https://*"
+
+  # Prometheus receiver for scraping metrics
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'otel-collector'
+          scrape_interval: 10s
+          static_configs:
+            - targets: ['localhost:8888']
+
+processors:
+  # Batch processor for batching telemetry data
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  # Resource processor for adding/modifying resource attributes
+  resource:
+    attributes:
+      - key: collector.name
+        value: profile-to-metrics-collector
+        action: insert
+      - key: collector.version
+        value: 1.0.0
+        action: insert
+
+  # Kubernetes attributes processor for adding K8s metadata
+  k8sattributes:
+    auth_type: serviceAccount
+    passthrough: false
+    filter:
+      node_from_env_var: KUBE_NODE_NAME
+    extract:
+      metadata:
+        - k8s.pod.name
+        - k8s.pod.uid
+        - k8s.deployment.name
+        - k8s.namespace.name
+        - k8s.node.name
+        - k8s.pod.start_time
+    pod_association:
+      - sources:
+          - from: resource_attribute
+            name: k8s.pod.uid
+      - sources:
+          - from: resource_attribute
+            name: k8s.pod.name
+          - from: resource_attribute
+            name: k8s.namespace.name
+
+  # Filter processor for filtering telemetry data
+  filter:
+    profiles:
+      span:
+        - 'attributes["http.method"] == "GET"'
+        - 'attributes["http.status_code"] == 200'
+
+  # Transform processor for transforming telemetry data
+  transform:
+    log_statements:
+      - context: resource
+        statements:
+          - set(attributes["collector.name"], "profile-to-metrics-collector")
+
+  # Cumulative to delta processor for converting cumulative metrics to delta
+  cumulativetodelta:
+    include:
+      match_type: regexp
+      metrics:
+        - ".*_total"
+        - ".*_count"
+        - ".*_sum"
+
+connectors:
+  # Profile to Metrics Connector - Main connector for converting profiles to metrics
+  profiletometrics:
+    # Metrics configuration
+    metrics:
+      enable_cpu_time: true
+      enable_memory_allocation: true
+      cpu_time_metric_name: "profile_cpu_time_seconds"
+      memory_allocation_metric_name: "profile_memory_allocation_bytes"
+      cpu_time_description: "CPU time consumed by processes from profiling data"
+      memory_allocation_description: "Memory allocation by processes from profiling data"
+
+    # Attribute extraction rules
+    attribute_extraction:
+      # Extract process name from resource attributes
+      - name: "process_name"
+        source: "process.name"
+        extraction_method: "literal"
+        value: ""
+
+      # Extract Kubernetes pod name
+      - name: "k8s_pod_name"
+        source: "k8s.pod.name"
+        extraction_method: "literal"
+        value: ""
+
+      # Extract Kubernetes namespace
+      - name: "k8s_namespace"
+        source: "k8s.namespace.name"
+        extraction_method: "literal"
+        value: ""
+
+      # Extract service name
+      - name: "service_name"
+        source: "service.name"
+        extraction_method: "literal"
+        value: ""
+
+      # Extract function names from string table using regex
+      - name: "function_name"
+        source: "string_table"
+        extraction_method: "regex"
+        pattern: "^.*\\.(.*)$"
+
+      # Extract package names from string table using regex
+      - name: "package_name"
+        source: "string_table"
+        extraction_method: "regex"
+        pattern: "^([^.]+)\\..*$"
+
+      # Extract runtime information
+      - name: "runtime_name"
+        source: "runtime.name"
+        extraction_method: "literal"
+        value: ""
+
+      - name: "runtime_version"
+        source: "runtime.version"
+        extraction_method: "literal"
+        value: ""
+
+    # Process filtering
+    process_filter:
+      # Enable per-process metrics (one metric per process)
+      enable_per_process: true
+      # Filter by process name pattern (regex) - allow Java, Python, Go, Node.js processes
+      process_name_pattern: ".*(java|python|go|node|nodejs).*"
+
+    # Thread filtering
+    thread_filter:
+      # Enable thread filtering
+      enabled: true
+      # Filter by thread name pattern (regex) - only include main and worker threads
+      thread_name_pattern: ".*(main|worker).*"
+      # Filter by process name pattern (regex) - only include specific processes
+      process_name_pattern: ".*(api|web|service).*"
+
+    # Pattern filtering for metric creation
+    pattern_filter:
+      enabled: true
+      attribute_patterns:
+        # Only create metrics for production and staging environments
+        k8s_namespace: ".*(prod|staging|production).*"
+        # Only create metrics for specific services
+        service_name: ".*(api|web|service|app).*"
+
+  # Signal to Metrics Connector for converting other signals to metrics
+  signaltometrics:
+    # Convert traces to metrics
+    traces_to_metrics:
+      - metric_name: "trace_duration_seconds"
+        description: "Duration of traces"
+        unit: "s"
+        trace_id: true
+        span_id: true
+        attributes:
+          - key: "service.name"
+            value: "service_name"
+          - key: "operation"
+            value: "span_name"
+
+    # Convert logs to metrics
+    logs_to_metrics:
+      - metric_name: "log_count"
+        description: "Number of log entries"
+        unit: "1"
+        attributes:
+          - key: "level"
+            value: "severity_text"
+
+exporters:
+  # OTLP exporter for sending metrics to OTLP-compatible backends
+  otlp:
+    endpoint: "http://jaeger:14250"
+    tls:
+      insecure: true
+    sending_queue:
+      enabled: true
+      num_consumers: 10
+      queue_size: 1000
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+
+  # Prometheus exporter for exposing metrics via Prometheus format
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "profile_metrics"
+    const_labels:
+      collector: "profile-to-metrics"
+      version: "1.0.0"
+    send_timestamps: true
+    enable_open_metrics: true
+
+  # Debug exporter for debugging and development
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+  # Logging exporter for logging telemetry data
+  logging:
+    verbosity: normal
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+service:
+  pipelines:
+    # Profiles pipeline - receives profiles and converts them to metrics
+    profiles:
+      receivers: [otlp]
+      processors: [resource, k8sattributes, filter, batch]
+      connectors: [profiletometrics]
+
+    # Metrics pipeline - processes the converted metrics
+    metrics:
+      receivers: [profiletometrics, signaltometrics, prometheus]
+      processors: [resource, k8sattributes, cumulativetodelta, transform, batch]
+      exporters: [otlp, prometheus, debug, logging]
+
+    # Traces pipeline - processes traces and converts some to metrics
+    traces:
+      receivers: [otlp]
+      processors: [resource, k8sattributes, filter, batch]
+      connectors: [signaltometrics]
+
+    # Logs pipeline - processes logs and converts some to metrics
+    logs:
+      receivers: [otlp]
+      processors: [resource, k8sattributes, filter, batch]
+      connectors: [signaltometrics]
+
+  extensions: []
+  telemetry:
+    logs:
+      level: "info"
+    metrics:
+      address: "0.0.0.0:8888"

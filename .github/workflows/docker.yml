@@ -1,0 +1,191 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Build and push Docker image
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+        go-version: ['1.23', '1.24']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{version}}-{{commit}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/Dockerfile
+        platforms: ${{ matrix.platform }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          GO_VERSION=${{ matrix.go-version }}
+
+  # Test Docker image
+  test-docker:
+    name: Test Docker Image
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Test Docker image functionality
+      run: |
+        # Test basic functionality
+        docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --help
+        
+        # Test with debug configuration
+        docker run -d --name otelcol-test \
+          -p 4317:4317 \
+          -p 4318:4318 \
+          -v $(pwd)/examples/final-debug-config.yaml:/etc/otelcol/config.yaml \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+          --config=/etc/otelcol/config.yaml
+        
+        # Wait for collector to start
+        sleep 10
+        
+        # Test OTLP endpoint
+        curl -X POST http://localhost:4318/v1/traces \
+          -H "Content-Type: application/json" \
+          -d '{
+            "resourceSpans": [{
+              "resource": {
+                "attributes": [{
+                  "key": "service.name",
+                  "value": {"stringValue": "test-service"}
+                }]
+              },
+              "scopeSpans": [{
+                "scope": {"name": "test-scope"},
+                "spans": [{
+                  "traceId": "12345678901234567890123456789012",
+                  "spanId": "1234567890123456",
+                  "name": "test-span",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1640995200000000000",
+                  "endTimeUnixNano": "1640995201000000000"
+                }]
+              }]
+            }]
+          }'
+        
+        # Check logs for debug output
+        docker logs otelcol-test
+        
+        # Cleanup
+        docker stop otelcol-test
+        docker rm otelcol-test
+
+  # Security scan of Docker image
+  docker-security-scan:
+    name: Docker Security Scan
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner on Docker image
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        format: 'sarif'
+        output: 'trivy-docker-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-docker-results.sarif'
+
+  # Performance test
+  docker-performance:
+    name: Docker Performance Test
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Test Docker image performance
+      run: |
+        # Test image size
+        docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        
+        # Test startup time
+        time docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --help
+        
+        # Test memory usage
+        docker run -d --name otelcol-perf \
+          -p 4317:4317 \
+          -p 4318:4318 \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+          --config=/dev/null
+        
+        sleep 5
+        
+        # Check memory usage
+        docker stats --no-stream otelcol-perf
+        
+        # Cleanup
+        docker stop otelcol-perf
+        docker rm otelcol-perf

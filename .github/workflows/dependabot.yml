@@ -1,0 +1,33 @@
+name: Dependabot Auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  # Auto-merge Dependabot PRs for minor and patch updates
+  auto-merge:
+    name: Auto-merge Dependabot PRs
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Run tests
+      run: |
+        go mod download
+        go test ./...
+
+    - name: Auto-merge PR
+      uses: fastify/github-action-merge-dependabot@v3
+      with:
+        target: minor
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        merge-method: squash

@@ -1,0 +1,78 @@
+# Final Working OpenTelemetry Collector Configuration with Debug Logging
+# This configuration enables debug logging to understand connector behavior
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "seconds"
+      memory:
+        enabled: true
+        name: "profile_memory_allocation_bytes"
+        unit: "bytes"
+    
+    attributes:
+      - name: "process_name"
+        value: "test-process"
+        type: "literal"
+      - name: "service_name"
+        value: "test-service"
+        type: "literal"
+    
+    process_filter:
+      enabled: true
+      pattern: ".*"
+    
+    pattern_filter:
+      enabled: false
+      pattern: ""
+    
+    thread_filter:
+      enabled: false
+      pattern: ""
+
+exporters:
+  debug:
+    verbosity: detailed
+    sampling_initial: 1
+    sampling_thereafter: 1
+
+service:
+  telemetry:
+    logs:
+      level: debug
+      development: true
+      sampling:
+        initial: 1
+        thereafter: 1
+
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]

@@ -1,0 +1,270 @@
+name: Connector Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  # Test connector with different configurations
+  connector-config-tests:
+    name: Connector Configuration Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        config: [
+          'examples/simple-config.yaml',
+          'examples/debug-config.yaml',
+          'examples/final-debug-config.yaml'
+        ]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Build collector
+      run: |
+        go mod download
+        go build -o otelcol-profiletometrics ./cmd/otelcol-contrib
+
+    - name: Test configuration ${{ matrix.config }}
+      run: |
+        # Test configuration validation
+        ./otelcol-profiletometrics --config=${{ matrix.config }} --dry-run
+        
+        # Test configuration parsing
+        ./otelcol-profiletometrics --config=${{ matrix.config }} --help
+
+  # Test connector with real data
+  connector-data-tests:
+    name: Connector Data Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Build collector
+      run: |
+        go mod download
+        go build -o otelcol-profiletometrics ./cmd/otelcol-contrib
+
+    - name: Start collector with debug config
+      run: |
+        ./otelcol-profiletometrics --config=examples/final-debug-config.yaml &
+        COLLECTOR_PID=$!
+        echo $COLLECTOR_PID > collector.pid
+        
+        # Wait for collector to start
+        sleep 10
+        
+        # Check if collector is running
+        if ps -p $COLLECTOR_PID > /dev/null; then
+          echo "Collector started successfully"
+        else
+          echo "Collector failed to start"
+          exit 1
+        fi
+
+    - name: Send test data
+      run: |
+        # Send trace data
+        curl -X POST http://localhost:4318/v1/traces \
+          -H "Content-Type: application/json" \
+          -d '{
+            "resourceSpans": [{
+              "resource": {
+                "attributes": [{
+                  "key": "service.name",
+                  "value": {"stringValue": "test-service"}
+                }]
+              },
+              "scopeSpans": [{
+                "scope": {"name": "test-scope"},
+                "spans": [{
+                  "traceId": "12345678901234567890123456789012",
+                  "spanId": "1234567890123456",
+                  "name": "test-span",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1640995200000000000",
+                  "endTimeUnixNano": "1640995201000000000"
+                }]
+              }]
+            }]
+          }'
+        
+        # Send log data
+        curl -X POST http://localhost:4318/v1/logs \
+          -H "Content-Type: application/json" \
+          -d '{
+            "resourceLogs": [{
+              "resource": {
+                "attributes": [{
+                  "key": "service.name",
+                  "value": {"stringValue": "test-service"}
+                }]
+              },
+              "scopeLogs": [{
+                "scope": {"name": "test-scope"},
+                "logRecords": [{
+                  "timeUnixNano": "1640995200000000000",
+                  "body": {"stringValue": "test log message"}
+                }]
+              }]
+            }]
+          }'
+        
+        # Send metrics data
+        curl -X POST http://localhost:4318/v1/metrics \
+          -H "Content-Type: application/json" \
+          -d '{
+            "resourceMetrics": [{
+              "resource": {
+                "attributes": [{
+                  "key": "service.name",
+                  "value": {"stringValue": "test-service"}
+                }]
+              },
+              "scopeMetrics": [{
+                "scope": {"name": "test-scope"},
+                "metrics": [{
+                  "name": "test_metric",
+                  "description": "Test metric",
+                  "unit": "1",
+                  "gauge": {
+                    "dataPoints": [{
+                      "timeUnixNano": "1640995200000000000",
+                      "asInt": "42"
+                    }]
+                  }
+                }]
+              }]
+            }]
+          }'
+
+    - name: Check collector logs
+      run: |
+        # Check for debug logs
+        if grep -q "ProfileToMetrics connector" collector.log; then
+          echo "✓ Connector debug logs found"
+        else
+          echo "✗ Connector debug logs not found"
+        fi
+        
+        # Check for error logs
+        if grep -q "ERROR" collector.log; then
+          echo "✗ Errors found in collector logs:"
+          grep "ERROR" collector.log
+          exit 1
+        else
+          echo "✓ No errors found in collector logs"
+        fi
+
+    - name: Stop collector
+      if: always()
+      run: |
+        if [ -f collector.pid ]; then
+          COLLECTOR_PID=$(cat collector.pid)
+          if ps -p $COLLECTOR_PID > /dev/null; then
+            kill $COLLECTOR_PID
+            echo "Collector stopped"
+          fi
+          rm collector.pid
+        fi
+
+  # Test connector performance
+  connector-performance:
+    name: Connector Performance Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Run performance benchmarks
+      run: |
+        go test -bench=. -benchmem -benchtime=10s ./pkg/profiletometrics/...
+
+    - name: Run memory profiling
+      run: |
+        go test -memprofile=mem.prof -cpuprofile=cpu.prof ./pkg/profiletometrics/...
+        
+        # Analyze memory profile
+        go tool pprof -top mem.prof
+        go tool pprof -top cpu.prof
+
+  # Test connector with Docker
+  connector-docker-tests:
+    name: Connector Docker Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -t otelcol-profiletometrics:test -f docker/Dockerfile .
+
+    - name: Test Docker image with debug config
+      run: |
+        # Start collector in Docker
+        docker run -d --name otelcol-test \
+          -p 4317:4317 \
+          -p 4318:4318 \
+          -v $(pwd)/examples/final-debug-config.yaml:/etc/otelcol/config.yaml \
+          otelcol-profiletometrics:test \
+          --config=/etc/otelcol/config.yaml
+        
+        # Wait for collector to start
+        sleep 10
+        
+        # Test OTLP endpoint
+        curl -X POST http://localhost:4318/v1/traces \
+          -H "Content-Type: application/json" \
+          -d '{
+            "resourceSpans": [{
+              "resource": {
+                "attributes": [{
+                  "key": "service.name",
+                  "value": {"stringValue": "test-service"}
+                }]
+              },
+              "scopeSpans": [{
+                "scope": {"name": "test-scope"},
+                "spans": [{
+                  "traceId": "12345678901234567890123456789012",
+                  "spanId": "1234567890123456",
+                  "name": "test-span",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1640995200000000000",
+                  "endTimeUnixNano": "1640995201000000000"
+                }]
+              }]
+            }]
+          }'
+        
+        # Check logs for debug output
+        docker logs otelcol-test
+        
+        # Cleanup
+        docker stop otelcol-test
+        docker rm otelcol-test

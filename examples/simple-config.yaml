@@ -1,0 +1,60 @@
+# Simple OpenTelemetry Collector Configuration with Profile to Metrics Connector
+# This is a minimal configuration for testing and development
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+
+connectors:
+  profiletometrics:
+    metrics:
+      enable_cpu_time: true
+      enable_memory_allocation: true
+      cpu_time_metric_name: "profile_cpu_time_seconds"
+      memory_allocation_metric_name: "profile_memory_allocation_bytes"
+    
+    attribute_extraction:
+      - name: "process_name"
+        source: "process.name"
+        extraction_method: "literal"
+        value: ""
+      - name: "service_name"
+        source: "service.name"
+        extraction_method: "literal"
+        value: ""
+    
+    process_filter:
+      enable_per_process: true
+      process_name_pattern: ".*"
+    
+    thread_filter:
+      enabled: false
+
+exporters:
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "profile_metrics"
+  
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    profiles:
+      receivers: [otlp]
+      processors: [batch]
+      connectors: [profiletometrics]
+    
+    metrics:
+      receivers: [profiletometrics]
+      processors: [batch]
+      exporters: [prometheus, debug]

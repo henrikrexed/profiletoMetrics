@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: otel-collector
+  labels:
+    app.kubernetes.io/name: otel-collector
+    app.kubernetes.io/component: collector
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+    processors:
+      batch:
+        timeout: 1s
+        send_batch_size: 1024
+      
+      # Resource processor to add Kubernetes attributes
+      resource:
+        attributes:
+          - key: k8s.cluster.name
+            value: "profile-metrics-cluster"
+            action: upsert
+          - key: k8s.namespace.name
+            from_attribute: k8s.namespace.name
+            action: upsert
+          - key: k8s.pod.name
+            from_attribute: k8s.pod.name
+            action: upsert
+      
+      # Kubernetes attributes processor
+      k8sattributes:
+        auth_type: serviceAccount
+        passthrough: false
+        filter:
+          node_from_env_var: KUBE_NODE_NAME
+        extract:
+          metadata:
+            - k8s.pod.name
+            - k8s.pod.uid
+            - k8s.namespace.name
+            - k8s.node.name
+        pod_association:
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.uid
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.name
+              - from: resource_attribute
+                name: k8s.namespace.name
+
+    connectors:
+      profiletometrics:
+        metrics:
+          cpu:
+            enabled: true
+            name: "profile_cpu_time_seconds"
+            unit: "seconds"
+          memory:
+            enabled: true
+            name: "profile_memory_allocation_bytes"
+            unit: "bytes"
+        
+        attributes:
+          - name: "service_name"
+            value: "profile-metrics-service"
+            type: "literal"
+          - name: "environment"
+            value: "production"
+            type: "literal"
+        
+        process_filter:
+          enabled: true
+          pattern: ".*"
+        
+        pattern_filter:
+          enabled: false
+          pattern: ""
+        
+        thread_filter:
+          enabled: false
+          pattern: ""
+
+    exporters:
+      # Debug exporter for troubleshooting
+      debug:
+        verbosity: detailed
+        sampling_initial: 5
+        sampling_thereafter: 200
+      
+      # OTLP exporter for sending to external systems
+      otlp:
+        endpoint: http://jaeger-collector:14250
+        tls:
+          insecure: true
+
+    service:
+      telemetry:
+        logs:
+          level: info
+          development: false
+      
+      pipelines:
+        # Traces pipeline
+        traces:
+          receivers: [otlp]
+          processors: [batch, resource, k8sattributes]
+          connectors: [profiletometrics]
+        
+        # Logs pipeline  
+        logs:
+          receivers: [otlp]
+          processors: [batch, resource, k8sattributes]
+          connectors: [profiletometrics]
+        
+        # Metrics pipeline
+        metrics:
+          receivers: [otlp]
+          processors: [batch, resource, k8sattributes]
+          connectors: [profiletometrics]
+        
+        # Output pipeline for generated metrics
+        metrics_output:
+          receivers: [profiletometrics]
+          processors: [batch]
+          exporters: [debug, otlp]
