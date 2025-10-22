@@ -175,6 +175,120 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 	}
 }
 
+func TestConverter_extractFromStringTable(t *testing.T) {
+	config := &ConverterConfig{
+		Attributes: []AttributeConfig{
+			{
+				Name:  "test_attr",
+				Value: "test_value",
+			},
+		},
+	}
+	converter, err := NewConverter(config)
+	require.NoError(t, err)
+	profile := pprofile.NewProfile()
+
+	// Test with a simple attribute config
+	attr := AttributeConfig{
+		Name:  "test_key",
+		Value: "test_value",
+	}
+
+	result := converter.extractFromStringTable(profile, attr)
+	assert.Equal(t, "test_value", result)
+}
+
+func TestConverter_matchesPatternFilter(t *testing.T) {
+	tests := []struct {
+		name           string
+		config         ConverterConfig
+		attributes     map[string]string
+		expectedResult bool
+	}{
+		{
+			name: "Pattern filter disabled",
+			config: ConverterConfig{
+				PatternFilter: PatternFilterConfig{
+					Enabled: false,
+				},
+			},
+			attributes:     map[string]string{"test": "value"},
+			expectedResult: true,
+		},
+		{
+			name: "Pattern filter enabled",
+			config: ConverterConfig{
+				PatternFilter: PatternFilterConfig{
+					Enabled: true,
+					Pattern: "test.*",
+				},
+			},
+			attributes:     map[string]string{"test": "value"},
+			expectedResult: true, // Current implementation always returns true
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			converter, err := NewConverter(&tt.config)
+			require.NoError(t, err)
+			result := converter.matchesPatternFilter(tt.attributes)
+			assert.Equal(t, tt.expectedResult, result)
+		})
+	}
+}
+
+func TestConverter_matchesProcessFilter(t *testing.T) {
+	tests := []struct {
+		name           string
+		config         ConverterConfig
+		attributes     map[string]string
+		expectedResult bool
+	}{
+		{
+			name: "Process filter disabled",
+			config: ConverterConfig{
+				ProcessFilter: ProcessFilterConfig{
+					Enabled: false,
+				},
+			},
+			attributes:     map[string]string{"test": "value"},
+			expectedResult: true,
+		},
+		{
+			name: "Process filter enabled with process_name",
+			config: ConverterConfig{
+				ProcessFilter: ProcessFilterConfig{
+					Enabled: true,
+					Pattern: "test.*",
+				},
+			},
+			attributes:     map[string]string{"process_name": "test_process"},
+			expectedResult: true, // Current implementation always returns true
+		},
+		{
+			name: "Process filter enabled without process_name",
+			config: ConverterConfig{
+				ProcessFilter: ProcessFilterConfig{
+					Enabled: true,
+					Pattern: "test.*",
+				},
+			},
+			attributes:     map[string]string{"other": "value"},
+			expectedResult: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			converter, err := NewConverter(&tt.config)
+			require.NoError(t, err)
+			result := converter.matchesProcessFilter(tt.attributes)
+			assert.Equal(t, tt.expectedResult, result)
+		})
+	}
+}
+
 func TestConverter_CalculateCPUTime(t *testing.T) {
 	config := &ConverterConfig{
 		Metrics: MetricsConfig{
