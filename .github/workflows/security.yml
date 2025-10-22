@@ -24,12 +24,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       with:
         fetch-depth: 0
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v5.1.0
       with:
         go-version: '1.24'
 
@@ -39,7 +39,7 @@ jobs:
         govulncheck ./...
 
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.32.1
       with:
         scan-type: 'fs'
         scan-ref: '.'
@@ -47,7 +47,7 @@ jobs:
         output: 'trivy-results.sarif'
 
     - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v3.1.0
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
@@ -63,25 +63,25 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       with:
         fetch-depth: 0
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v3.1.0
       with:
         languages: ${{ matrix.language }}
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v5.1.0
       with:
         go-version: '1.24'
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v3.1.0
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v3.1.0
 
   # OSS Scorecard
   oss-scorecard:
@@ -90,7 +90,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       with:
         fetch-depth: 0
 
@@ -103,7 +103,7 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload OSS Scorecard results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v3.1.0
       if: always()
       with:
         sarif_file: results.sarif
@@ -115,7 +115,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
     - name: Check for security-related files
       run: |
@@ -149,12 +149,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       with:
         fetch-depth: 0
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v5.1.0
       with:
         go-version: '1.24'
 
@@ -174,7 +174,7 @@ jobs:
         syft packages . -o spdx-json=security-sbom.spdx.json --file=security-sbom.spdx.json
 
     - name: Upload Security SBOM artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.1.0
       with:
         name: security-sbom-${{ github.sha }}
         path: |
@@ -189,7 +189,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
     - name: Check for license file
       run: |

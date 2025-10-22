@@ -49,7 +49,7 @@ jobs:
       run: |
         # Build the collector using OCB
         cd ocb
-        go run github.com/open-telemetry/opentelemetry-collector/cmd/builder@v0.137.0 --config=manifest.yaml
+        go run go.opentelemetry.io/collector/cmd/builder@v0.137.0 --config=manifest.yaml
         cp dist/otelcol-profiletometrics_linux_amd64/otelcol-profiletometrics ../otelcol-profiletometrics
 
     - name: Test configuration ${{ matrix.config }}
@@ -93,7 +93,7 @@ jobs:
       run: |
         # Build the collector using OCB
         cd ocb
-        go run github.com/open-telemetry/opentelemetry-collector/cmd/builder@v0.137.0 --config=manifest.yaml
+        go run go.opentelemetry.io/collector/cmd/builder@v0.137.0 --config=manifest.yaml
         cp dist/otelcol-profiletometrics_linux_amd64/otelcol-profiletometrics ../otelcol-profiletometrics
 
     - name: Start collector with debug config

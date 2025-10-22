@@ -164,17 +164,23 @@ jobs:
 
     - name: Install SBOM validation tools
       run: |
-        # Install SPDX tools for validation
-        go install github.com/spdx/tools-golang@latest
-        
-        # Install CycloneDX tools
+        # Install CycloneDX tools for validation
         curl -sSfL https://raw.githubusercontent.com/CycloneDX/cyclonedx-cli/main/install.sh | sh -s -- -b /usr/local/bin
+        
+        # Install Syft for additional validation
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 
     - name: Validate SPDX SBOM
       run: |
         echo "Validating SPDX SBOM files..."
         if [ -f "go-sbom.spdx.json" ]; then
           echo "✓ Go SPDX SBOM found"
+          # Basic validation - check if file is valid JSON
+          if jq empty go-sbom.spdx.json 2>/dev/null; then
+            echo "✓ Go SPDX SBOM is valid JSON"
+          else
+            echo "✗ Go SPDX SBOM is not valid JSON"
+          fi
         else
           echo "✗ Go SPDX SBOM not found"
           exit 1
@@ -182,6 +188,12 @@ jobs:
         
         if [ -f "docker-sbom.spdx.json" ]; then
           echo "✓ Docker SPDX SBOM found"
+          # Basic validation - check if file is valid JSON
+          if jq empty docker-sbom.spdx.json 2>/dev/null; then
+            echo "✓ Docker SPDX SBOM is valid JSON"
+          else
+            echo "✗ Docker SPDX SBOM is not valid JSON"
+          fi
         else
           echo "✗ Docker SPDX SBOM not found"
           exit 1
@@ -192,6 +204,12 @@ jobs:
         echo "Validating CycloneDX SBOM files..."
         if [ -f "go-sbom.cyclonedx.json" ]; then
           echo "✓ Go CycloneDX SBOM found"
+          # Basic validation - check if file is valid JSON
+          if jq empty go-sbom.cyclonedx.json 2>/dev/null; then
+            echo "✓ Go CycloneDX SBOM is valid JSON"
+          else
+            echo "✗ Go CycloneDX SBOM is not valid JSON"
+          fi
         else
           echo "✗ Go CycloneDX SBOM not found"
           exit 1
@@ -199,6 +217,12 @@ jobs:
         
         if [ -f "docker-sbom.cyclonedx.json" ]; then
           echo "✓ Docker CycloneDX SBOM found"
+          # Basic validation - check if file is valid JSON
+          if jq empty docker-sbom.cyclonedx.json 2>/dev/null; then
+            echo "✓ Docker CycloneDX SBOM is valid JSON"
+          else
+            echo "✗ Docker CycloneDX SBOM is not valid JSON"
+          fi
         else
           echo "✗ Docker CycloneDX SBOM not found"
           exit 1
