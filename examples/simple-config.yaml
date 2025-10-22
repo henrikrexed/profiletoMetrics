@@ -17,39 +17,40 @@ processors:
 connectors:
   profiletometrics:
     metrics:
-      enable_cpu_time: true
-      enable_memory_allocation: true
-      cpu_time_metric_name: "profile_cpu_time_seconds"
-      memory_allocation_metric_name: "profile_memory_allocation_bytes"
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "profile_memory_allocation_bytes"
+        unit: "bytes"
     
-    attribute_extraction:
+    attributes:
       - name: "process_name"
-        source: "process.name"
-        extraction_method: "literal"
-        value: ""
+        value: "test_process"
+        type: "literal"
       - name: "service_name"
-        source: "service.name"
-        extraction_method: "literal"
-        value: ""
+        value: "test_service"
+        type: "literal"
     
     process_filter:
-      enable_per_process: true
-      process_name_pattern: ".*"
+      enabled: true
+      pattern: ".*"
     
     thread_filter:
       enabled: false
+      pattern: ""
 
 exporters:
-  prometheus:
-    endpoint: "0.0.0.0:8889"
-    namespace: "profile_metrics"
-  
   debug:
     verbosity: detailed
+  otlp:
+    endpoint: "http://localhost:4317"
 
 service:
   pipelines:
-    profiles:
+    traces:
       receivers: [otlp]
       processors: [batch]
       connectors: [profiletometrics]
@@ -57,4 +58,4 @@ service:
     metrics:
       receivers: [profiletometrics]
       processors: [batch]
-      exporters: [prometheus, debug]
+      exporters: [debug, otlp]

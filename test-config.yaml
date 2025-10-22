@@ -1,0 +1,36 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "profile_memory_allocation_bytes"
+        unit: "bytes"
+    
+    attributes:
+      - name: "process_name"
+        value: "test_process"
+        type: "literal"
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    profiles:
+      receivers: [otlp]
+      exporters: [profiletometrics]
+    
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug]
