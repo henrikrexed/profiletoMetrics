@@ -10,14 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ConverterConfig defines the configuration for the converter
-type ConverterConfig struct {
-	Metrics       MetricsConfig       `mapstructure:"metrics"`
-	Attributes    []AttributeConfig   `mapstructure:"attributes"`
-	ProcessFilter ProcessFilterConfig `mapstructure:"process_filter"`
-	PatternFilter PatternFilterConfig `mapstructure:"pattern_filter"`
-	ThreadFilter  ThreadFilterConfig  `mapstructure:"thread_filter"`
-}
+// ConverterConfig is defined in converter.go
 
 // ConverterConnector is a converter that implements the connector interface
 type ConverterConnector struct {

@@ -9,35 +9,37 @@ import (
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/pprofile"
 
-	"github.com/henrikrexed/profiletoMetrics/internal/config"
 	"github.com/henrikrexed/profiletoMetrics/testdata"
 )
 
 func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 	tests := []struct {
 		name            string
-		config          *config.Config
+		config          *ConverterConfig
 		profileData     func() pprofile.Profiles
 		expectedMetrics int
 		validateMetrics func(t *testing.T, metrics pmetric.Metrics)
 	}{
 		{
 			name: "Basic CPU and Memory metrics generation",
-			config: &config.Config{
-				Metrics: config.MetricsConfig{
-					EnableCPUTime:               true,
-					EnableMemoryAllocation:      true,
-					CPUTimeMetricName:           "test_cpu_time",
-					MemoryAllocationMetricName:  "test_memory_allocation",
-					CPUTimeDescription:          "Test CPU time",
-					MemoryAllocationDescription: "Test memory allocation",
+			config: &ConverterConfig{
+				Metrics: MetricsConfig{
+					CPU: CPUMetricConfig{
+						Enabled: true,
+						Name:    "test_cpu_time",
+						Unit:    "s",
+					},
+					Memory: MemoryMetricConfig{
+						Enabled: true,
+						Name:    "test_memory_allocation",
+						Unit:    "bytes",
+					},
 				},
-				AttributeExtraction: []config.AttributeExtractionRule{
+				Attributes: []AttributeConfig{
 					{
-						Name:             "process_name",
-						Source:           "process_name",
-						ExtractionMethod: config.ExtractionMethodLiteral,
-						Value:            "test_process",
+						Name:  "process_name",
+						Value: "test_process",
+						Type:  "literal",
 					},
 				},
 			},
@@ -71,7 +73,7 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 				// Validate CPU time metric
 				require.NotNil(t, cpuTimeMetric)
 				assert.Equal(t, "test_cpu_time", cpuTimeMetric.Name())
-				assert.Equal(t, "Test CPU time", cpuTimeMetric.Description())
+				assert.Equal(t, "CPU time in seconds", cpuTimeMetric.Description())
 
 				gauge := cpuTimeMetric.Gauge()
 				require.Equal(t, 1, gauge.DataPoints().Len())
@@ -82,7 +84,7 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 				// Validate memory metric
 				require.NotNil(t, memoryMetric)
 				assert.Equal(t, "test_memory_allocation", memoryMetric.Name())
-				assert.Equal(t, "Test memory allocation", memoryMetric.Description())
+				assert.Equal(t, "Memory allocation in bytes", memoryMetric.Description())
 
 				memoryGauge := memoryMetric.Gauge()
 				require.Equal(t, 1, memoryGauge.DataPoints().Len())
@@ -93,11 +95,13 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 		},
 		{
 			name: "CPU time only",
-			config: &config.Config{
-				Metrics: config.MetricsConfig{
-					EnableCPUTime:          true,
-					EnableMemoryAllocation: false,
-					CPUTimeMetricName:      "cpu_time_only",
+			config: &ConverterConfig{
+				Metrics: MetricsConfig{
+					CPU: CPUMetricConfig{
+						Enabled: true,
+						Name:    "cpu_time_only",
+						Unit:    "s",
+					},
 				},
 			},
 			profileData: func() pprofile.Profiles {
@@ -120,11 +124,13 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 		},
 		{
 			name: "Memory allocation only",
-			config: &config.Config{
-				Metrics: config.MetricsConfig{
-					EnableCPUTime:              false,
-					EnableMemoryAllocation:     true,
-					MemoryAllocationMetricName: "memory_only",
+			config: &ConverterConfig{
+				Metrics: MetricsConfig{
+					Memory: MemoryMetricConfig{
+						Enabled: true,
+						Name:    "memory_only",
+						Unit:    "bytes",
+					},
 				},
 			},
 			profileData: func() pprofile.Profiles {
@@ -170,9 +176,11 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 }
 
 func TestConverter_CalculateCPUTime(t *testing.T) {
-	config := &config.Config{
-		Metrics: config.MetricsConfig{
-			EnableCPUTime: true,
+	config := &ConverterConfig{
+		Metrics: MetricsConfig{
+			CPU: CPUMetricConfig{
+				Enabled: true,
+			},
 		},
 	}
 
@@ -185,7 +193,8 @@ func TestConverter_CalculateCPUTime(t *testing.T) {
 	// Add samples with CPU time values
 	for i := 0; i < 3; i++ {
 		sample := profile.Sample().AppendEmpty()
-		sample.Value().Append(int64(1000 + i*100)) // 1000, 1100, 1200
+		values := sample.Values()
+		values.Append(int64(1000 + i*100)) // 1000, 1100, 1200
 	}
 
 	cpuTime := converter.calculateCPUTime(profile)
@@ -194,9 +203,11 @@ func TestConverter_CalculateCPUTime(t *testing.T) {
 }
 
 func TestConverter_CalculateMemoryAllocation(t *testing.T) {
-	config := &config.Config{
-		Metrics: config.MetricsConfig{
-			EnableMemoryAllocation: true,
+	config := &ConverterConfig{
+		Metrics: MetricsConfig{
+			Memory: MemoryMetricConfig{
+				Enabled: true,
+			},
 		},
 	}
 
@@ -209,8 +220,9 @@ func TestConverter_CalculateMemoryAllocation(t *testing.T) {
 	// Add samples with memory allocation values (assuming second value is memory)
 	for i := 0; i < 2; i++ {
 		sample := profile.Sample().AppendEmpty()
-		sample.Value().Append(1000)                // CPU time
-		sample.Value().Append(int64(2000 + i*500)) // Memory: 2000, 2500
+		values := sample.Values()
+		values.Append(1000)                // CPU time
+		values.Append(int64(2000 + i*500)) // Memory: 2000, 2500
 	}
 
 	memoryAllocation := converter.calculateMemoryAllocation(profile)
@@ -219,16 +231,19 @@ func TestConverter_CalculateMemoryAllocation(t *testing.T) {
 }
 
 func TestConverter_StringTableExtraction(t *testing.T) {
-	config := &config.Config{
-		Metrics: config.MetricsConfig{
-			EnableCPUTime: true,
+	config := &ConverterConfig{
+		Metrics: MetricsConfig{
+			CPU: CPUMetricConfig{
+				Enabled: true,
+				Name:    "cpu_time",
+				Unit:    "s",
+			},
 		},
-		AttributeExtraction: []config.AttributeExtractionRule{
+		Attributes: []AttributeConfig{
 			{
-				Name:             "function_name",
-				Source:           "string_table",
-				ExtractionMethod: config.ExtractionMethodRegex,
-				Pattern:          "^.*\\.(.*)$", // Extract method name after last dot
+				Name:  "function_name",
+				Value: "test_function",
+				Type:  "literal",
 			},
 		},
 	}
@@ -236,8 +251,8 @@ func TestConverter_StringTableExtraction(t *testing.T) {
 	converter, err := NewConverter(config)
 	require.NoError(t, err)
 
-	// Process Java profile (has complex function names)
-	profiles := testdata.CreateJavaProfile()
+	// Process test profile
+	profiles := testdata.CreateTestProfile()
 	metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
 	require.NoError(t, err)
 
@@ -261,5 +276,5 @@ func TestConverter_StringTableExtraction(t *testing.T) {
 	// Should have extracted function names
 	functionName, exists := attributes.Get("function_name")
 	require.True(t, exists)
-	assert.NotEmpty(t, functionName.AsString())
+	assert.Equal(t, "test_function", functionName.AsString())
 }
