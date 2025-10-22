@@ -4,11 +4,16 @@
 [![Security](https://github.com/henrikrexed/profiletoMetrics/workflows/Security%20Scan/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/security.yml)
 [![Docker](https://github.com/henrikrexed/profiletoMetrics/workflows/Docker%20Build%20and%20Push/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/docker.yml)
 [![OSS Scorecard](https://github.com/henrikrexed/profiletoMetrics/workflows/OSS%20Scorecard/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/oss-scorecard.yml)
+[![Documentation](https://img.shields.io/badge/Documentation-Online-blue.svg)](https://henrikrexed.github.io/profiletoMetrics/)
 [![Go Version](https://img.shields.io/badge/Go-1.23+-blue.svg)](https://golang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Collector-orange.svg)](https://opentelemetry.io/)
 
 A powerful OpenTelemetry connector that converts profiling data into metrics, enabling you to extract valuable insights from application performance profiles.
+
+## 📚 Documentation
+
+**📖 [Complete Documentation](https://henrikrexed.github.io/profiletoMetrics/)** - Comprehensive guides, API reference, and deployment instructions.
 
 ## 🎯 Overview
 
