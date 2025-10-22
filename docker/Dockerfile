@@ -20,7 +20,7 @@ RUN go mod download
 RUN go install go.opentelemetry.io/collector/cmd/builder@v0.137.0
 RUN mv $(go env GOPATH)/bin/builder $(go env GOPATH)/bin/ocb
 
-# Run OCB with the new manifest
+# Run OCB with the manifest
 RUN ocb --config ocb/manifest.yaml
 
 # Runtime stage
