@@ -98,7 +98,8 @@ jobs:
 
     - name: Check documentation
       run: |
-        go doc -all ./... > /dev/null
+        go doc -all ./pkg/... > /dev/null
+        go doc -all ./connector/... > /dev/null
         echo "Documentation check passed"
 
     - name: Check for TODO/FIXME comments

@@ -383,12 +383,15 @@ jobs:
 
     - name: Check documentation
       run: |
-        go doc -all ./... > /dev/null
+        go doc -all ./pkg/... > /dev/null
+        go doc -all ./connector/... > /dev/null
         echo "Documentation check passed"
 
     - name: Generate documentation
       run: |
-        go doc -all ./... > docs/api.md
+        mkdir -p docs/api
+        go doc -all ./pkg/... > docs/api/pkg.md
+        go doc -all ./connector/... > docs/api/connector.md
         echo "API documentation generated"
 
     - name: Upload documentation
