@@ -223,7 +223,7 @@ func (c *Converter) calculateCPUTime(profile pprofile.Profile) float64 {
 		sample := profile.Sample().At(i)
 
 		// Look for CPU time in sample values
-		values := sample.Value()
+		values := sample.Values()
 		for j := 0; j < values.Len(); j++ {
 			value := values.At(j)
 			// Assuming CPU time is the first value or has a specific type
@@ -245,7 +245,7 @@ func (c *Converter) calculateMemoryAllocation(profile pprofile.Profile) float64 
 
 		// Look for memory allocation in sample values
 		// This would need to be adjusted based on actual profile data structure
-		values := sample.Value()
+		values := sample.Values()
 		for j := 0; j < values.Len(); j++ {
 			value := values.At(j)
 			// Assuming memory allocation is the second value or has a specific type

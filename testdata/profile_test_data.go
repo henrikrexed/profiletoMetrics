@@ -29,7 +29,7 @@ func CreateTestProfile() pprofile.Profiles {
 		sample := profile.Sample().AppendEmpty()
 
 		// Add values to the sample
-		values := sample.Value()
+		values := sample.Values()
 		values.Append(int64(1000000 + i*100000)) // CPU time in nanoseconds
 		values.Append(int64(1024 + i*512))       // Memory allocation in bytes
 	}
