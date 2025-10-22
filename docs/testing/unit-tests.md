@@ -458,7 +458,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: '1.23'
+          go-version: '1.24'
       - name: Run tests
         run: make test
       - name: Run tests with coverage

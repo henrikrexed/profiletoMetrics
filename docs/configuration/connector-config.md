@@ -2,6 +2,20 @@
 
 The ProfileToMetrics connector supports comprehensive configuration options for metrics generation, attribute extraction, and filtering.
 
+## Feature Gates
+
+**⚠️ Important**: The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled:
+
+```bash
+# Command line
+otelcol --feature-gates=+service.profilesSupport
+
+# Docker
+docker run --feature-gates=+service.profilesSupport otelcol
+
+# Kubernetes (see deployment section)
+```
+
 ## Basic Configuration
 
 ```yaml

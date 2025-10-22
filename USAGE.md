@@ -15,56 +15,53 @@ This guide provides comprehensive instructions on how to use the OpenTelemetry P
 
 ### 1. Basic Setup
 
-```go
-package main
+Create a `config.yaml` file with the ProfileToMetrics connector:
 
-import (
-    "context"
-    "log"
-    "example.com/profiletoMetrics/pkg/profiletometrics"
-    "go.opentelemetry.io/collector/pdata/pprofile"
-)
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
 
-func main() {
-    // Create configuration
-    config := profiletometrics.Config{
-        Metrics: profiletometrics.MetricsConfig{
-            CPUTime: profiletometrics.MetricConfig{
-                Enabled:     true,
-                Name:        "cpu_time_seconds",
-                Description: "CPU time spent in seconds",
-            },
-            MemoryAllocation: profiletometrics.MetricConfig{
-                Enabled:     true,
-                Name:        "memory_allocation_bytes",
-                Description: "Memory allocated in bytes",
-            },
-        },
-    }
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "memory_allocation_bytes"
+        unit: "bytes"
     
-    // Create converter
-    converter := profiletometrics.NewConverter(config)
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    profiles:
+      receivers: [otlp]
+      exporters: [profiletometrics]
     
-    // Your profiling data
-    profiles := pprofile.NewProfiles()
-    // ... populate with your profile data
-    
-    // Convert to metrics
-    metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    // Use the metrics
-    // ... export or process metrics
-}
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug]
 ```
 
 ### 2. Docker Usage
 
 ```bash
-# Run the collector
+# Run the collector with profiles feature gate enabled
 docker run -p 4317:4317 -p 8888:8888 \
+  --feature-gates=+service.profilesSupport \
   hrexed/otel-collector-profilemetrics:0.1.0
 
 # Send profile data
@@ -73,419 +70,389 @@ curl -X POST http://localhost:4317/v1/profiles \
   --data-binary @profile.pb
 ```
 
+**⚠️ Important**: The `+service.profilesSupport` feature gate must be enabled to use the profiles pipeline.
+
 ## ⚙️ Configuration Guide
+
+### Feature Gates
+
+The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled:
+
+```bash
+# Command line
+otelcol --feature-gates=+service.profilesSupport
+
+# Docker
+docker run --feature-gates=+service.profilesSupport otelcol
+
+# Kubernetes (see deployment section)
+```
 
 ### Core Configuration Structure
 
-```go
-type Config struct {
-    Metrics            MetricsConfig            `mapstructure:"metrics"`
-    AttributeExtraction AttributeExtractionConfig `mapstructure:"attribute_extraction"`
-    ProcessFilter       ProcessFilterConfig       `mapstructure:"process_filter"`
-    ThreadFilter       ThreadFilterConfig         `mapstructure:"thread_filter"`
-    PatternFilter       PatternFilterConfig       `mapstructure:"pattern_filter"`
-}
+The ProfileToMetrics connector supports comprehensive configuration through YAML:
+
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "memory_allocation_bytes"
+        unit: "bytes"
+    
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
+    
+    process_filter:
+      enabled: true
+      pattern: "my-app.*"
+    
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
 ```
 
 ### Metrics Configuration
 
 #### CPU Time Metrics
 
-```go
-CPUTime: profiletometrics.MetricConfig{
-    Enabled:     true,
-    Name:        "cpu_time_seconds",
-    Description: "CPU time spent in seconds",
-}
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "cpu_time_seconds"
+        unit: "s"
 ```
 
 #### Memory Allocation Metrics
 
-```go
-MemoryAllocation: profiletometrics.MetricConfig{
-    Enabled:     true,
-    Name:        "memory_allocation_bytes",
-    Description: "Memory allocated in bytes",
-}
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      memory:
+        enabled: true
+        name: "memory_allocation_bytes"
+        unit: "bytes"
 ```
 
 ### Attribute Extraction
 
-#### String Table Index Extraction
+#### Literal Value Extraction
 
-```go
-AttributeExtraction: profiletometrics.AttributeExtractionConfig{
-    Rules: []profiletometrics.AttributeRule{
-        {
-            Name:             "service_name",
-            Source:           "string_table",
-            StringTableIndex: 0,
-        },
-        {
-            Name:             "pod_name",
-            Source:           "string_table", 
-            StringTableIndex: 1,
-        },
-    },
-}
+```yaml
+connectors:
+  profiletometrics:
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
+      - name: "environment"
+        value: "production"
+        type: "literal"
 ```
 
 #### Regular Expression Extraction
 
-```go
-AttributeExtraction: profiletometrics.AttributeExtractionConfig{
-    Rules: []profiletometrics.AttributeRule{
-        {
-            Name:             "extracted_value",
-            Source:           "regex",
-            Pattern:          "service-(.*)-v\\d+",
-            StringTableIndex: 2,
-        },
-    },
-}
-```
-
-#### Literal Value Extraction
-
-```go
-AttributeExtraction: profiletometrics.AttributeExtractionConfig{
-    Rules: []profiletometrics.AttributeRule{
-        {
-            Name:   "environment",
-            Source: "literal",
-            Value:  "production",
-        },
-    },
-}
+```yaml
+connectors:
+  profiletometrics:
+    attributes:
+      - name: "pod_name"
+        value: "pod-(.*)"
+        type: "regex"
+      - name: "version"
+        value: "v(\\d+\\.\\d+\\.\\d+)"
+        type: "regex"
 ```
 
 ### Filtering Configuration
 
 #### Process Filtering
 
-```go
-ProcessFilter: profiletometrics.ProcessFilterConfig{
-    Enabled:             true,
-    ProcessNamePattern:  "my-app-.*",
-    CompiledProcessRegex: regexp.MustCompile("my-app-.*"),
-}
+```yaml
+connectors:
+  profiletometrics:
+    process_filter:
+      enabled: true
+      pattern: "my-app-.*"
 ```
 
 #### Thread Filtering
 
-```go
-ThreadFilter: profiletometrics.ThreadFilterConfig{
-    Enabled:              true,
-    ThreadNamePattern:    "worker-.*",
-    ProcessNamePattern:   "app-.*",
-    CompiledThreadRegex:   regexp.MustCompile("worker-.*"),
-    CompiledProcessRegex: regexp.MustCompile("app-.*"),
-}
+```yaml
+connectors:
+  profiletometrics:
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
 ```
 
-#### Pattern Filtering
+#### Complete Filtering Example
 
-```go
-PatternFilter: profiletometrics.PatternFilterConfig{
-    Enabled: true,
-    AttributePatterns: []string{
-        "service.name=my-service",
-        "k8s.pod.name=pod-.*",
-        "environment=production",
-    },
-    CompiledAttributePatterns: []*regexp.Regexp{
-        regexp.MustCompile("service.name=my-service"),
-        regexp.MustCompile("k8s.pod.name=pod-.*"),
-        regexp.MustCompile("environment=production"),
-    },
-}
+```yaml
+connectors:
+  profiletometrics:
+    process_filter:
+      enabled: true
+      pattern: "my-app-.*"
+    
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
 ```
 
 ## 📖 Usage Examples
 
 ### Example 1: Basic CPU and Memory Metrics
 
-```go
-package main
-
-import (
-    "context"
-    "log"
-    "example.com/profiletoMetrics/pkg/profiletometrics"
-    "go.opentelemetry.io/collector/pdata/pprofile"
-)
-
-func main() {
-    config := profiletometrics.Config{
-        Metrics: profiletometrics.MetricsConfig{
-            CPUTime: profiletometrics.MetricConfig{
-                Enabled:     true,
-                Name:        "cpu_time_seconds",
-                Description: "CPU time spent in seconds",
-            },
-            MemoryAllocation: profiletometrics.MetricConfig{
-                Enabled:     true,
-                Name:        "memory_allocation_bytes",
-                Description: "Memory allocated in bytes",
-            },
-        },
-    }
-    
-    converter := profiletometrics.NewConverter(config)
-    
-    // Create test profile data
-    profiles := createTestProfiles()
-    
-    // Convert to metrics
-    metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    // Process metrics
-    resourceMetrics := metrics.ResourceMetrics()
-    for i := 0; i < resourceMetrics.Len(); i++ {
-        resourceMetric := resourceMetrics.At(i)
-        scopeMetrics := resourceMetric.ScopeMetrics()
-        
-        for j := 0; j < scopeMetrics.Len(); j++ {
-            scopeMetric := scopeMetrics.At(j)
-            metricSlice := scopeMetric.Metrics()
-            
-            for k := 0; k < metricSlice.Len(); k++ {
-                metric := metricSlice.At(k)
-                log.Printf("Metric: %s", metric.Name())
-            }
-        }
-    }
-}
-
-func createTestProfiles() pprofile.Profiles {
-    // Implementation to create test profile data
-    // ... (see testdata/profile_test_data.go for examples)
-    return pprofile.NewProfiles()
-}
-```
-
-### Example 2: Advanced Filtering
-
-```go
-package main
-
-import (
-    "context"
-    "log"
-    "regexp"
-    "example.com/profiletoMetrics/pkg/profiletometrics"
-    "go.opentelemetry.io/collector/pdata/pprofile"
-)
-
-func main() {
-    config := profiletometrics.Config{
-        Metrics: profiletometrics.MetricsConfig{
-            CPUTime: profiletometrics.MetricConfig{
-                Enabled:     true,
-                Name:        "cpu_time_seconds",
-                Description: "CPU time spent in seconds",
-            },
-        },
-        
-        // Filter by process name
-        ProcessFilter: profiletometrics.ProcessFilterConfig{
-            Enabled:             true,
-            ProcessNamePattern:  "my-service-.*",
-            CompiledProcessRegex: regexp.MustCompile("my-service-.*"),
-        },
-        
-        // Filter by thread name
-        ThreadFilter: profiletometrics.ThreadFilterConfig{
-            Enabled:              true,
-            ThreadNamePattern:    "worker-.*",
-            ProcessNamePattern:   "my-service-.*",
-            CompiledThreadRegex:   regexp.MustCompile("worker-.*"),
-            CompiledProcessRegex: regexp.MustCompile("my-service-.*"),
-        },
-        
-        // Filter by attribute patterns
-        PatternFilter: profiletometrics.PatternFilterConfig{
-            Enabled: true,
-            AttributePatterns: []string{
-                "service.name=my-service",
-                "environment=production",
-            },
-            CompiledAttributePatterns: []*regexp.Regexp{
-                regexp.MustCompile("service.name=my-service"),
-                regexp.MustCompile("environment=production"),
-            },
-        },
-    }
-    
-    converter := profiletometrics.NewConverter(config)
-    
-    // Your profile data
-    profiles := loadProfiles()
-    
-    // Convert with filtering
-    metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    log.Printf("Generated %d resource metrics", metrics.ResourceMetrics().Len())
-}
-
-func loadProfiles() pprofile.Profiles {
-    // Load your profile data from file, API, etc.
-    // ... implementation
-    return pprofile.NewProfiles()
-}
-```
-
-### Example 3: Attribute Extraction
-
-```go
-package main
-
-import (
-    "context"
-    "log"
-    "example.com/profiletoMetrics/pkg/profiletometrics"
-    "go.opentelemetry.io/collector/pdata/pprofile"
-)
-
-func main() {
-    config := profiletometrics.Config{
-        Metrics: profiletometrics.MetricsConfig{
-            CPUTime: profiletometrics.MetricConfig{
-                Enabled:     true,
-                Name:        "cpu_time_seconds",
-                Description: "CPU time spent in seconds",
-            },
-        },
-        
-        // Extract attributes from string table
-        AttributeExtraction: profiletometrics.AttributeExtractionConfig{
-            Rules: []profiletometrics.AttributeRule{
-                {
-                    Name:             "service_name",
-                    Source:           "string_table",
-                    StringTableIndex: 0,
-                },
-                {
-                    Name:             "pod_name",
-                    Source:           "string_table",
-                    StringTableIndex: 1,
-                },
-                {
-                    Name:             "version",
-                    Source:           "regex",
-                    Pattern:          "v(\\d+\\.\\d+\\.\\d+)",
-                    StringTableIndex: 2,
-                },
-                {
-                    Name:   "environment",
-                    Source: "literal",
-                    Value:  "production",
-                },
-            },
-        },
-    }
-    
-    converter := profiletometrics.NewConverter(config)
-    
-    // Your profile data
-    profiles := loadProfiles()
-    
-    // Convert with attribute extraction
-    metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    // Process metrics with extracted attributes
-    processMetrics(metrics)
-}
-
-func processMetrics(metrics pmetric.Metrics) {
-    resourceMetrics := metrics.ResourceMetrics()
-    for i := 0; i < resourceMetrics.Len(); i++ {
-        resourceMetric := resourceMetrics.At(i)
-        
-        // Access resource attributes
-        attributes := resourceMetric.Resource().Attributes()
-        serviceName, _ := attributes.Get("service_name")
-        podName, _ := attributes.Get("pod_name")
-        
-        log.Printf("Processing metrics for service: %s, pod: %s", 
-            serviceName.AsString(), podName.AsString())
-        
-        // Process scope metrics
-        scopeMetrics := resourceMetric.ScopeMetrics()
-        for j := 0; j < scopeMetrics.Len(); j++ {
-            scopeMetric := scopeMetrics.At(j)
-            metricSlice := scopeMetric.Metrics()
-            
-            for k := 0; k < metricSlice.Len(); k++ {
-                metric := metricSlice.At(k)
-                log.Printf("Metric: %s", metric.Name())
-            }
-        }
-    }
-}
-```
-
-## 🔗 Integration Patterns
-
-### Pattern 1: Standalone Library Usage
-
-```go
-// In your application
-import "example.com/profiletoMetrics/pkg/profiletometrics"
-
-func processProfiles(profiles pprofile.Profiles) {
-    config := profiletometrics.Config{
-        // ... your configuration
-    }
-    
-    converter := profiletometrics.NewConverter(config)
-    metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
-    
-    // Export metrics to your preferred backend
-    exportMetrics(metrics)
-}
-```
-
-### Pattern 2: OpenTelemetry Collector Integration
-
 ```yaml
-# collector-config.yaml
 receivers:
   otlp:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
 
-processors:
-  batch:
-  # Your custom profile-to-metrics processor would go here
-  # (when fully integrated with the collector framework)
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "memory_allocation_bytes"
+        unit: "bytes"
+    
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
 
 exporters:
-  otlp:
-    endpoint: http://localhost:4317
   debug:
     verbosity: detailed
 
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp, debug]
+      exporters: [profiletometrics]
+    
     metrics:
+      receivers: [profiletometrics]
+      exporters: [debug]
+```
+
+### Example 2: Advanced Filtering
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "cpu_time_seconds"
+        unit: "s"
+    
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
+      - name: "environment"
+        value: "production"
+        type: "literal"
+    
+    process_filter:
+      enabled: true
+      pattern: "my-service-.*"
+    
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    profiles:
       receivers: [otlp]
+      exporters: [profiletometrics]
+    
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug]
+```
+
+### Example 3: Attribute Extraction
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "cpu_time_seconds"
+        unit: "s"
+    
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
+      - name: "pod_name"
+        value: "pod-(.*)"
+        type: "regex"
+      - name: "version"
+        value: "v(\\d+\\.\\d+\\.\\d+)"
+        type: "regex"
+      - name: "environment"
+        value: "production"
+        type: "literal"
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    profiles:
+      receivers: [otlp]
+      exporters: [profiletometrics]
+    
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug]
+```
+
+## 🔗 Integration Patterns
+
+### Pattern 1: Basic Collector Integration
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "memory_allocation_bytes"
+        unit: "bytes"
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlp:
+    endpoint: http://localhost:4317
+
+service:
+  pipelines:
+    profiles:
+      receivers: [otlp]
+      exporters: [profiletometrics]
+    
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug, otlp]
+```
+
+### Pattern 2: Production Collector Setup
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  resource:
+    attributes:
+      - key: service.name
+        value: profile-to-metrics
+        action: upsert
+
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "application_cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "application_memory_allocation_bytes"
+        unit: "bytes"
+    
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
+      - name: "environment"
+        value: "production"
+        type: "literal"
+    
+    process_filter:
+      enabled: true
+      pattern: "my-app.*"
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlp:
+    endpoint: http://observability-platform:4317
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "profile_metrics"
+
+service:
+  pipelines:
+    profiles:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [profiletometrics]
+    
+    metrics:
+      receivers: [profiletometrics]
       processors: [batch]
-      exporters: [otlp, debug]
+      exporters: [debug, otlp, prometheus]
 ```
 
 ### Pattern 3: Microservices Architecture

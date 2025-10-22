@@ -20,6 +20,10 @@ This directory contains Kubernetes manifests for deploying the OpenTelemetry Pro
 - kubectl configured
 - OpenTelemetry Collector image available
 
+### ⚠️ Important: Feature Gate Required
+
+The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled. This is already configured in the deployment manifest.
+
 ### 1. Deploy with kubectl
 
 ```bash

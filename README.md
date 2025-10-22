@@ -94,11 +94,29 @@ make install-deps
 # Build the Docker image
 make docker-build DOCKER_BINARY=podman DOCKER_PLATFORM=linux/amd64
 
-# Run the collector
-podman run -p 4317:4317 -p 8888:8888 hrexed/otel-collector-profilemetrics:0.1.0
+# Run the collector with profiles feature gate enabled
+podman run -p 4317:4317 -p 8888:8888 \
+  --feature-gates=+service.profilesSupport \
+  hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
+**⚠️ Important**: The `+service.profilesSupport` feature gate must be enabled to use the profiles pipeline.
+
 ## ⚙️ Configuration
+
+### Feature Gates
+
+The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled:
+
+```bash
+# Command line
+otelcol --feature-gates=+service.profilesSupport
+
+# Docker
+docker run --feature-gates=+service.profilesSupport otelcol
+
+# Kubernetes (see deployment section)
+```
 
 ### Core Configuration
 
@@ -432,30 +450,6 @@ pkg/profiletometrics/
 └── converter.go           # Core converter implementation
 ```
 
-### Example Test
-
-```go
-func TestConvertProfilesToMetrics(t *testing.T) {
-    // Create test profile data
-    profiles := testdata.CreateTestProfiles()
-    
-    // Create converter
-    config := profiletometrics.Config{
-        Metrics: profiletometrics.MetricsConfig{
-            CPUTime: profiletometrics.MetricConfig{
-                Enabled: true,
-                Name: "cpu_time_seconds",
-            },
-        },
-    }
-    converter := profiletometrics.NewConverter(config)
-    
-    // Convert and verify
-    metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
-    assert.NoError(t, err)
-    assert.Equal(t, 1, metrics.ResourceMetrics().Len())
-}
-```
 
 ## 🔧 Development
 

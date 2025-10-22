@@ -33,6 +33,7 @@ spec:
           command:
             - "/otelcol-profiletometrics"
             - "--config=/etc/otelcol/config.yaml"
+            - "--feature-gates=+service.profilesSupport"
           env:
             - name: KUBE_NODE_NAME
               valueFrom:

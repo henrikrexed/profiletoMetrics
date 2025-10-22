@@ -54,11 +54,14 @@ service:
 # Pull the image
 docker pull hrexed/otel-collector-profilemetrics:latest
 
-# Run the collector
+# Run the collector with profiles feature gate enabled
 docker run -p 4317:4317 -p 8888:8888 \
+  --feature-gates=+service.profilesSupport \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
   hrexed/otel-collector-profilemetrics:latest
 ```
+
+**⚠️ Important**: The `+service.profilesSupport` feature gate must be enabled to use the profiles pipeline.
 
 ## Step 3: Send Test Data
 
