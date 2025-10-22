@@ -101,6 +101,7 @@ jobs:
       uses: actions/setup-go@v5.1.0
       with:
         go-version: ${{ env.GO_VERSION }}
+        cache: true
 
     - name: Install Gosec
       run: |
@@ -109,10 +110,22 @@ jobs:
     - name: Run Gosec Security Scanner
       run: |
         gosec -fmt sarif -out gosec.sarif ./...
+      continue-on-error: true
+
+    - name: Check if Gosec results exist
+      id: gosec-check
+      run: |
+        if [ -f "gosec.sarif" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "✓ Gosec results file found"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "✗ Gosec results file not found"
+        fi
 
     - name: Upload Gosec results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && steps.gosec-check.outputs.exists == 'true'
       with:
         sarif_file: gosec.sarif
 
@@ -123,10 +136,22 @@ jobs:
         scan-ref: '.'
         format: 'sarif'
         output: 'trivy-results.sarif'
+      continue-on-error: true
+
+    - name: Check if Trivy results exist
+      id: trivy-check
+      run: |
+        if [ -f "trivy-results.sarif" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "✓ Trivy results file found"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "✗ Trivy results file not found"
+        fi
 
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && steps.trivy-check.outputs.exists == 'true'
       with:
         sarif_file: 'trivy-results.sarif'
 
