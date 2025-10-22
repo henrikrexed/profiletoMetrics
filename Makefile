@@ -40,7 +40,7 @@ GOMOD := $(GOCMD) mod
 
 # Docker parameters
 DOCKER := $(DOCKER_BINARY)
-DOCKER_BUILD := $(DOCKER) build --platform $(DOCKER_PLATFORM)
+DOCKER_BUILD := $(DOCKER) build $(if $(DOCKER_PLATFORM),--platform $(DOCKER_PLATFORM))
 DOCKER_PUSH := $(DOCKER) push
 DOCKER_TAG_CMD := $(DOCKER) tag
 
@@ -155,7 +155,7 @@ docker-build:
 	@echo "  Image: $(DOCKER_IMAGE):$(DOCKER_TAG)"
 	@echo "  Platform: $(DOCKER_PLATFORM)"
 	@echo "  Binary: $(DOCKER_BINARY)"
-	$(DOCKER_BUILD) -t $(DOCKER_IMAGE):$(DOCKER_TAG) -f docker/Dockerfile.simple .
+	$(DOCKER_BUILD) -t $(DOCKER_IMAGE):$(DOCKER_TAG) -f docker/Dockerfile .
 	@echo "Docker image built: $(DOCKER_IMAGE):$(DOCKER_TAG)"
 
 # Push Docker image
