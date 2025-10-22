@@ -18,7 +18,7 @@ jobs:
         config: [
           'examples/simple-config.yaml',
           'examples/debug-config.yaml',
-          'examples/final-debug-config.yaml'
+          'examples/working-debug-config.yaml'
         ]
     
     steps:
@@ -28,20 +28,37 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: '1.24'
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      run: |
+        go mod download
+        go mod verify
 
     - name: Build collector
       run: |
-        go mod download
-        go build -o otelcol-profiletometrics ./cmd/otelcol-contrib
+        # Build the collector using OCB
+        cd ocb
+        go run github.com/open-telemetry/opentelemetry-collector/cmd/builder@v0.137.0 --config=manifest.yaml
+        cp dist/otelcol-profiletometrics_linux_amd64/otelcol-profiletometrics ../otelcol-profiletometrics
 
     - name: Test configuration ${{ matrix.config }}
       run: |
-        # Test configuration validation
-        ./otelcol-profiletometrics --config=${{ matrix.config }} --dry-run
+        # Test configuration validation with feature gate
+        ./otelcol-profiletometrics --config=${{ matrix.config }} --feature-gates=+service.profilesSupport --dry-run
         
         # Test configuration parsing
-        ./otelcol-profiletometrics --config=${{ matrix.config }} --help
+        ./otelcol-profiletometrics --config=${{ matrix.config }} --feature-gates=+service.profilesSupport --help
 
   # Test connector with real data
   connector-data-tests:
@@ -55,16 +72,33 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: '1.24'
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      run: |
+        go mod download
+        go mod verify
 
     - name: Build collector
       run: |
-        go mod download
-        go build -o otelcol-profiletometrics ./cmd/otelcol-contrib
+        # Build the collector using OCB
+        cd ocb
+        go run github.com/open-telemetry/opentelemetry-collector/cmd/builder@v0.137.0 --config=manifest.yaml
+        cp dist/otelcol-profiletometrics_linux_amd64/otelcol-profiletometrics ../otelcol-profiletometrics
 
     - name: Start collector with debug config
       run: |
-        ./otelcol-profiletometrics --config=examples/final-debug-config.yaml &
+        ./otelcol-profiletometrics --config=examples/working-debug-config.yaml --feature-gates=+service.profilesSupport &
         COLLECTOR_PID=$!
         echo $COLLECTOR_PID > collector.pid
         
@@ -197,7 +231,22 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: '1.24'
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      run: |
+        go mod download
+        go mod verify
 
     - name: Run performance benchmarks
       run: |
@@ -230,9 +279,10 @@ jobs:
         docker run -d --name otelcol-test \
           -p 4317:4317 \
           -p 4318:4318 \
-          -v $(pwd)/examples/final-debug-config.yaml:/etc/otelcol/config.yaml \
+          -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           otelcol-profiletometrics:test \
-          --config=/etc/otelcol/config.yaml
+          --config=/etc/otelcol/config.yaml \
+          --feature-gates=+service.profilesSupport
         
         # Wait for collector to start
         sleep 10
