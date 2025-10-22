@@ -1,11 +1,11 @@
 # OpenTelemetry Profile-to-Metrics Connector
 
-[![CI/CD](https://github.com/henrikrexed/profiletoMetrics/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/ci.yml)
-[![Security](https://github.com/henrikrexed/profiletoMetrics/workflows/Security%20Scan/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/security.yml)
-[![Docker](https://github.com/henrikrexed/profiletoMetrics/workflows/Docker%20Build%20and%20Push/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/docker.yml)
-[![OSS Scorecard](https://github.com/henrikrexed/profiletoMetrics/workflows/OSS%20Scorecard/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/oss-scorecard.yml)
+[![CI/CD](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/ci.yml/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/ci.yml)
+[![Security](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/security.yml/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/security.yml)
+[![Docker](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/docker.yml/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/docker.yml)
+[![OSS Scorecard](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/oss-scorecard.yml/badge.svg)](https://github.com/henrikrexed/profiletoMetrics/actions/workflows/oss-scorecard.yml)
 [![Documentation](https://img.shields.io/badge/Documentation-Online-blue.svg)](https://henrikrexed.github.io/profiletoMetrics/)
-[![Go Version](https://img.shields.io/badge/Go-1.23+-blue.svg)](https://golang.org/)
+[![Go Version](https://img.shields.io/badge/Go-1.24+-blue.svg)](https://golang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Collector-orange.svg)](https://opentelemetry.io/)
 
@@ -69,14 +69,14 @@ graph TB
 
 ### Prerequisites
 
-- Go 1.23+ (for development)
+- Go 1.24+ (for development)
 - Docker or Podman (for containerized deployment)
 - Make (for build automation)
 
 ### Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/henrikrexed/profiletoMetrics.git
 cd profiletoMetrics
 ```
 
@@ -88,51 +88,7 @@ make install-deps
 
 ## 🚀 Quick Start
 
-### 1. Basic Usage
-
-```go
-package main
-
-import (
-    "context"
-    "example.com/profiletoMetrics/pkg/profiletometrics"
-    "go.opentelemetry.io/collector/pdata/pprofile"
-)
-
-func main() {
-    // Create converter with configuration
-    config := profiletometrics.Config{
-        Metrics: profiletometrics.MetricsConfig{
-            CPUTime: profiletometrics.MetricConfig{
-                Enabled: true,
-                Name:    "cpu_time_seconds",
-                Description: "CPU time spent in seconds",
-            },
-            MemoryAllocation: profiletometrics.MetricConfig{
-                Enabled: true,
-                Name:    "memory_allocation_bytes",
-                Description: "Memory allocated in bytes",
-            },
-        },
-    }
-    
-    converter := profiletometrics.NewConverter(config)
-    
-    // Convert profiles to metrics
-    profiles := pprofile.NewProfiles()
-    // ... populate profiles with your data
-    
-    metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    // Use the generated metrics
-    // ...
-}
-```
-
-### 2. Docker Deployment
+### 1. Docker Deployment
 
 ```bash
 # Build the Docker image
@@ -156,8 +112,22 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
-processors:
-  batch:
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "profile_memory_allocation_bytes"
+        unit: "bytes"
+    
+    attributes:
+      - name: "process_name"
+        value: "test_process"
+        type: "literal"
 
 exporters:
   debug:
@@ -167,13 +137,12 @@ exporters:
 
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [debug, otlp]
+      exporters: [profiletometrics]
+    
     metrics:
-      receivers: [otlp]
-      processors: [batch]
+      receivers: [profiletometrics]
       exporters: [debug, otlp]
 ```
 
@@ -243,80 +212,131 @@ service:
 
 ### 1. Basic CPU and Memory Metrics
 
-```go
-config := profiletometrics.Config{
-    Metrics: profiletometrics.MetricsConfig{
-        CPUTime: profiletometrics.MetricConfig{
-            Enabled: true,
-            Name: "cpu_time_seconds",
-            Description: "CPU time spent in seconds",
-        },
-        MemoryAllocation: profiletometrics.MetricConfig{
-            Enabled: true,
-            Name: "memory_allocation_bytes", 
-            Description: "Memory allocated in bytes",
-        },
-    },
-}
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "profile_memory_allocation_bytes"
+        unit: "bytes"
+    
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
 ```
 
-### 2. Attribute Extraction
+### 2. Attribute Extraction with Regex
 
-```go
-config := profiletometrics.Config{
-    AttributeExtraction: profiletometrics.AttributeExtractionConfig{
-        Rules: []profiletometrics.AttributeRule{
-            {
-                Name: "service_name",
-                Source: "string_table",
-                StringTableIndex: 0,
-            },
-            {
-                Name: "pod_name", 
-                Source: "regex",
-                Pattern: "pod-(.*)",
-                StringTableIndex: 1,
-            },
-        },
-    },
-}
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "s"
+    
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
+      - name: "pod_name"
+        value: "pod-(.*)"
+        type: "regex"
 ```
 
 ### 3. Process Filtering
 
-```go
-config := profiletometrics.Config{
-    ProcessFilter: profiletometrics.ProcessFilterConfig{
-        Enabled: true,
-        ProcessNamePattern: "my-app-.*",
-    },
-}
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "s"
+    
+    process_filter:
+      enabled: true
+      pattern: "my-app-.*"
 ```
 
 ### 4. Thread Filtering
 
-```go
-config := profiletometrics.Config{
-    ThreadFilter: profiletometrics.ThreadFilterConfig{
-        Enabled: true,
-        ThreadNamePattern: "worker-.*",
-        ProcessNamePattern: "app-.*",
-    },
-}
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "s"
+    
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
 ```
 
-### 5. Pattern Filtering
+### 5. Complete Configuration with All Features
 
-```go
-config := profiletometrics.Config{
-    PatternFilter: profiletometrics.PatternFilterConfig{
-        Enabled: true,
-        AttributePatterns: []string{
-            "service.name=my-service",
-            "k8s.pod.name=pod-.*",
-        },
-    },
-}
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        name: "profile_cpu_time_seconds"
+        unit: "s"
+      memory:
+        enabled: true
+        name: "profile_memory_allocation_bytes"
+        unit: "bytes"
+    
+    attributes:
+      - name: "service_name"
+        value: "my-service"
+        type: "literal"
+      - name: "pod_name"
+        value: "pod-(.*)"
+        type: "regex"
+    
+    process_filter:
+      enabled: true
+      pattern: "my-app-.*"
+    
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlp:
+    endpoint: http://localhost:4317
+
+service:
+  pipelines:
+    profiles:
+      receivers: [otlp]
+      exporters: [profiletometrics]
+    
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug, otlp]
 ```
 
 ## 🐳 Docker Deployment
