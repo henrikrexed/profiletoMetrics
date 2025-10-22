@@ -157,11 +157,49 @@ jobs:
       with:
         sarif_file: results.sarif
 
+  # SBOM Generation Job
+  sbom-generation:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+    if: github.event_name == 'push' || github.event_name == 'release'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Install Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+        syft version
+
+    - name: Generate Go module SBOM
+      run: |
+        syft packages . -o spdx-json=go-sbom.spdx.json
+        syft packages . -o cyclonedx-json=go-sbom.cyclonedx.json
+        syft packages . -o table=go-sbom.txt
+
+    - name: Upload Go SBOM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: go-sbom
+        path: |
+          go-sbom.spdx.json
+          go-sbom.cyclonedx.json
+          go-sbom.txt
+
   # Docker Build and Test Job
   docker-build:
     name: Docker Build and Test
     runs-on: ubuntu-latest
-    needs: [build-and-test]
+    needs: [build-and-test, sbom-generation]
     if: github.event_name == 'push' || github.event_name == 'release'
     
     steps:
@@ -189,7 +227,7 @@ jobs:
           type=semver,pattern={{version}}-{{commit}}
           type=sha,prefix={{branch}}-
 
-    - name: Build and push Docker image
+    - name: Build and push Docker image with SBOM
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -200,10 +238,32 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        sbom: true
+        provenance: true
+        attest: true
 
     - name: Test Docker image
       run: |
         docker run --rm ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} --help
+
+    - name: Generate Docker image SBOM
+      run: |
+        # Install Syft
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+        
+        # Generate SBOM for the built image
+        syft ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} -o spdx-json=docker-sbom.spdx.json
+        syft ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} -o cyclonedx-json=docker-sbom.cyclonedx.json
+        syft ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} -o table=docker-sbom.txt
+
+    - name: Upload Docker SBOM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-sbom
+        path: |
+          docker-sbom.spdx.json
+          docker-sbom.cyclonedx.json
+          docker-sbom.txt
 
   # Integration Tests Job
   integration-tests:

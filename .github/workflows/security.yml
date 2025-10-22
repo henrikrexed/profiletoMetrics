@@ -142,6 +142,46 @@ jobs:
           echo "✓ No obvious secrets found in code"
         fi
 
+  # SBOM Generation for Security
+  security-sbom:
+    name: Generate Security SBOM
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Install Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+        syft version
+
+    - name: Generate comprehensive SBOM
+      run: |
+        # Generate SBOM for Go modules
+        syft packages . -o spdx-json=security-sbom.spdx.json
+        syft packages . -o cyclonedx-json=security-sbom.cyclonedx.json
+        syft packages . -o table=security-sbom.txt
+        
+        # Generate detailed vulnerability report
+        syft packages . -o spdx-json=security-sbom.spdx.json --file=security-sbom.spdx.json
+
+    - name: Upload Security SBOM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-sbom-${{ github.sha }}
+        path: |
+          security-sbom.spdx.json
+          security-sbom.cyclonedx.json
+          security-sbom.txt
+
   # License Check
   license-check:
     name: License Check

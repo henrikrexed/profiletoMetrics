@@ -1,0 +1,232 @@
+name: SBOM Generation
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+jobs:
+  # Generate Go module SBOM
+  go-sbom:
+    name: Generate Go SBOM
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Install Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+        syft version
+
+    - name: Generate Go module SBOM
+      run: |
+        # Generate SBOM in multiple formats
+        syft packages . -o spdx-json=go-sbom.spdx.json
+        syft packages . -o cyclonedx-json=go-sbom.cyclonedx.json
+        syft packages . -o table=go-sbom.txt
+        syft packages . -o json=go-sbom.json
+
+    - name: Upload Go SBOM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: go-sbom-${{ github.sha }}
+        path: |
+          go-sbom.spdx.json
+          go-sbom.cyclonedx.json
+          go-sbom.txt
+          go-sbom.json
+
+  # Generate Docker image SBOM
+  docker-sbom:
+    name: Generate Docker SBOM
+    runs-on: ubuntu-latest
+    needs: go-sbom
+    if: github.event_name == 'push' || github.event_name == 'release'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      run: |
+        docker build -t test-image:latest -f docker/Dockerfile .
+
+    - name: Install Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+        syft version
+
+    - name: Generate Docker image SBOM
+      run: |
+        # Generate SBOM for the built image
+        syft test-image:latest -o spdx-json=docker-sbom.spdx.json
+        syft test-image:latest -o cyclonedx-json=docker-sbom.cyclonedx.json
+        syft test-image:latest -o table=docker-sbom.txt
+        syft test-image:latest -o json=docker-sbom.json
+
+    - name: Upload Docker SBOM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-sbom-${{ github.sha }}
+        path: |
+          docker-sbom.spdx.json
+          docker-sbom.cyclonedx.json
+          docker-sbom.txt
+          docker-sbom.json
+
+  # Generate comprehensive SBOM report
+  comprehensive-sbom:
+    name: Generate Comprehensive SBOM
+    runs-on: ubuntu-latest
+    needs: [go-sbom, docker-sbom]
+    if: github.event_name == 'push' || github.event_name == 'release'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download Go SBOM artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: go-sbom-${{ github.sha }}
+
+    - name: Download Docker SBOM artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: docker-sbom-${{ github.sha }}
+
+    - name: Install Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+        syft version
+
+    - name: Generate comprehensive SBOM report
+      run: |
+        # Create comprehensive report
+        echo "# SBOM Report for ProfileToMetrics Connector" > comprehensive-sbom-report.md
+        echo "Generated on: $(date)" >> comprehensive-sbom-report.md
+        echo "" >> comprehensive-sbom-report.md
+        
+        echo "## Go Module Dependencies" >> comprehensive-sbom-report.md
+        echo "\`\`\`" >> comprehensive-sbom-report.md
+        cat go-sbom.txt >> comprehensive-sbom-report.md
+        echo "\`\`\`" >> comprehensive-sbom-report.md
+        echo "" >> comprehensive-sbom-report.md
+        
+        echo "## Docker Image Dependencies" >> comprehensive-sbom-report.md
+        echo "\`\`\`" >> comprehensive-sbom-report.md
+        cat docker-sbom.txt >> comprehensive-sbom-report.md
+        echo "\`\`\`" >> comprehensive-sbom-report.md
+
+    - name: Upload comprehensive SBOM report
+      uses: actions/upload-artifact@v4
+      with:
+        name: comprehensive-sbom-${{ github.sha }}
+        path: |
+          comprehensive-sbom-report.md
+          go-sbom.spdx.json
+          go-sbom.cyclonedx.json
+          docker-sbom.spdx.json
+          docker-sbom.cyclonedx.json
+
+  # SBOM validation
+  sbom-validation:
+    name: Validate SBOM
+    runs-on: ubuntu-latest
+    needs: comprehensive-sbom
+    if: github.event_name == 'push' || github.event_name == 'release'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download comprehensive SBOM artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: comprehensive-sbom-${{ github.sha }}
+
+    - name: Install SBOM validation tools
+      run: |
+        # Install SPDX tools for validation
+        go install github.com/spdx/tools-golang@latest
+        
+        # Install CycloneDX tools
+        curl -sSfL https://raw.githubusercontent.com/CycloneDX/cyclonedx-cli/main/install.sh | sh -s -- -b /usr/local/bin
+
+    - name: Validate SPDX SBOM
+      run: |
+        echo "Validating SPDX SBOM files..."
+        if [ -f "go-sbom.spdx.json" ]; then
+          echo "✓ Go SPDX SBOM found"
+        else
+          echo "✗ Go SPDX SBOM not found"
+          exit 1
+        fi
+        
+        if [ -f "docker-sbom.spdx.json" ]; then
+          echo "✓ Docker SPDX SBOM found"
+        else
+          echo "✗ Docker SPDX SBOM not found"
+          exit 1
+        fi
+
+    - name: Validate CycloneDX SBOM
+      run: |
+        echo "Validating CycloneDX SBOM files..."
+        if [ -f "go-sbom.cyclonedx.json" ]; then
+          echo "✓ Go CycloneDX SBOM found"
+        else
+          echo "✗ Go CycloneDX SBOM not found"
+          exit 1
+        fi
+        
+        if [ -f "docker-sbom.cyclonedx.json" ]; then
+          echo "✓ Docker CycloneDX SBOM found"
+        else
+          echo "✗ Docker CycloneDX SBOM not found"
+          exit 1
+        fi
+
+    - name: Check SBOM completeness
+      run: |
+        echo "Checking SBOM completeness..."
+        
+        # Check if Go SBOM contains expected dependencies
+        if grep -q "go.opentelemetry.io" go-sbom.spdx.json; then
+          echo "✓ OpenTelemetry dependencies found in Go SBOM"
+        else
+          echo "✗ OpenTelemetry dependencies not found in Go SBOM"
+          exit 1
+        fi
+        
+        # Check if Docker SBOM contains expected base image
+        if grep -q "alpine" docker-sbom.spdx.json; then
+          echo "✓ Alpine base image found in Docker SBOM"
+        else
+          echo "✗ Alpine base image not found in Docker SBOM"
+          exit 1
+        fi
+
+    - name: Upload validation results
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom-validation-${{ github.sha }}
+        path: |
+          comprehensive-sbom-report.md
