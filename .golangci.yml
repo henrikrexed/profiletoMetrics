@@ -34,12 +34,20 @@ linters-settings:
     rules:
       main:
         allow:
+          # Standard Go imports
+          - "context"
+          - "testing"
+          # OpenTelemetry Collector imports
           - "go.opentelemetry.io/collector/component"
           - "go.opentelemetry.io/collector/connector"
           - "go.opentelemetry.io/collector/connector/xconnector"
           - "go.opentelemetry.io/collector/consumer"
           - "go.opentelemetry.io/collector/pdata/pprofile"
           - "go.uber.org/zap"
+          # Testing libraries
+          - "github.com/stretchr/testify/assert"
+          - "github.com/stretchr/testify/require"
+          # Internal package
           - "github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
 
 linters:
