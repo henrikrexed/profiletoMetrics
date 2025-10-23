@@ -2,6 +2,10 @@
 
 Deploy the ProfileToMetrics Connector on Kubernetes using the provided manifests.
 
+## Feature Gates
+
+**⚠️ Important**: The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled. This is configured in the deployment manifest.
+
 ## Quick Start
 
 ### Apply All Manifests

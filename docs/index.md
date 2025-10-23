@@ -68,16 +68,19 @@ graph TB
 
 ## Quick Start
 
+**⚠️ Important**: The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled.
+
 ### 1. Using Docker
 
 ```bash
 # Pull the image
-docker pull hrexed/otel-collector-profilemetrics:latest
+docker pull ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
 
-# Run with configuration
+# Run with configuration and feature gate
 docker run -p 4317:4317 -p 8888:8888 \
+  --feature-gates=+service.profilesSupport \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  hrexed/otel-collector-profilemetrics:latest
+  ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
 ```
 
 ### 2. Using Kubernetes

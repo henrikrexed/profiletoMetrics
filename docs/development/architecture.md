@@ -55,550 +55,291 @@ sequenceDiagram
     Exporter->>Client: Export Metrics
 ```
 
+## Profile Schema and String Table Extraction
+
+The ProfileToMetrics connector extracts attributes from the OpenTelemetry profiling data structure. Understanding the profile schema is crucial for configuring attribute extraction and filtering.
+
+### Profile Schema Diagram
+
+```mermaid
+graph TD
+    A[Profiles] --> B[ResourceProfiles]
+    B --> C[Resource Attributes]
+    B --> D[ScopeProfiles]
+    D --> E[Scope Info]
+    D --> F[Profiles Array]
+    F --> G[Profile]
+    G --> H[Sample Array]
+    G --> I[String Table]
+    G --> J[Attribute Table]
+    
+    I --> K[String Index 0: "main"]
+    I --> L[String Index 1: "worker-1"]
+    I --> M[String Index 2: "my-service"]
+    I --> N[String Index 3: "production"]
+    
+    J --> O[Attribute Index 0: service.name → String Index 2]
+    J --> P[Attribute Index 1: process.name → String Index 0]
+    J --> Q[Attribute Index 2: thread.name → String Index 1]
+    
+    H --> R[Sample 1: CPU Time]
+    H --> S[Sample 2: Memory Allocation]
+    
+    style I fill:#e1f5fe
+    style J fill:#f3e5f5
+    style K fill:#e8f5e8
+    style L fill:#e8f5e8
+    style M fill:#e8f5e8
+    style N fill:#e8f5e8
+```
+
+### String Table Structure
+
+The profile's string table contains all string values used throughout the profile:
+
+- **Index 0**: `"main"` (process name)
+- **Index 1**: `"worker-1"` (thread name)  
+- **Index 2**: `"my-service"` (service name)
+- **Index 3**: `"production"` (environment)
+
+### Attribute Table Structure
+
+The attribute table references string table indices:
+
+- **service.name** → String Index 2 (`"my-service"`)
+- **process.name** → String Index 0 (`"main"`)
+- **thread.name** → String Index 1 (`"worker-1"`)
+
+### Filtering Process
+
+```mermaid
+graph LR
+    A[Profile Data] --> B[Extract String Table]
+    B --> C[Apply Process Filter]
+    B --> D[Apply Thread Filter]
+    B --> E[Apply Pattern Filter]
+    
+    C --> F{Process Name Match?}
+    D --> G{Thread Name Match?}
+    E --> H{Attribute Value Match?}
+    
+    F -->|Yes| I[Include Profile]
+    F -->|No| J[Exclude Profile]
+    G -->|Yes| I
+    G -->|No| J
+    H -->|Yes| I
+    H -->|No| J
+    
+    I --> K[Generate Metrics]
+    J --> L[Skip Profile]
+    
+    style C fill:#e1f5fe
+    style D fill:#e1f5fe
+    style E fill:#e1f5fe
+    style I fill:#e8f5e8
+    style J fill:#ffebee
+```
+
+### Practical Filtering Example
+
+Given the string table above, here's how filtering works with configuration:
+
+```yaml
+process_filter:
+  enabled: true
+  pattern: "main|worker.*"  # Matches "main" or "worker-1"
+
+thread_filter:
+  enabled: true
+  pattern: "worker-.*"      # Matches "worker-1"
+
+pattern_filter:
+  enabled: true
+  pattern: "my-.*"          # Matches "my-service"
+```
+
+**Result**: Only profiles with:
+- Process name matching `"main|worker.*"` (matches "main")
+- Thread name matching `"worker-.*"` (matches "worker-1") 
+- Service name matching `"my-.*"` (matches "my-service")
+
+Will be processed into metrics.
+
 ## Connector Architecture
 
-### Factory Pattern
+### Connector Architecture
 
-```go
-type Factory struct {
-    component.MustNewType
-}
+The ProfileToMetrics connector follows the standard OpenTelemetry Collector connector pattern:
 
-func (f *Factory) CreateDefaultConfig() component.Config {
-    return &Config{
-        Metrics: MetricsConfig{
-            CPU: CPUMetricsConfig{Enabled: true},
-            Memory: MemoryMetricsConfig{Enabled: true},
-        },
-    }
-}
-
-func (f *Factory) CreateConnector(
-    ctx context.Context,
-    params connector.CreateSettings,
-    cfg component.Config,
-    nextConsumer consumer.Metrics,
-) (connector.Connector, error) {
-    // Create connector instance
-}
-```
-
-### Connector Implementation
-
-```go
-type profileToMetricsConnector struct {
-    config       *Config
-    nextConsumer consumer.Metrics
-    logger       *zap.Logger
-    converter    *profiletometrics.ConverterConnector
-}
-
-func (c *profileToMetricsConnector) Start(ctx context.Context, host component.Host) error {
-    // Initialize converter
-    c.converter = profiletometrics.NewConverterConnector(converterConfig)
-    return nil
-}
-
-func (c *profileToMetricsConnector) ConsumeTraces(ctx context.Context, td ptrace.Traces) error {
-    // Convert traces to metrics
-    metrics, err := c.converter.ConvertTracesToMetrics(td)
-    if err != nil {
-        return err
-    }
-    
-    // Send to next consumer
-    return c.nextConsumer.ConsumeMetrics(ctx, metrics)
-}
-```
+1. **Factory**: Creates connector instances with default configuration
+2. **Connector**: Processes incoming profiling data and converts to metrics
+3. **Converter**: Core logic for profile-to-metrics transformation
+4. **Configuration**: Flexible configuration for metrics, attributes, and filtering
 
 ## Converter Architecture
 
 ### Core Converter
 
-```go
-type ConverterConnector struct {
-    config ConverterConfig
-    logger *zap.Logger
-}
+The converter processes profiling data through several stages:
 
-func (c *ConverterConnector) ConvertProfilesToMetrics(
-    ctx context.Context,
-    profiles pprofile.Profiles,
-) (pmetric.Metrics, error) {
-    // Extract attributes from string table
-    attributes := c.extractAttributes(profiles)
-    
-    // Process samples
-    cpuMetrics := c.processCPUSamples(profiles, attributes)
-    memoryMetrics := c.processMemorySamples(profiles, attributes)
-    
-    // Combine metrics
-    return c.combineMetrics(cpuMetrics, memoryMetrics), nil
-}
-```
+1. **Profile Extraction**: Extracts profile data from incoming traces
+2. **Attribute Extraction**: Extracts attributes from the string table using regex or literal patterns
+3. **Sample Processing**: Processes CPU and memory samples
+4. **Metric Generation**: Creates OpenTelemetry metrics with proper attributes
+5. **Filtering**: Applies process, thread, and pattern filters
 
 ### String Table Extraction
 
-```go
-func (c *ConverterConnector) extractAttributes(profiles pprofile.Profiles) map[string]string {
-    attributes := make(map[string]string)
-    
-    for i := 0; i < profiles.ResourceProfiles().Len(); i++ {
-        resourceProfile := profiles.ResourceProfiles().At(i)
-        
-        // Extract from resource attributes
-        resourceProfile.Resource().Attributes().Range(func(k string, v pcommon.Value) bool {
-            attributes[k] = v.AsString()
-            return true
-        })
-        
-        // Extract from string table
-        for j := 0; j < resourceProfile.ScopeProfiles().Len(); j++ {
-            scopeProfile := resourceProfile.ScopeProfiles().At(j)
-            for k := 0; k < scopeProfile.Profiles().Len(); k++ {
-                profile := scopeProfile.Profiles().At(k)
-                attributes = c.extractFromStringTable(profile, attributes)
-            }
-        }
-    }
-    
-    return attributes
-}
-```
+The connector extracts attributes from the profiling data's string table using:
+
+- **Literal Values**: Direct string values for static attributes
+- **Regular Expressions**: Pattern matching for dynamic attribute extraction
+- **Index Access**: Direct access to string table entries by index
 
 ### Sample Processing
 
-```go
-func (c *ConverterConnector) processCPUSamples(
-    profiles pprofile.Profiles,
-    attributes map[string]string,
-) pmetric.Metrics {
-    metrics := pmetric.NewMetrics()
-    
-    for i := 0; i < profiles.ResourceProfiles().Len(); i++ {
-        resourceProfile := profiles.ResourceProfiles().At(i)
-        
-        for j := 0; j < resourceProfile.ScopeProfiles().Len(); j++ {
-            scopeProfile := resourceProfile.ScopeProfiles().At(j)
-            
-            for k := 0; k < scopeProfile.Profiles().Len(); k++ {
-                profile := scopeProfile.Profiles().At(k)
-                
-                // Process CPU samples
-                cpuTime := c.calculateCPUTime(profile.Samples())
-                if cpuTime > 0 {
-                    c.addCPUMetric(metrics, cpuTime, attributes)
-                }
-            }
-        }
-    }
-    
-    return metrics
-}
-```
+The connector processes different types of samples:
+
+- **CPU Samples**: Calculates CPU time from profiling samples
+- **Memory Samples**: Calculates memory allocation from profiling samples
+- **Filtering**: Applies configured filters to focus on specific processes or patterns
 
 ## Configuration Architecture
 
 ### Configuration Structure
 
-```go
-type Config struct {
-    Metrics       MetricsConfig       `mapstructure:"metrics"`
-    Attributes    []AttributeConfig   `mapstructure:"attributes"`
-    ProcessFilter ProcessFilterConfig `mapstructure:"process_filter"`
-    ThreadFilter  ThreadFilterConfig  `mapstructure:"thread_filter"`
-    PatternFilter PatternFilterConfig  `mapstructure:"pattern_filter"`
-}
+The connector configuration includes:
 
-type MetricsConfig struct {
-    CPU    CPUMetricsConfig    `mapstructure:"cpu"`
-    Memory MemoryMetricsConfig `mapstructure:"memory"`
-}
-
-type CPUMetricsConfig struct {
-    Enabled     bool   `mapstructure:"enabled"`
-    MetricName  string `mapstructure:"metric_name"`
-    Description string `mapstructure:"description"`
-    Unit        string `mapstructure:"unit"`
-}
-```
+- **Metrics Configuration**: CPU and memory metric settings
+- **Attribute Configuration**: Rules for extracting attributes from string table
+- **Filter Configuration**: Process, thread, and pattern filtering options
 
 ### Configuration Validation
 
-```go
-func (cfg *MetricsConfig) Validate() error {
-    if !cfg.CPU.Enabled && !cfg.Memory.Enabled {
-        return fmt.Errorf("at least one metric type must be enabled")
-    }
-    
-    if cfg.CPU.Enabled {
-        if err := cfg.CPU.Validate(); err != nil {
-            return fmt.Errorf("CPU metrics configuration error: %w", err)
-        }
-    }
-    
-    if cfg.Memory.Enabled {
-        if err := cfg.Memory.Validate(); err != nil {
-            return fmt.Errorf("memory metrics configuration error: %w", err)
-        }
-    }
-    
-    return nil
-}
-```
+The connector validates:
+
+- At least one metric type (CPU or Memory) must be enabled
+- Valid regex patterns for filters
+- Required attribute configurations
+- Proper metric naming and units
 
 ## Filtering Architecture
 
 ### Process Filtering
 
-```go
-type ProcessFilterConfig struct {
-    Enabled bool   `mapstructure:"enabled"`
-    Pattern string `mapstructure:"pattern"`
-    compiledPattern *regexp.Regexp
-}
+Filter metrics based on process names using regex patterns:
 
-func (cfg *ProcessFilterConfig) Validate() error {
-    if cfg.Enabled && cfg.Pattern != "" {
-        var err error
-        cfg.compiledPattern, err = regexp.Compile(cfg.Pattern)
-        if err != nil {
-            return fmt.Errorf("invalid process filter pattern: %w", err)
-        }
-    }
-    return nil
-}
-
-func (cfg *ProcessFilterConfig) Matches(processName string) bool {
-    if !cfg.Enabled || cfg.compiledPattern == nil {
-        return true
-    }
-    return cfg.compiledPattern.MatchString(processName)
-}
-```
+- **Enabled**: Toggle process filtering on/off
+- **Pattern**: Regex pattern to match process names
+- **Examples**: `"my-app.*"`, `"(worker|scheduler).*"`
 
 ### Thread Filtering
 
-```go
-type ThreadFilterConfig struct {
-    Enabled bool   `mapstructure:"enabled"`
-    Pattern string `mapstructure:"pattern"`
-    compiledPattern *regexp.Regexp
-}
+Filter metrics based on thread names using regex patterns:
 
-func (cfg *ThreadFilterConfig) Matches(threadName string) bool {
-    if !cfg.Enabled || cfg.compiledPattern == nil {
-        return true
-    }
-    return cfg.compiledPattern.MatchString(threadName)
-}
-```
+- **Enabled**: Toggle thread filtering on/off  
+- **Pattern**: Regex pattern to match thread names
+- **Examples**: `"worker-.*"`, `"(main|background)-.*"`
 
 ### Pattern Filtering
 
-```go
-type PatternFilterConfig struct {
-    Enabled bool   `mapstructure:"enabled"`
-    Pattern string `mapstructure:"pattern"`
-    compiledPattern *regexp.Regexp
-}
+Filter metrics based on attribute values using regex patterns:
 
-func (cfg *PatternFilterConfig) Matches(attributeValue string) bool {
-    if !cfg.Enabled || cfg.compiledPattern == nil {
-        return true
-    }
-    return cfg.compiledPattern.MatchString(attributeValue)
-}
-```
+- **Enabled**: Toggle pattern filtering on/off
+- **Pattern**: Regex pattern to match attribute values
+- **Examples**: `"service-.*"`, `"(production|staging).*"`
 
 ## Metric Generation Architecture
 
 ### CPU Metrics
 
-```go
-func (c *ConverterConnector) generateCPUMetrics(
-    samples []pprofile.Sample,
-    attributes map[string]string,
-) pmetric.Metrics {
-    metrics := pmetric.NewMetrics()
-    
-    // Calculate CPU time
-    cpuTime := c.calculateCPUTime(samples)
-    if cpuTime <= 0 {
-        return metrics
-    }
-    
-    // Create metric
-    resourceMetrics := metrics.ResourceMetrics()
-    resourceMetric := resourceMetrics.AppendEmpty()
-    
-    // Set resource attributes
-    resourceAttrs := resourceMetric.Resource().Attributes()
-    for k, v := range attributes {
-        resourceAttrs.PutStr(k, v)
-    }
-    
-    // Create scope metrics
-    scopeMetrics := resourceMetric.ScopeMetrics()
-    scopeMetric := scopeMetrics.AppendEmpty()
-    scopeMetric.Scope().SetName("profiletometrics")
-    scopeMetric.Scope().SetVersion("0.1.0")
-    
-    // Create metric
-    metricSlice := scopeMetric.Metrics()
-    metric := metricSlice.AppendEmpty()
-    metric.SetName(c.config.Metrics.CPU.MetricName)
-    metric.SetDescription(c.config.Metrics.CPU.Description)
-    metric.SetUnit(c.config.Metrics.CPU.Unit)
-    
-    // Set metric type and data
-    metric.SetEmptySum()
-    sum := metric.Sum()
-    sum.SetIsMonotonic(true)
-    sum.SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
-    
-    // Add data point
-    dataPoints := sum.DataPoints()
-    dataPoint := dataPoints.AppendEmpty()
-    dataPoint.SetDoubleValue(cpuTime)
-    dataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-    
-    return metrics
-}
-```
+The connector generates CPU metrics with:
+
+- **Metric Name**: Configurable (default: "cpu_time")
+- **Unit**: Time unit (default: "ns")
+- **Type**: Cumulative sum metric
+- **Attributes**: Extracted from string table and resource attributes
+- **Data Points**: CPU time values from profiling samples
 
 ### Memory Metrics
 
-```go
-func (c *ConverterConnector) generateMemoryMetrics(
-    samples []pprofile.Sample,
-    attributes map[string]string,
-) pmetric.Metrics {
-    metrics := pmetric.NewMetrics()
-    
-    // Calculate memory allocation
-    memoryAllocation := c.calculateMemoryAllocation(samples)
-    if memoryAllocation <= 0 {
-        return metrics
-    }
-    
-    // Create metric similar to CPU metrics
-    // ... implementation details ...
-    
-    return metrics
-}
-```
+The connector generates memory metrics with:
+
+- **Metric Name**: Configurable (default: "memory_allocation") 
+- **Unit**: Memory unit (default: "bytes")
+- **Type**: Cumulative sum metric
+- **Attributes**: Extracted from string table and resource attributes
+- **Data Points**: Memory allocation values from profiling samples
 
 ## Error Handling Architecture
 
 ### Error Types
 
-```go
-type ConversionError struct {
-    Type    string
-    Message string
-    Cause   error
-}
+The connector handles several types of errors:
 
-func (e *ConversionError) Error() string {
-    return fmt.Sprintf("%s: %s", e.Type, e.Message)
-}
-
-func (e *ConversionError) Unwrap() error {
-    return e.Cause
-}
-
-var (
-    ErrInvalidConfiguration = &ConversionError{
-        Type:    "ConfigurationError",
-        Message: "invalid configuration",
-    }
-    
-    ErrInvalidProfilingData = &ConversionError{
-        Type:    "DataError",
-        Message: "invalid profiling data",
-    }
-    
-    ErrMetricGeneration = &ConversionError{
-        Type:    "MetricError",
-        Message: "failed to generate metrics",
-    }
-)
-```
+- **Configuration Errors**: Invalid configuration settings
+- **Data Errors**: Invalid or malformed profiling data
+- **Metric Generation Errors**: Failures in metric creation
+- **Filter Errors**: Invalid regex patterns in filters
 
 ### Error Handling
 
-```go
-func (c *ConverterConnector) ConvertProfilesToMetrics(
-    ctx context.Context,
-    profiles pprofile.Profiles,
-) (pmetric.Metrics, error) {
-    // Validate input
-    if profiles.ResourceProfiles().Len() == 0 {
-        return pmetric.NewMetrics(), ErrInvalidProfilingData
-    }
-    
-    // Process with error handling
-    metrics, err := c.processProfiles(profiles)
-    if err != nil {
-        return pmetric.NewMetrics(), fmt.Errorf("failed to process profiles: %w", err)
-    }
-    
-    return metrics, nil
-}
-```
+The connector provides comprehensive error handling:
+
+- **Input Validation**: Validates profiling data before processing
+- **Graceful Degradation**: Continues processing when possible
+- **Detailed Logging**: Logs errors with context for debugging
+- **Error Propagation**: Returns meaningful error messages
 
 ## Logging Architecture
 
 ### Structured Logging
 
-```go
-func (c *profileToMetricsConnector) ConsumeTraces(ctx context.Context, td ptrace.Traces) error {
-    // Log input statistics
-    resourceSpansCount := td.ResourceSpans().Len()
-    totalSpans := 0
-    for i := 0; i < resourceSpansCount; i++ {
-        totalSpans += td.ResourceSpans().At(i).ScopeSpans().Len()
-    }
-    
-    c.logger.Debug("Processing traces",
-        zap.Int("resource_spans_count", resourceSpansCount),
-        zap.Int("total_spans", totalSpans),
-    )
-    
-    // Process traces
-    metrics, err := c.converter.ConvertTracesToMetrics(td)
-    if err != nil {
-        c.logger.Error("Failed to convert traces to metrics",
-            zap.Error(err),
-            zap.Int("input_spans", totalSpans),
-        )
-        return err
-    }
-    
-    // Log output statistics
-    resourceMetricsCount := metrics.ResourceMetrics().Len()
-    totalMetrics := 0
-    for i := 0; i < resourceMetricsCount; i++ {
-        scopeMetrics := metrics.ResourceMetrics().At(i).ScopeMetrics()
-        for j := 0; j < scopeMetrics.Len(); j++ {
-            totalMetrics += scopeMetrics.At(j).Metrics().Len()
-        }
-    }
-    
-    c.logger.Debug("Traces converted to metrics",
-        zap.Int("input_spans", totalSpans),
-        zap.Int("output_resource_metrics", resourceMetricsCount),
-        zap.Int("output_metrics", totalMetrics),
-    )
-    
-    return c.nextConsumer.ConsumeMetrics(ctx, metrics)
-}
-```
+The connector provides comprehensive logging:
+
+- **Input Statistics**: Logs number of traces and samples processed
+- **Processing Status**: Debug information about conversion process
+- **Output Statistics**: Logs number of metrics generated
+- **Error Context**: Detailed error information for troubleshooting
+- **Performance Metrics**: Processing time and throughput information
 
 ## Performance Architecture
 
 ### Caching
 
-```go
-type ConverterConnector struct {
-    config ConverterConfig
-    logger *zap.Logger
-    cache  map[string]interface{}
-    mutex  sync.RWMutex
-}
+The connector implements intelligent caching:
 
-func (c *ConverterConnector) getCachedAttribute(key string) (string, bool) {
-    c.mutex.RLock()
-    defer c.mutex.RUnlock()
-    
-    value, exists := c.cache[key]
-    if !exists {
-        return "", false
-    }
-    
-    strValue, ok := value.(string)
-    return strValue, ok
-}
-
-func (c *ConverterConnector) setCachedAttribute(key, value string) {
-    c.mutex.Lock()
-    defer c.mutex.Unlock()
-    
-    c.cache[key] = value
-}
-```
+- **Attribute Caching**: Caches frequently accessed string table attributes
+- **Pattern Caching**: Caches compiled regex patterns for filters
+- **Thread-Safe**: Concurrent access with read-write locks
+- **Memory Efficient**: Automatic cache cleanup and size limits
 
 ### Batch Processing
 
-```go
-func (c *ConverterConnector) processBatch(
-    profiles []pprofile.Profiles,
-    batchSize int,
-) ([]pmetric.Metrics, error) {
-    var results []pmetric.Metrics
-    
-    for i := 0; i < len(profiles); i += batchSize {
-        end := i + batchSize
-        if end > len(profiles) {
-            end = len(profiles)
-        }
-        
-        batch := profiles[i:end]
-        batchResults, err := c.processBatch(batch)
-        if err != nil {
-            return nil, err
-        }
-        
-        results = append(results, batchResults...)
-    }
-    
-    return results, nil
-}
-```
+The connector supports efficient batch processing:
+
+- **Configurable Batch Size**: Adjustable batch size for optimal performance
+- **Parallel Processing**: Concurrent processing of batches
+- **Memory Management**: Efficient memory usage for large datasets
+- **Error Isolation**: Batch failures don't affect other batches
 
 ## Testing Architecture
 
 ### Test Structure
 
-```
-tests/
-├── unit/
-│   ├── converter_test.go
-│   ├── config_test.go
-│   └── connector_test.go
-├── integration/
-│   ├── end_to_end_test.go
-│   └── performance_test.go
-└── testdata/
-    ├── profile_test_data.go
-    └── config_test_data.go
-```
+The connector includes comprehensive testing:
 
-### Test Utilities
+- **Unit Tests**: Individual component testing
+- **Integration Tests**: End-to-end testing with real data
+- **Performance Tests**: Load and stress testing
+- **Configuration Tests**: Validation of all configuration options
 
-```go
-func createTestConverter(t *testing.T, config ConverterConfig) *ConverterConnector {
-    t.Helper()
-    
-    logger, _ := zap.NewDevelopment()
-    return &ConverterConnector{
-        config: config,
-        logger: logger,
-    }
-}
+### Test Coverage
 
-func assertMetricsEqual(t *testing.T, expected, actual pmetric.Metrics) {
-    t.Helper()
-    
-    // Compare metrics structure and values
-    assert.Equal(t, expected.ResourceMetrics().Len(), actual.ResourceMetrics().Len())
-    
-    for i := 0; i < expected.ResourceMetrics().Len(); i++ {
-        expectedRM := expected.ResourceMetrics().At(i)
-        actualRM := actual.ResourceMetrics().At(i)
-        
-        assert.Equal(t, expectedRM.ScopeMetrics().Len(), actualRM.ScopeMetrics().Len())
-    }
-}
-```
+The connector maintains high test coverage:
+
+- **Configuration Validation**: All configuration options tested
+- **Metric Generation**: CPU and memory metric generation tested
+- **Filtering Logic**: All filter types and patterns tested
+- **Error Handling**: Error scenarios and edge cases tested
+- **Performance**: Load testing and performance benchmarks

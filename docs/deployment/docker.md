@@ -2,17 +2,27 @@
 
 Deploy the ProfileToMetrics Connector using Docker containers.
 
+## Feature Gates
+
+**⚠️ Important**: The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled:
+
+```bash
+# Docker run with feature gate
+docker run --feature-gates=+service.profilesSupport ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+```
+
 ## Quick Start
 
 ### Pull and Run
 
 ```bash
 # Pull the latest image
-docker pull hrexed/otel-collector-profilemetrics:latest
+docker pull ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
 
 # Run with basic configuration
 docker run -p 4317:4317 -p 8888:8888 \
-  hrexed/otel-collector-profilemetrics:latest
+  --feature-gates=+service.profilesSupport \
+  ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
 ```
 
 ### With Configuration File
@@ -50,8 +60,9 @@ EOF
 
 # Run with configuration
 docker run -p 4317:4317 -p 8888:8888 \
+  --feature-gates=+service.profilesSupport \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  hrexed/otel-collector-profilemetrics:latest
+  ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
 ```
 
 ## Image Variants

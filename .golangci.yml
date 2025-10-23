@@ -30,6 +30,23 @@ linters-settings:
       - octalLiteral
       - whyNoLint
       - wrapperFunc
+  depguard:
+    rules:
+      main:
+        deny:
+          - pkg: "github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
+            files: ["*.go"]
+            except:
+              - "config.go"
+              - "connector.go" 
+              - "factory.go"
+        allow:
+          - "go.opentelemetry.io/collector/component"
+          - "go.opentelemetry.io/collector/connector"
+          - "go.opentelemetry.io/collector/connector/xconnector"
+          - "go.opentelemetry.io/collector/consumer"
+          - "go.opentelemetry.io/collector/pdata/pprofile"
+          - "go.uber.org/zap"
 
 linters:
   enable:

@@ -1,681 +1,314 @@
 # Connector API Reference
 
-This document provides a comprehensive API reference for the ProfileToMetrics Connector.
+This document provides a comprehensive reference for the ProfileToMetrics Connector configuration and usage.
 
-## Connector Interface
+## Overview
 
-### Factory
+The ProfileToMetrics connector converts OpenTelemetry profiling data into metrics. It extracts attributes from the profile's string table and applies configurable filters to generate CPU and memory metrics.
 
-```go
-type Factory struct {
-    component.MustNewType
-}
+## Configuration Reference
 
-func (f *Factory) CreateDefaultConfig() component.Config
-func (f *Factory) CreateConnector(
-    ctx context.Context,
-    params connector.CreateSettings,
-    cfg component.Config,
-    nextConsumer consumer.Metrics,
-) (connector.Connector, error)
+### Basic Configuration
+
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        metric_name: "cpu_time"
+        description: "CPU time from profiling data"
+        unit: "ns"
+      memory:
+        enabled: true
+        metric_name: "memory_allocation"
+        description: "Memory allocation from profiling data"
+        unit: "bytes"
+    attributes:
+      - name: "service.name"
+        value: "my-service"
+        type: "literal"
+      - name: "process.name"
+        value: "main"
+        type: "literal"
+      - name: "function.name"
+        value: ".*"
+        type: "regex"
 ```
 
-### Connector Implementation
+### Advanced Configuration
 
-```go
-type profileToMetricsConnector struct {
-    config       *Config
-    nextConsumer consumer.Metrics
-    logger       *zap.Logger
-    converter    *profiletometrics.ConverterConnector
-}
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        metric_name: "application_cpu_time"
+        description: "Application CPU time"
+        unit: "s"
+      memory:
+        enabled: true
+        metric_name: "application_memory_allocation"
+        description: "Application memory allocation"
+        unit: "bytes"
+    attributes:
+      - name: "service.name"
+        value: "my-service"
+        type: "literal"
+      - name: "environment"
+        value: "production"
+        type: "literal"
+      - name: "function.name"
+        value: ".*"
+        type: "regex"
+      - name: "thread.name"
+        value: "worker-.*"
+        type: "regex"
+    process_filter:
+      enabled: true
+      pattern: "my-app.*"
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
+    pattern_filter:
+      enabled: true
+      pattern: "production.*"
 ```
 
-## Methods
+## Configuration Options
 
-### Start
+### Metrics Configuration
 
-```go
-func (c *profileToMetricsConnector) Start(
-    ctx context.Context,
-    host component.Host,
-) error
+#### CPU Metrics
+
+- **enabled**: Enable/disable CPU metrics generation
+- **metric_name**: Name of the generated metric (default: "cpu_time")
+- **description**: Description of the metric
+- **unit**: Unit of measurement (default: "ns")
+
+#### Memory Metrics
+
+- **enabled**: Enable/disable memory metrics generation
+- **metric_name**: Name of the generated metric (default: "memory_allocation")
+- **description**: Description of the metric
+- **unit**: Unit of measurement (default: "bytes")
+
+### Attribute Configuration
+
+#### Attribute Types
+
+- **literal**: Direct string value
+- **regex**: Regular expression pattern matching
+- **string_table**: Direct string table index access
+
+#### Attribute Examples
+
+```yaml
+attributes:
+  # Literal value
+  - name: "service.name"
+    value: "my-service"
+    type: "literal"
+  
+  # Regex pattern
+  - name: "function.name"
+    value: ".*worker.*"
+    type: "regex"
+  
+  # String table index
+  - name: "thread.name"
+    value: "0"
+    type: "string_table"
 ```
 
-**Description**: Initializes the connector and starts processing.
+### Filter Configuration
 
-**Parameters**:
-- `ctx`: Context for cancellation and timeout
-- `host`: OpenTelemetry Collector host interface
+#### Process Filter
 
-**Returns**:
-- `error`: Any initialization error
+Filter profiles based on process names:
 
-**Example**:
-```go
-err := connector.Start(ctx, host)
-if err != nil {
-    log.Fatal("Failed to start connector:", err)
-}
+```yaml
+process_filter:
+  enabled: true
+  pattern: "my-app.*"  # Regex pattern
 ```
 
-### Shutdown
+#### Thread Filter
 
-```go
-func (c *profileToMetricsConnector) Shutdown(
-    ctx context.Context,
-) error
+Filter profiles based on thread names:
+
+```yaml
+thread_filter:
+  enabled: true
+  pattern: "worker-.*"  # Regex pattern
 ```
 
-**Description**: Gracefully shuts down the connector.
+#### Pattern Filter
 
-**Parameters**:
-- `ctx`: Context for cancellation and timeout
+Filter profiles based on attribute values:
 
-**Returns**:
-- `error`: Any shutdown error
-
-**Example**:
-```go
-err := connector.Shutdown(ctx)
-if err != nil {
-    log.Printf("Error during shutdown: %v", err)
-}
+```yaml
+pattern_filter:
+  enabled: true
+  pattern: "production.*"  # Regex pattern
 ```
 
-### Capabilities
+## Feature Gates
 
-```go
-func (c *profileToMetricsConnector) Capabilities() consumer.Capabilities
+**⚠️ Important**: The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled:
+
+```bash
+# Command line
+otelcol --feature-gates=+service.profilesSupport
+
+# Docker
+docker run --feature-gates=+service.profilesSupport otelcol
+
+# Kubernetes (see deployment section)
 ```
 
-**Description**: Returns the capabilities of the connector.
+## Pipeline Configuration
 
-**Returns**:
-- `consumer.Capabilities`: Connector capabilities
-
-**Example**:
-```go
-caps := connector.Capabilities()
-fmt.Printf("Mutates data: %v\n", caps.MutatesData)
-```
-
-### ConsumeTraces
-
-```go
-func (c *profileToMetricsConnector) ConsumeTraces(
-    ctx context.Context,
-    td ptrace.Traces,
-) error
-```
-
-**Description**: Processes trace data and converts it to metrics.
-
-**Parameters**:
-- `ctx`: Context for cancellation and timeout
-- `td`: Trace data to process
-
-**Returns**:
-- `error`: Any processing error
-
-**Example**:
-```go
-err := connector.ConsumeTraces(ctx, traceData)
-if err != nil {
-    log.Printf("Failed to process traces: %v", err)
-}
-```
-
-### ConsumeLogs
-
-```go
-func (c *profileToMetricsConnector) ConsumeLogs(
-    ctx context.Context,
-    ld plog.Logs,
-) error
-```
-
-**Description**: Processes log data and converts it to metrics.
-
-**Parameters**:
-- `ctx`: Context for cancellation and timeout
-- `ld`: Log data to process
-
-**Returns**:
-- `error`: Any processing error
-
-**Example**:
-```go
-err := connector.ConsumeLogs(ctx, logData)
-if err != nil {
-    log.Printf("Failed to process logs: %v", err)
-}
-```
-
-### ConsumeMetrics
-
-```go
-func (c *profileToMetricsConnector) ConsumeMetrics(
-    ctx context.Context,
-    md pmetric.Metrics,
-) error
-```
-
-**Description**: Processes metric data (pass-through).
-
-**Parameters**:
-- `ctx`: Context for cancellation and timeout
-- `md`: Metric data to process
-
-**Returns**:
-- `error`: Any processing error
-
-**Example**:
-```go
-err := connector.ConsumeMetrics(ctx, metricData)
-if err != nil {
-    log.Printf("Failed to process metrics: %v", err)
-}
-```
-
-## Configuration API
-
-### Config Structure
-
-```go
-type Config struct {
-    Metrics       MetricsConfig       `mapstructure:"metrics"`
-    Attributes    []AttributeConfig   `mapstructure:"attributes"`
-    ProcessFilter ProcessFilterConfig `mapstructure:"process_filter"`
-    ThreadFilter  ThreadFilterConfig  `mapstructure:"thread_filter"`
-    PatternFilter PatternFilterConfig  `mapstructure:"pattern_filter"`
-}
-```
-
-### MetricsConfig
-
-```go
-type MetricsConfig struct {
-    CPU    CPUMetricsConfig    `mapstructure:"cpu"`
-    Memory MemoryMetricsConfig `mapstructure:"memory"`
-}
-```
-
-### CPUMetricsConfig
-
-```go
-type CPUMetricsConfig struct {
-    Enabled     bool   `mapstructure:"enabled"`
-    MetricName  string `mapstructure:"metric_name"`
-    Description string `mapstructure:"description"`
-    Unit        string `mapstructure:"unit"`
-}
-```
-
-### MemoryMetricsConfig
-
-```go
-type MemoryMetricsConfig struct {
-    Enabled     bool   `mapstructure:"enabled"`
-    MetricName  string `mapstructure:"metric_name"`
-    Description string `mapstructure:"description"`
-    Unit        string `mapstructure:"unit"`
-}
-```
-
-### AttributeConfig
-
-```go
-type AttributeConfig struct {
-    Key   string `mapstructure:"key"`
-    Value string `mapstructure:"value"`
-}
-```
-
-### FilterConfig
-
-```go
-type ProcessFilterConfig struct {
-    Enabled bool   `mapstructure:"enabled"`
-    Pattern string `mapstructure:"pattern"`
-}
-
-type ThreadFilterConfig struct {
-    Enabled bool   `mapstructure:"enabled"`
-    Pattern string `mapstructure:"pattern"`
-}
-
-type PatternFilterConfig struct {
-    Enabled bool   `mapstructure:"enabled"`
-    Pattern string `mapstructure:"pattern"`
-}
-```
-
-## Converter API
-
-### ConverterConnector
-
-```go
-type ConverterConnector struct {
-    config ConverterConfig
-    logger *zap.Logger
-}
-```
-
-### NewConverterConnector
-
-```go
-func NewConverterConnector(config ConverterConfig) *ConverterConnector
-```
-
-**Description**: Creates a new converter connector instance.
-
-**Parameters**:
-- `config`: Converter configuration
-
-**Returns**:
-- `*ConverterConnector`: New converter instance
-
-**Example**:
-```go
-config := ConverterConfig{
-    Metrics: MetricsConfig{
-        CPU: CPUMetricsConfig{Enabled: true},
-        Memory: MemoryMetricsConfig{Enabled: true},
-    },
-}
-converter := NewConverterConnector(config)
-```
-
-### ConvertTracesToMetrics
-
-```go
-func (c *ConverterConnector) ConvertTracesToMetrics(
-    traces ptrace.Traces,
-) (pmetric.Metrics, error)
-```
-
-**Description**: Converts trace data to metrics.
-
-**Parameters**:
-- `traces`: Trace data to convert
-
-**Returns**:
-- `pmetric.Metrics`: Generated metrics
-- `error`: Any conversion error
-
-**Example**:
-```go
-metrics, err := converter.ConvertTracesToMetrics(traces)
-if err != nil {
-    log.Printf("Conversion failed: %v", err)
-    return
-}
-```
-
-### ConvertLogsToMetrics
-
-```go
-func (c *ConverterConnector) ConvertLogsToMetrics(
-    logs plog.Logs,
-) (pmetric.Metrics, error)
-```
-
-**Description**: Converts log data to metrics.
-
-**Parameters**:
-- `logs`: Log data to convert
-
-**Returns**:
-- `pmetric.Metrics`: Generated metrics
-- `error`: Any conversion error
-
-**Example**:
-```go
-metrics, err := converter.ConvertLogsToMetrics(logs)
-if err != nil {
-    log.Printf("Conversion failed: %v", err)
-    return
-}
-```
-
-### ConvertProfilesToMetrics
-
-```go
-func (c *ConverterConnector) ConvertProfilesToMetrics(
-    ctx context.Context,
-    profiles pprofile.Profiles,
-) (pmetric.Metrics, error)
-```
-
-**Description**: Converts profiling data to metrics.
-
-**Parameters**:
-- `ctx`: Context for cancellation and timeout
-- `profiles`: Profiling data to convert
-
-**Returns**:
-- `pmetric.Metrics`: Generated metrics
-- `error`: Any conversion error
-
-**Example**:
-```go
-metrics, err := converter.ConvertProfilesToMetrics(ctx, profiles)
-if err != nil {
-    log.Printf("Conversion failed: %v", err)
-    return
-}
-```
-
-## Utility Functions
-
-### CalculateCPUTime
-
-```go
-func CalculateCPUTime(samples []pprofile.Sample) float64
-```
-
-**Description**: Calculates total CPU time from samples.
-
-**Parameters**:
-- `samples`: Profiling samples
-
-**Returns**:
-- `float64`: Total CPU time in seconds
-
-**Example**:
-```go
-cpuTime := CalculateCPUTime(samples)
-fmt.Printf("CPU time: %.3f seconds\n", cpuTime)
-```
-
-### CalculateMemoryAllocation
-
-```go
-func CalculateMemoryAllocation(samples []pprofile.Sample) float64
-```
-
-**Description**: Calculates total memory allocation from samples.
-
-**Parameters**:
-- `samples`: Profiling samples
-
-**Returns**:
-- `float64`: Total memory allocation in bytes
-
-**Example**:
-```go
-memoryAllocation := CalculateMemoryAllocation(samples)
-fmt.Printf("Memory allocation: %.0f bytes\n", memoryAllocation)
-```
-
-### ExtractFromStringTable
-
-```go
-func ExtractFromStringTable(
-    profile pprofile.Profile,
-    attributes map[string]string,
-) map[string]string
-```
-
-**Description**: Extracts attributes from profiling string table.
-
-**Parameters**:
-- `profile`: Profiling data
-- `attributes`: Existing attributes map
-
-**Returns**:
-- `map[string]string`: Updated attributes map
-
-**Example**:
-```go
-attributes := make(map[string]string)
-attributes = ExtractFromStringTable(profile, attributes)
-fmt.Printf("Extracted attributes: %v\n", attributes)
-```
-
-## Error Handling
-
-### Error Types
-
-```go
-type ConversionError struct {
-    Type    string
-    Message string
-    Cause   error
-}
-
-func (e *ConversionError) Error() string
-func (e *ConversionError) Unwrap() error
-```
-
-### Common Errors
-
-```go
-var (
-    ErrInvalidConfiguration = &ConversionError{
-        Type:    "ConfigurationError",
-        Message: "invalid configuration",
-    }
-    
-    ErrInvalidProfilingData = &ConversionError{
-        Type:    "DataError",
-        Message: "invalid profiling data",
-    }
-    
-    ErrMetricGeneration = &ConversionError{
-        Type:    "MetricError",
-        Message: "failed to generate metrics",
-    }
-)
-```
-
-### Error Handling Example
-
-```go
-metrics, err := converter.ConvertProfilesToMetrics(ctx, profiles)
-if err != nil {
-    var convErr *ConversionError
-    if errors.As(err, &convErr) {
-        switch convErr.Type {
-        case "ConfigurationError":
-            log.Printf("Configuration error: %v", convErr.Message)
-        case "DataError":
-            log.Printf("Data error: %v", convErr.Message)
-        case "MetricError":
-            log.Printf("Metric generation error: %v", convErr.Message)
-        default:
-            log.Printf("Unknown error: %v", convErr.Message)
-        }
-    } else {
-        log.Printf("Unexpected error: %v", err)
-    }
-    return
-}
-```
-
-## Logging
-
-### Log Levels
-
-- `DEBUG`: Detailed debugging information
-- `INFO`: General information
-- `WARN`: Warning messages
-- `ERROR`: Error messages
-
-### Log Fields
-
-```go
-c.logger.Debug("Processing traces",
-    zap.Int("resource_spans_count", resourceSpansCount),
-    zap.Int("total_spans", totalSpans),
-)
-
-c.logger.Error("Failed to convert traces to metrics",
-    zap.Error(err),
-    zap.Int("input_spans", totalSpans),
-)
-```
-
-### Log Configuration
+The connector works with the traces pipeline as a workaround since profiles are not yet a native signal type:
 
 ```yaml
 service:
-  telemetry:
-    logs:
-      level: debug
-      development: true
+  pipelines:
+    traces:
+      receivers: [otlp]
+      connectors: [profiletometrics]
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug, otlp]
 ```
+
+## Generated Metrics
+
+### CPU Metrics
+
+- **Name**: Configurable (default: "cpu_time")
+- **Type**: Cumulative sum metric
+- **Unit**: Time unit (default: "ns")
+- **Attributes**: Extracted from string table and resource attributes
+
+### Memory Metrics
+
+- **Name**: Configurable (default: "memory_allocation")
+- **Type**: Cumulative sum metric
+- **Unit**: Memory unit (default: "bytes")
+- **Attributes**: Extracted from string table and resource attributes
+
+## Error Handling
+
+The connector provides comprehensive error handling:
+
+- **Configuration Errors**: Invalid configuration settings
+- **Data Errors**: Invalid or malformed profiling data
+- **Metric Generation Errors**: Failures in metric creation
+- **Filter Errors**: Invalid regex patterns in filters
+
+## Logging
+
+The connector provides structured logging:
+
+- **Input Statistics**: Number of traces and samples processed
+- **Processing Status**: Debug information about conversion process
+- **Output Statistics**: Number of metrics generated
+- **Error Context**: Detailed error information for troubleshooting
 
 ## Performance
 
-### Metrics
+The connector is optimized for performance:
 
-- **Throughput**: Number of profiles processed per second
-- **Latency**: Time to process a single profile
-- **Memory Usage**: Memory consumption during processing
-- **CPU Usage**: CPU consumption during processing
-
-### Optimization
-
-- **Batch Processing**: Process multiple profiles in batches
-- **Caching**: Cache frequently accessed data
-- **Parallel Processing**: Use goroutines for concurrent processing
-- **Memory Pooling**: Reuse memory allocations
-
-### Monitoring
-
-```go
-// Performance metrics
-c.logger.Info("Performance metrics",
-    zap.Duration("processing_time", processingTime),
-    zap.Int("profiles_processed", profilesProcessed),
-    zap.Float64("throughput", throughput),
-)
-```
-
-## Testing
-
-### Unit Tests
-
-```go
-func TestConvertProfilesToMetrics(t *testing.T) {
-    // Test implementation
-}
-```
-
-### Integration Tests
-
-```go
-func TestIntegration(t *testing.T) {
-    // Integration test implementation
-}
-```
-
-### Benchmark Tests
-
-```go
-func BenchmarkConvertProfilesToMetrics(b *testing.B) {
-    // Benchmark implementation
-}
-```
+- **Attribute Caching**: Caches frequently accessed string table attributes
+- **Pattern Caching**: Caches compiled regex patterns for filters
+- **Batch Processing**: Efficient processing of multiple profiles
+- **Memory Management**: Optimized memory usage for large datasets
 
 ## Examples
 
 ### Basic Usage
 
-```go
-// Create configuration
-config := Config{
-    Metrics: MetricsConfig{
-        CPU: CPUMetricsConfig{
-            Enabled: true,
-            MetricName: "cpu_time",
-        },
-        Memory: MemoryMetricsConfig{
-            Enabled: true,
-            MetricName: "memory_allocation",
-        },
-    },
-}
-
-// Create converter
-converter := NewConverterConnector(ConverterConfig{
-    Metrics: config.Metrics,
-})
-
-// Convert profiles
-metrics, err := converter.ConvertProfilesToMetrics(ctx, profiles)
-if err != nil {
-    log.Fatal(err)
-}
-
-// Use metrics
-fmt.Printf("Generated %d metrics\n", metrics.ResourceMetrics().Len())
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+      memory:
+        enabled: true
 ```
 
-### Advanced Usage
+### Advanced Usage with Filtering
 
-```go
-// Advanced configuration
-config := Config{
-    Metrics: MetricsConfig{
-        CPU: CPUMetricsConfig{
-            Enabled: true,
-            MetricName: "application_cpu_time",
-            Description: "Application CPU time",
-            Unit: "s",
-        },
-        Memory: MemoryMetricsConfig{
-            Enabled: true,
-            MetricName: "application_memory_allocation",
-            Description: "Application memory allocation",
-            Unit: "bytes",
-        },
-    },
-    Attributes: []AttributeConfig{
-        {Key: "service.name", Value: "my-service"},
-        {Key: "environment", Value: "production"},
-    },
-    ProcessFilter: ProcessFilterConfig{
-        Enabled: true,
-        Pattern: "my-app.*",
-    },
-    ThreadFilter: ThreadFilterConfig{
-        Enabled: true,
-        Pattern: "worker-.*",
-    },
-}
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        metric_name: "application_cpu_time"
+        unit: "s"
+      memory:
+        enabled: true
+        metric_name: "application_memory_allocation"
+        unit: "bytes"
+    attributes:
+      - name: "service.name"
+        value: "my-service"
+        type: "literal"
+      - name: "function.name"
+        value: ".*"
+        type: "regex"
+    process_filter:
+      enabled: true
+      pattern: "my-app.*"
+    thread_filter:
+      enabled: true
+      pattern: "worker-.*"
+```
 
-// Create converter with advanced configuration
-converter := NewConverterConnector(ConverterConfig{
-    Metrics: config.Metrics,
-    Attributes: config.Attributes,
-    ProcessFilter: config.ProcessFilter,
-    ThreadFilter: config.ThreadFilter,
-})
+### Complete Collector Configuration
 
-// Convert with error handling
-metrics, err := converter.ConvertProfilesToMetrics(ctx, profiles)
-if err != nil {
-    log.Printf("Conversion failed: %v", err)
-    return
-}
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
 
-// Process metrics
-resourceMetrics := metrics.ResourceMetrics()
-for i := 0; i < resourceMetrics.Len(); i++ {
-    resourceMetric := resourceMetrics.At(i)
-    scopeMetrics := resourceMetric.ScopeMetrics()
-    
-    for j := 0; j < scopeMetrics.Len(); j++ {
-        scopeMetric := scopeMetrics.At(j)
-        metrics := scopeMetric.Metrics()
-        
-        for k := 0; k < metrics.Len(); k++ {
-            metric := metrics.At(k)
-            fmt.Printf("Metric: %s\n", metric.Name())
-        }
-    }
-}
+connectors:
+  profiletometrics:
+    metrics:
+      cpu:
+        enabled: true
+        metric_name: "cpu_time"
+        unit: "ns"
+      memory:
+        enabled: true
+        metric_name: "memory_allocation"
+        unit: "bytes"
+    attributes:
+      - name: "service.name"
+        value: "my-service"
+        type: "literal"
+    process_filter:
+      enabled: true
+      pattern: "my-app.*"
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlp:
+    endpoint: http://localhost:4318
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      connectors: [profiletometrics]
+    metrics:
+      receivers: [profiletometrics]
+      exporters: [debug, otlp]
 ```

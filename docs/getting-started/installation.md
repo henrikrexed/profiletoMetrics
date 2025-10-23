@@ -5,9 +5,22 @@ This guide covers different ways to install and use the ProfileToMetrics Connect
 ## Prerequisites
 
 - **OpenTelemetry Collector**: Version 0.137.0 or later
+- **Feature Gate**: `+service.profilesSupport` must be enabled
 - **Go**: Version 1.23.0 or later (for building from source)
 - **Docker**: For containerized deployment
 - **Kubernetes**: For K8s deployment (optional)
+
+## Feature Gates
+
+**⚠️ Important**: The ProfileToMetrics connector requires the `+service.profilesSupport` feature gate to be enabled:
+
+```bash
+# Command line
+otelcol --feature-gates=+service.profilesSupport
+
+# Docker
+docker run --feature-gates=+service.profilesSupport ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+```
 
 ## Installation Methods
 
@@ -18,15 +31,16 @@ The easiest way to get started is using the pre-built Docker image.
 #### Pull the Image
 
 ```bash
-docker pull hrexed/otel-collector-profilemetrics:latest
+docker pull ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
 ```
 
 #### Run with Configuration
 
 ```bash
 docker run -p 4317:4317 -p 8888:8888 \
+  --feature-gates=+service.profilesSupport \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  hrexed/otel-collector-profilemetrics:latest
+  ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
 ```
 
 #### Environment Variables
