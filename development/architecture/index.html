@@ -1064,6 +1064,66 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#profile-schema-and-string-table-extraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profile Schema and String Table Extraction
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Profile Schema and String Table Extraction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#profile-schema-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profile Schema Diagram
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string-table-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      String Table Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-table-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attribute Table Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filtering Process
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-filtering-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practical Filtering Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#connector-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       Connector Architecture
@@ -1074,18 +1134,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#factory-pattern" class="md-nav__link">
+  <a href="#connector-architecture_1" class="md-nav__link">
     <span class="md-ellipsis">
-      Factory Pattern
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#connector-implementation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connector Implementation
+      Connector Architecture
     </span>
   </a>
   
@@ -1356,9 +1407,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-utilities" class="md-nav__link">
+  <a href="#test-coverage" class="md-nav__link">
     <span class="md-ellipsis">
-      Test Utilities
+      Test Coverage
     </span>
   </a>
   
@@ -1621,6 +1672,66 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#profile-schema-and-string-table-extraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profile Schema and String Table Extraction
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Profile Schema and String Table Extraction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#profile-schema-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profile Schema Diagram
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string-table-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      String Table Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-table-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attribute Table Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filtering Process
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-filtering-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practical Filtering Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#connector-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       Connector Architecture
@@ -1631,18 +1742,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#factory-pattern" class="md-nav__link">
+  <a href="#connector-architecture_1" class="md-nav__link">
     <span class="md-ellipsis">
-      Factory Pattern
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#connector-implementation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connector Implementation
+      Connector Architecture
     </span>
   </a>
   
@@ -1913,9 +2015,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-utilities" class="md-nav__link">
+  <a href="#test-coverage" class="md-nav__link">
     <span class="md-ellipsis">
-      Test Utilities
+      Test Coverage
     </span>
   </a>
   
@@ -2000,488 +2102,250 @@
     Converter-&gt;&gt;Connector: Return Metrics
     Connector-&gt;&gt;Exporter: Send Metrics
     Exporter-&gt;&gt;Client: Export Metrics</code></pre>
-<h2 id="connector-architecture">Connector Architecture</h2>
-<h3 id="factory-pattern">Factory Pattern</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Factory</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nx">component</span><span class="p">.</span><span class="nx">MustNewType</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">}</span>
+<h2 id="profile-schema-and-string-table-extraction">Profile Schema and String Table Extraction</h2>
+<p>The ProfileToMetrics connector extracts attributes from the OpenTelemetry profiling data structure. Understanding the profile schema is crucial for configuring attribute extraction and filtering.</p>
+<h3 id="profile-schema-diagram">Profile Schema Diagram</h3>
+<pre class="mermaid"><code>graph TD
+    A[Profiles] --&gt; B[ResourceProfiles]
+    B --&gt; C[Resource Attributes]
+    B --&gt; D[ScopeProfiles]
+    D --&gt; E[Scope Info]
+    D --&gt; F[Profiles Array]
+    F --&gt; G[Profile]
+    G --&gt; H[Sample Array]
+    G --&gt; I[String Table]
+    G --&gt; J[Attribute Table]
+
+    I --&gt; K[String Index 0: "main"]
+    I --&gt; L[String Index 1: "worker-1"]
+    I --&gt; M[String Index 2: "my-service"]
+    I --&gt; N[String Index 3: "production"]
+
+    J --&gt; O[Attribute Index 0: service.name → String Index 2]
+    J --&gt; P[Attribute Index 1: process.name → String Index 0]
+    J --&gt; Q[Attribute Index 2: thread.name → String Index 1]
+
+    H --&gt; R[Sample 1: CPU Time]
+    H --&gt; S[Sample 2: Memory Allocation]
+
+    style I fill:#e1f5fe
+    style J fill:#f3e5f5
+    style K fill:#e8f5e8
+    style L fill:#e8f5e8
+    style M fill:#e8f5e8
+    style N fill:#e8f5e8</code></pre>
+<h3 id="string-table-structure">String Table Structure</h3>
+<p>The profile's string table contains all string values used throughout the profile:</p>
+<ul>
+<li><strong>Index 0</strong>: <code>"main"</code> (process name)</li>
+<li><strong>Index 1</strong>: <code>"worker-1"</code> (thread name)  </li>
+<li><strong>Index 2</strong>: <code>"my-service"</code> (service name)</li>
+<li><strong>Index 3</strong>: <code>"production"</code> (environment)</li>
+</ul>
+<h3 id="attribute-table-structure">Attribute Table Structure</h3>
+<p>The attribute table references string table indices:</p>
+<ul>
+<li><strong>service.name</strong> → String Index 2 (<code>"my-service"</code>)</li>
+<li><strong>process.name</strong> → String Index 0 (<code>"main"</code>)</li>
+<li><strong>thread.name</strong> → String Index 1 (<code>"worker-1"</code>)</li>
+</ul>
+<h3 id="filtering-process">Filtering Process</h3>
+<pre class="mermaid"><code>graph LR
+    A[Profile Data] --&gt; B[Extract String Table]
+    B --&gt; C[Apply Process Filter]
+    B --&gt; D[Apply Thread Filter]
+    B --&gt; E[Apply Pattern Filter]
+
+    C --&gt; F{Process Name Match?}
+    D --&gt; G{Thread Name Match?}
+    E --&gt; H{Attribute Value Match?}
+
+    F --&gt;|Yes| I[Include Profile]
+    F --&gt;|No| J[Exclude Profile]
+    G --&gt;|Yes| I
+    G --&gt;|No| J
+    H --&gt;|Yes| I
+    H --&gt;|No| J
+
+    I --&gt; K[Generate Metrics]
+    J --&gt; L[Skip Profile]
+
+    style C fill:#e1f5fe
+    style D fill:#e1f5fe
+    style E fill:#e1f5fe
+    style I fill:#e8f5e8
+    style J fill:#ffebee</code></pre>
+<h3 id="practical-filtering-example">Practical Filtering Example</h3>
+<p>Given the string table above, here's how filtering works with configuration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">process_filter</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;main|worker.*&quot;</span><span class="w">  </span><span class="c1"># Matches &quot;main&quot; or &quot;worker-1&quot;</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">f</span><span class="w"> </span><span class="o">*</span><span class="nx">Factory</span><span class="p">)</span><span class="w"> </span><span class="nx">CreateDefaultConfig</span><span class="p">()</span><span class="w"> </span><span class="nx">component</span><span class="p">.</span><span class="nx">Config</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Config</span><span class="p">{</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="nx">Metrics</span><span class="p">:</span><span class="w"> </span><span class="nx">MetricsConfig</span><span class="p">{</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">            </span><span class="nx">CPU</span><span class="p">:</span><span class="w"> </span><span class="nx">CPUMetricsConfig</span><span class="p">{</span><span class="nx">Enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">            </span><span class="nx">Memory</span><span class="p">:</span><span class="w"> </span><span class="nx">MemoryMetricsConfig</span><span class="p">{</span><span class="nx">Enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">f</span><span class="w"> </span><span class="o">*</span><span class="nx">Factory</span><span class="p">)</span><span class="w"> </span><span class="nx">CreateConnector</span><span class="p">(</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="nx">params</span><span class="w"> </span><span class="nx">connector</span><span class="p">.</span><span class="nx">CreateSettings</span><span class="p">,</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="nx">cfg</span><span class="w"> </span><span class="nx">component</span><span class="p">.</span><span class="nx">Config</span><span class="p">,</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nx">nextConsumer</span><span class="w"> </span><span class="nx">consumer</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">,</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">connector</span><span class="p">.</span><span class="nx">Connector</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="c1">// Create connector instance</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="p">}</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">thread_filter</span><span class="p">:</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;worker-.*&quot;</span><span class="w">      </span><span class="c1"># Matches &quot;worker-1&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nt">pattern_filter</span><span class="p">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-.*&quot;</span><span class="w">          </span><span class="c1"># Matches &quot;my-service&quot;</span>
 </code></pre></div>
-<h3 id="connector-implementation">Connector Implementation</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">profileToMetricsConnector</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nx">config</span><span class="w">       </span><span class="o">*</span><span class="nx">Config</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nx">nextConsumer</span><span class="w"> </span><span class="nx">consumer</span><span class="p">.</span><span class="nx">Metrics</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nx">logger</span><span class="w">       </span><span class="o">*</span><span class="nx">zap</span><span class="p">.</span><span class="nx">Logger</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nx">converter</span><span class="w">    </span><span class="o">*</span><span class="nx">profiletometrics</span><span class="p">.</span><span class="nx">ConverterConnector</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">profileToMetricsConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">Start</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">host</span><span class="w"> </span><span class="nx">component</span><span class="p">.</span><span class="nx">Host</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="c1">// Initialize converter</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nx">c</span><span class="p">.</span><span class="nx">converter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">profiletometrics</span><span class="p">.</span><span class="nx">NewConverterConnector</span><span class="p">(</span><span class="nx">converterConfig</span><span class="p">)</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">}</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">profileToMetricsConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">ConsumeTraces</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">td</span><span class="w"> </span><span class="nx">ptrace</span><span class="p">.</span><span class="nx">Traces</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="c1">// Convert traces to metrics</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="nx">metrics</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">converter</span><span class="p">.</span><span class="nx">ConvertTracesToMetrics</span><span class="p">(</span><span class="nx">td</span><span class="p">)</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="c1">// Send to next consumer</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">nextConsumer</span><span class="p">.</span><span class="nx">ConsumeMetrics</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">metrics</span><span class="p">)</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="p">}</span>
-</code></pre></div>
+<p><strong>Result</strong>: Only profiles with:
+- Process name matching <code>"main|worker.*"</code> (matches "main")
+- Thread name matching <code>"worker-.*"</code> (matches "worker-1") 
+- Service name matching <code>"my-.*"</code> (matches "my-service")</p>
+<p>Will be processed into metrics.</p>
+<h2 id="connector-architecture">Connector Architecture</h2>
+<h3 id="connector-architecture_1">Connector Architecture</h3>
+<p>The ProfileToMetrics connector follows the standard OpenTelemetry Collector connector pattern:</p>
+<ol>
+<li><strong>Factory</strong>: Creates connector instances with default configuration</li>
+<li><strong>Connector</strong>: Processes incoming profiling data and converts to metrics</li>
+<li><strong>Converter</strong>: Core logic for profile-to-metrics transformation</li>
+<li><strong>Configuration</strong>: Flexible configuration for metrics, attributes, and filtering</li>
+</ol>
 <h2 id="converter-architecture">Converter Architecture</h2>
 <h3 id="core-converter">Core Converter</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ConverterConnector</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nx">config</span><span class="w"> </span><span class="nx">ConverterConfig</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nx">logger</span><span class="w"> </span><span class="o">*</span><span class="nx">zap</span><span class="p">.</span><span class="nx">Logger</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">ConvertProfilesToMetrics</span><span class="p">(</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nx">profiles</span><span class="w"> </span><span class="nx">pprofile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">,</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="c1">// Extract attributes from string table</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="nx">attributes</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">extractAttributes</span><span class="p">(</span><span class="nx">profiles</span><span class="p">)</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="c1">// Process samples</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nx">cpuMetrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">processCPUSamples</span><span class="p">(</span><span class="nx">profiles</span><span class="p">,</span><span class="w"> </span><span class="nx">attributes</span><span class="p">)</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nx">memoryMetrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">processMemorySamples</span><span class="p">(</span><span class="nx">profiles</span><span class="p">,</span><span class="w"> </span><span class="nx">attributes</span><span class="p">)</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="c1">// Combine metrics</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">combineMetrics</span><span class="p">(</span><span class="nx">cpuMetrics</span><span class="p">,</span><span class="w"> </span><span class="nx">memoryMetrics</span><span class="p">),</span><span class="w"> </span><span class="kc">nil</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="p">}</span>
-</code></pre></div>
+<p>The converter processes profiling data through several stages:</p>
+<ol>
+<li><strong>Profile Extraction</strong>: Extracts profile data from incoming traces</li>
+<li><strong>Attribute Extraction</strong>: Extracts attributes from the string table using regex or literal patterns</li>
+<li><strong>Sample Processing</strong>: Processes CPU and memory samples</li>
+<li><strong>Metric Generation</strong>: Creates OpenTelemetry metrics with proper attributes</li>
+<li><strong>Filtering</strong>: Applies process, thread, and pattern filters</li>
+</ol>
 <h3 id="string-table-extraction">String Table Extraction</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">extractAttributes</span><span class="p">(</span><span class="nx">profiles</span><span class="w"> </span><span class="nx">pprofile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">)</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nx">attributes</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">profiles</span><span class="p">.</span><span class="nx">ResourceProfiles</span><span class="p">().</span><span class="nx">Len</span><span class="p">();</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span><span class="nx">resourceProfile</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">profiles</span><span class="p">.</span><span class="nx">ResourceProfiles</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">        </span><span class="c1">// Extract from resource attributes</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">        </span><span class="nx">resourceProfile</span><span class="p">.</span><span class="nx">Resource</span><span class="p">().</span><span class="nx">Attributes</span><span class="p">().</span><span class="nx">Range</span><span class="p">(</span><span class="kd">func</span><span class="p">(</span><span class="nx">k</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="nx">pcommon</span><span class="p">.</span><span class="nx">Value</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">            </span><span class="nx">attributes</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">v</span><span class="p">.</span><span class="nx">AsString</span><span class="p">()</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">        </span><span class="p">})</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">        </span><span class="c1">// Extract from string table</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">resourceProfile</span><span class="p">.</span><span class="nx">ScopeProfiles</span><span class="p">().</span><span class="nx">Len</span><span class="p">();</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">            </span><span class="nx">scopeProfile</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">resourceProfile</span><span class="p">.</span><span class="nx">ScopeProfiles</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">j</span><span class="p">)</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="nx">k</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">k</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">scopeProfile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">().</span><span class="nx">Len</span><span class="p">();</span><span class="w"> </span><span class="nx">k</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">                </span><span class="nx">profile</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">scopeProfile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">k</span><span class="p">)</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">                </span><span class="nx">attributes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">extractFromStringTable</span><span class="p">(</span><span class="nx">profile</span><span class="p">,</span><span class="w"> </span><span class="nx">attributes</span><span class="p">)</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">attributes</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector extracts attributes from the profiling data's string table using:</p>
+<ul>
+<li><strong>Literal Values</strong>: Direct string values for static attributes</li>
+<li><strong>Regular Expressions</strong>: Pattern matching for dynamic attribute extraction</li>
+<li><strong>Index Access</strong>: Direct access to string table entries by index</li>
+</ul>
 <h3 id="sample-processing">Sample Processing</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">processCPUSamples</span><span class="p">(</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nx">profiles</span><span class="w"> </span><span class="nx">pprofile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nx">attributes</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">)</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">Metrics</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nx">metrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">NewMetrics</span><span class="p">()</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">profiles</span><span class="p">.</span><span class="nx">ResourceProfiles</span><span class="p">().</span><span class="nx">Len</span><span class="p">();</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">        </span><span class="nx">resourceProfile</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">profiles</span><span class="p">.</span><span class="nx">ResourceProfiles</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">resourceProfile</span><span class="p">.</span><span class="nx">ScopeProfiles</span><span class="p">().</span><span class="nx">Len</span><span class="p">();</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">            </span><span class="nx">scopeProfile</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">resourceProfile</span><span class="p">.</span><span class="nx">ScopeProfiles</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">j</span><span class="p">)</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="nx">k</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">k</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">scopeProfile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">().</span><span class="nx">Len</span><span class="p">();</span><span class="w"> </span><span class="nx">k</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">                </span><span class="nx">profile</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">scopeProfile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">k</span><span class="p">)</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">                </span><span class="c1">// Process CPU samples</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">                </span><span class="nx">cpuTime</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">calculateCPUTime</span><span class="p">(</span><span class="nx">profile</span><span class="p">.</span><span class="nx">Samples</span><span class="p">())</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="nx">cpuTime</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">                    </span><span class="nx">c</span><span class="p">.</span><span class="nx">addCPUMetric</span><span class="p">(</span><span class="nx">metrics</span><span class="p">,</span><span class="w"> </span><span class="nx">cpuTime</span><span class="p">,</span><span class="w"> </span><span class="nx">attributes</span><span class="p">)</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">metrics</span>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector processes different types of samples:</p>
+<ul>
+<li><strong>CPU Samples</strong>: Calculates CPU time from profiling samples</li>
+<li><strong>Memory Samples</strong>: Calculates memory allocation from profiling samples</li>
+<li><strong>Filtering</strong>: Applies configured filters to focus on specific processes or patterns</li>
+</ul>
 <h2 id="configuration-architecture">Configuration Architecture</h2>
 <h3 id="configuration-structure">Configuration Structure</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Config</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nx">Metrics</span><span class="w">       </span><span class="nx">MetricsConfig</span><span class="w">       </span><span class="s">`mapstructure:&quot;metrics&quot;`</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nx">Attributes</span><span class="w">    </span><span class="p">[]</span><span class="nx">AttributeConfig</span><span class="w">   </span><span class="s">`mapstructure:&quot;attributes&quot;`</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nx">ProcessFilter</span><span class="w"> </span><span class="nx">ProcessFilterConfig</span><span class="w"> </span><span class="s">`mapstructure:&quot;process_filter&quot;`</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nx">ThreadFilter</span><span class="w">  </span><span class="nx">ThreadFilterConfig</span><span class="w">  </span><span class="s">`mapstructure:&quot;thread_filter&quot;`</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nx">PatternFilter</span><span class="w"> </span><span class="nx">PatternFilterConfig</span><span class="w">  </span><span class="s">`mapstructure:&quot;pattern_filter&quot;`</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">}</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="kd">type</span><span class="w"> </span><span class="nx">MetricsConfig</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nx">CPU</span><span class="w">    </span><span class="nx">CPUMetricsConfig</span><span class="w">    </span><span class="s">`mapstructure:&quot;cpu&quot;`</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nx">Memory</span><span class="w"> </span><span class="nx">MemoryMetricsConfig</span><span class="w"> </span><span class="s">`mapstructure:&quot;memory&quot;`</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="kd">type</span><span class="w"> </span><span class="nx">CPUMetricsConfig</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="nx">Enabled</span><span class="w">     </span><span class="kt">bool</span><span class="w">   </span><span class="s">`mapstructure:&quot;enabled&quot;`</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="nx">MetricName</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`mapstructure:&quot;metric_name&quot;`</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">    </span><span class="nx">Description</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`mapstructure:&quot;description&quot;`</span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="nx">Unit</span><span class="w">        </span><span class="kt">string</span><span class="w"> </span><span class="s">`mapstructure:&quot;unit&quot;`</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector configuration includes:</p>
+<ul>
+<li><strong>Metrics Configuration</strong>: CPU and memory metric settings</li>
+<li><strong>Attribute Configuration</strong>: Rules for extracting attributes from string table</li>
+<li><strong>Filter Configuration</strong>: Process, thread, and pattern filtering options</li>
+</ul>
 <h3 id="configuration-validation">Configuration Validation</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">cfg</span><span class="w"> </span><span class="o">*</span><span class="nx">MetricsConfig</span><span class="p">)</span><span class="w"> </span><span class="nx">Validate</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">CPU</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">!</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Memory</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;at least one metric type must be enabled&quot;</span><span class="p">)</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">CPU</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">CPU</span><span class="p">.</span><span class="nx">Validate</span><span class="p">();</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;CPU metrics configuration error: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Memory</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Memory</span><span class="p">.</span><span class="nx">Validate</span><span class="p">();</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;memory metrics configuration error: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector validates:</p>
+<ul>
+<li>At least one metric type (CPU or Memory) must be enabled</li>
+<li>Valid regex patterns for filters</li>
+<li>Required attribute configurations</li>
+<li>Proper metric naming and units</li>
+</ul>
 <h2 id="filtering-architecture">Filtering Architecture</h2>
 <h3 id="process-filtering">Process Filtering</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProcessFilterConfig</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nx">Enabled</span><span class="w"> </span><span class="kt">bool</span><span class="w">   </span><span class="s">`mapstructure:&quot;enabled&quot;`</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nx">Pattern</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`mapstructure:&quot;pattern&quot;`</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nx">compiledPattern</span><span class="w"> </span><span class="o">*</span><span class="nx">regexp</span><span class="p">.</span><span class="nx">Regexp</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">}</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">cfg</span><span class="w"> </span><span class="o">*</span><span class="nx">ProcessFilterConfig</span><span class="p">)</span><span class="w"> </span><span class="nx">Validate</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Pattern</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="kt">error</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">        </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">compiledPattern</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">regexp</span><span class="p">.</span><span class="nx">Compile</span><span class="p">(</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Pattern</span><span class="p">)</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;invalid process filter pattern: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="p">}</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>
-<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">cfg</span><span class="w"> </span><span class="o">*</span><span class="nx">ProcessFilterConfig</span><span class="p">)</span><span class="w"> </span><span class="nx">Matches</span><span class="p">(</span><span class="nx">processName</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">compiledPattern</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">compiledPattern</span><span class="p">.</span><span class="nx">MatchString</span><span class="p">(</span><span class="nx">processName</span><span class="p">)</span>
-<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="p">}</span>
-</code></pre></div>
+<p>Filter metrics based on process names using regex patterns:</p>
+<ul>
+<li><strong>Enabled</strong>: Toggle process filtering on/off</li>
+<li><strong>Pattern</strong>: Regex pattern to match process names</li>
+<li><strong>Examples</strong>: <code>"my-app.*"</code>, <code>"(worker|scheduler).*"</code></li>
+</ul>
 <h3 id="thread-filtering">Thread Filtering</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ThreadFilterConfig</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="nx">Enabled</span><span class="w"> </span><span class="kt">bool</span><span class="w">   </span><span class="s">`mapstructure:&quot;enabled&quot;`</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nx">Pattern</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`mapstructure:&quot;pattern&quot;`</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nx">compiledPattern</span><span class="w"> </span><span class="o">*</span><span class="nx">regexp</span><span class="p">.</span><span class="nx">Regexp</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">}</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">cfg</span><span class="w"> </span><span class="o">*</span><span class="nx">ThreadFilterConfig</span><span class="p">)</span><span class="w"> </span><span class="nx">Matches</span><span class="p">(</span><span class="nx">threadName</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">compiledPattern</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">compiledPattern</span><span class="p">.</span><span class="nx">MatchString</span><span class="p">(</span><span class="nx">threadName</span><span class="p">)</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">}</span>
-</code></pre></div>
+<p>Filter metrics based on thread names using regex patterns:</p>
+<ul>
+<li><strong>Enabled</strong>: Toggle thread filtering on/off  </li>
+<li><strong>Pattern</strong>: Regex pattern to match thread names</li>
+<li><strong>Examples</strong>: <code>"worker-.*"</code>, <code>"(main|background)-.*"</code></li>
+</ul>
 <h3 id="pattern-filtering">Pattern Filtering</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">PatternFilterConfig</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="nx">Enabled</span><span class="w"> </span><span class="kt">bool</span><span class="w">   </span><span class="s">`mapstructure:&quot;enabled&quot;`</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="nx">Pattern</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`mapstructure:&quot;pattern&quot;`</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nx">compiledPattern</span><span class="w"> </span><span class="o">*</span><span class="nx">regexp</span><span class="p">.</span><span class="nx">Regexp</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">cfg</span><span class="w"> </span><span class="o">*</span><span class="nx">PatternFilterConfig</span><span class="p">)</span><span class="w"> </span><span class="nx">Matches</span><span class="p">(</span><span class="nx">attributeValue</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">compiledPattern</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">compiledPattern</span><span class="p">.</span><span class="nx">MatchString</span><span class="p">(</span><span class="nx">attributeValue</span><span class="p">)</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="p">}</span>
-</code></pre></div>
+<p>Filter metrics based on attribute values using regex patterns:</p>
+<ul>
+<li><strong>Enabled</strong>: Toggle pattern filtering on/off</li>
+<li><strong>Pattern</strong>: Regex pattern to match attribute values</li>
+<li><strong>Examples</strong>: <code>"service-.*"</code>, <code>"(production|staging).*"</code></li>
+</ul>
 <h2 id="metric-generation-architecture">Metric Generation Architecture</h2>
 <h3 id="cpu-metrics">CPU Metrics</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">generateCPUMetrics</span><span class="p">(</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nx">samples</span><span class="w"> </span><span class="p">[]</span><span class="nx">pprofile</span><span class="p">.</span><span class="nx">Sample</span><span class="p">,</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nx">attributes</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">,</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">)</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">Metrics</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nx">metrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">NewMetrics</span><span class="p">()</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="c1">// Calculate CPU time</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nx">cpuTime</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">calculateCPUTime</span><span class="p">(</span><span class="nx">samples</span><span class="p">)</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">cpuTime</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">metrics</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="c1">// Create metric</span>
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="nx">resourceMetrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">metrics</span><span class="p">.</span><span class="nx">ResourceMetrics</span><span class="p">()</span>
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="nx">resourceMetric</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">resourceMetrics</span><span class="p">.</span><span class="nx">AppendEmpty</span><span class="p">()</span>
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">    </span><span class="c1">// Set resource attributes</span>
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">    </span><span class="nx">resourceAttrs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">resourceMetric</span><span class="p">.</span><span class="nx">Resource</span><span class="p">().</span><span class="nx">Attributes</span><span class="p">()</span>
-<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">k</span><span class="p">,</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">attributes</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="w">        </span><span class="nx">resourceAttrs</span><span class="p">.</span><span class="nx">PutStr</span><span class="p">(</span><span class="nx">k</span><span class="p">,</span><span class="w"> </span><span class="nx">v</span><span class="p">)</span>
-<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>
-<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="w">    </span><span class="c1">// Create scope metrics</span>
-<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="w">    </span><span class="nx">scopeMetrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">resourceMetric</span><span class="p">.</span><span class="nx">ScopeMetrics</span><span class="p">()</span>
-<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w">    </span><span class="nx">scopeMetric</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">scopeMetrics</span><span class="p">.</span><span class="nx">AppendEmpty</span><span class="p">()</span>
-<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="w">    </span><span class="nx">scopeMetric</span><span class="p">.</span><span class="nx">Scope</span><span class="p">().</span><span class="nx">SetName</span><span class="p">(</span><span class="s">&quot;profiletometrics&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="w">    </span><span class="nx">scopeMetric</span><span class="p">.</span><span class="nx">Scope</span><span class="p">().</span><span class="nx">SetVersion</span><span class="p">(</span><span class="s">&quot;0.1.0&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>
-<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="w">    </span><span class="c1">// Create metric</span>
-<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="w">    </span><span class="nx">metricSlice</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">scopeMetric</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">()</span>
-<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="w">    </span><span class="nx">metric</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">metricSlice</span><span class="p">.</span><span class="nx">AppendEmpty</span><span class="p">()</span>
-<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a><span class="w">    </span><span class="nx">metric</span><span class="p">.</span><span class="nx">SetName</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">.</span><span class="nx">CPU</span><span class="p">.</span><span class="nx">MetricName</span><span class="p">)</span>
-<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a><span class="w">    </span><span class="nx">metric</span><span class="p">.</span><span class="nx">SetDescription</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">.</span><span class="nx">CPU</span><span class="p">.</span><span class="nx">Description</span><span class="p">)</span>
-<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a><span class="w">    </span><span class="nx">metric</span><span class="p">.</span><span class="nx">SetUnit</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">.</span><span class="nx">CPU</span><span class="p">.</span><span class="nx">Unit</span><span class="p">)</span>
-<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a>
-<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a><span class="w">    </span><span class="c1">// Set metric type and data</span>
-<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="w">    </span><span class="nx">metric</span><span class="p">.</span><span class="nx">SetEmptySum</span><span class="p">()</span>
-<a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a><span class="w">    </span><span class="nx">sum</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">metric</span><span class="p">.</span><span class="nx">Sum</span><span class="p">()</span>
-<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a><span class="w">    </span><span class="nx">sum</span><span class="p">.</span><span class="nx">SetIsMonotonic</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
-<a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a><span class="w">    </span><span class="nx">sum</span><span class="p">.</span><span class="nx">SetAggregationTemporality</span><span class="p">(</span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">AggregationTemporalityCumulative</span><span class="p">)</span>
-<a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a>
-<a id="__codelineno-10-42" name="__codelineno-10-42" href="#__codelineno-10-42"></a><span class="w">    </span><span class="c1">// Add data point</span>
-<a id="__codelineno-10-43" name="__codelineno-10-43" href="#__codelineno-10-43"></a><span class="w">    </span><span class="nx">dataPoints</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">sum</span><span class="p">.</span><span class="nx">DataPoints</span><span class="p">()</span>
-<a id="__codelineno-10-44" name="__codelineno-10-44" href="#__codelineno-10-44"></a><span class="w">    </span><span class="nx">dataPoint</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">dataPoints</span><span class="p">.</span><span class="nx">AppendEmpty</span><span class="p">()</span>
-<a id="__codelineno-10-45" name="__codelineno-10-45" href="#__codelineno-10-45"></a><span class="w">    </span><span class="nx">dataPoint</span><span class="p">.</span><span class="nx">SetDoubleValue</span><span class="p">(</span><span class="nx">cpuTime</span><span class="p">)</span>
-<a id="__codelineno-10-46" name="__codelineno-10-46" href="#__codelineno-10-46"></a><span class="w">    </span><span class="nx">dataPoint</span><span class="p">.</span><span class="nx">SetTimestamp</span><span class="p">(</span><span class="nx">pcommon</span><span class="p">.</span><span class="nx">NewTimestampFromTime</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">()))</span>
-<a id="__codelineno-10-47" name="__codelineno-10-47" href="#__codelineno-10-47"></a>
-<a id="__codelineno-10-48" name="__codelineno-10-48" href="#__codelineno-10-48"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">metrics</span>
-<a id="__codelineno-10-49" name="__codelineno-10-49" href="#__codelineno-10-49"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector generates CPU metrics with:</p>
+<ul>
+<li><strong>Metric Name</strong>: Configurable (default: "cpu_time")</li>
+<li><strong>Unit</strong>: Time unit (default: "ns")</li>
+<li><strong>Type</strong>: Cumulative sum metric</li>
+<li><strong>Attributes</strong>: Extracted from string table and resource attributes</li>
+<li><strong>Data Points</strong>: CPU time values from profiling samples</li>
+</ul>
 <h3 id="memory-metrics">Memory Metrics</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">generateMemoryMetrics</span><span class="p">(</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="nx">samples</span><span class="w"> </span><span class="p">[]</span><span class="nx">pprofile</span><span class="p">.</span><span class="nx">Sample</span><span class="p">,</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nx">attributes</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">,</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">)</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">Metrics</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="nx">metrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">NewMetrics</span><span class="p">()</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="c1">// Calculate memory allocation</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="nx">memoryAllocation</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">calculateMemoryAllocation</span><span class="p">(</span><span class="nx">samples</span><span class="p">)</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">memoryAllocation</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">metrics</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="c1">// Create metric similar to CPU metrics</span>
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">    </span><span class="c1">// ... implementation details ...</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">metrics</span>
-<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector generates memory metrics with:</p>
+<ul>
+<li><strong>Metric Name</strong>: Configurable (default: "memory_allocation") </li>
+<li><strong>Unit</strong>: Memory unit (default: "bytes")</li>
+<li><strong>Type</strong>: Cumulative sum metric</li>
+<li><strong>Attributes</strong>: Extracted from string table and resource attributes</li>
+<li><strong>Data Points</strong>: Memory allocation values from profiling samples</li>
+</ul>
 <h2 id="error-handling-architecture">Error Handling Architecture</h2>
 <h3 id="error-types">Error Types</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ConversionError</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="nx">Type</span><span class="w">    </span><span class="kt">string</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nx">Message</span><span class="w"> </span><span class="kt">string</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nx">Cause</span><span class="w">   </span><span class="kt">error</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="p">}</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="o">*</span><span class="nx">ConversionError</span><span class="p">)</span><span class="w"> </span><span class="nx">Error</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;%s: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Type</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">}</span>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="o">*</span><span class="nx">ConversionError</span><span class="p">)</span><span class="w"> </span><span class="nx">Unwrap</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Cause</span>
-<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="p">}</span>
-<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
-<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="kd">var</span><span class="w"> </span><span class="p">(</span>
-<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="nx">ErrInvalidConfiguration</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">ConversionError</span><span class="p">{</span>
-<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">        </span><span class="nx">Type</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;ConfigurationError&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">        </span><span class="nx">Message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;invalid configuration&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>
-<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">    </span><span class="nx">ErrInvalidProfilingData</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">ConversionError</span><span class="p">{</span>
-<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="w">        </span><span class="nx">Type</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;DataError&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="w">        </span><span class="nx">Message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;invalid profiling data&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>
-<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">    </span><span class="nx">ErrMetricGeneration</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">ConversionError</span><span class="p">{</span>
-<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="w">        </span><span class="nx">Type</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;MetricError&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a><span class="w">        </span><span class="nx">Message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;failed to generate metrics&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a><span class="p">)</span>
-</code></pre></div>
+<p>The connector handles several types of errors:</p>
+<ul>
+<li><strong>Configuration Errors</strong>: Invalid configuration settings</li>
+<li><strong>Data Errors</strong>: Invalid or malformed profiling data</li>
+<li><strong>Metric Generation Errors</strong>: Failures in metric creation</li>
+<li><strong>Filter Errors</strong>: Invalid regex patterns in filters</li>
+</ul>
 <h3 id="error-handling">Error Handling</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">ConvertProfilesToMetrics</span><span class="p">(</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nx">profiles</span><span class="w"> </span><span class="nx">pprofile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">,</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="c1">// Validate input</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">profiles</span><span class="p">.</span><span class="nx">ResourceProfiles</span><span class="p">().</span><span class="nx">Len</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">NewMetrics</span><span class="p">(),</span><span class="w"> </span><span class="nx">ErrInvalidProfilingData</span>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="c1">// Process with error handling</span>
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="nx">metrics</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">processProfiles</span><span class="p">(</span><span class="nx">profiles</span><span class="p">)</span>
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">NewMetrics</span><span class="p">(),</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;failed to process profiles: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
-<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>
-<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">metrics</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
-<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector provides comprehensive error handling:</p>
+<ul>
+<li><strong>Input Validation</strong>: Validates profiling data before processing</li>
+<li><strong>Graceful Degradation</strong>: Continues processing when possible</li>
+<li><strong>Detailed Logging</strong>: Logs errors with context for debugging</li>
+<li><strong>Error Propagation</strong>: Returns meaningful error messages</li>
+</ul>
 <h2 id="logging-architecture">Logging Architecture</h2>
 <h3 id="structured-logging">Structured Logging</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">profileToMetricsConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">ConsumeTraces</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">td</span><span class="w"> </span><span class="nx">ptrace</span><span class="p">.</span><span class="nx">Traces</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="c1">// Log input statistics</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nx">resourceSpansCount</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">td</span><span class="p">.</span><span class="nx">ResourceSpans</span><span class="p">().</span><span class="nx">Len</span><span class="p">()</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nx">totalSpans</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">resourceSpansCount</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">        </span><span class="nx">totalSpans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">td</span><span class="p">.</span><span class="nx">ResourceSpans</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">i</span><span class="p">).</span><span class="nx">ScopeSpans</span><span class="p">().</span><span class="nx">Len</span><span class="p">()</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">    </span><span class="nx">c</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">Debug</span><span class="p">(</span><span class="s">&quot;Processing traces&quot;</span><span class="p">,</span>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">        </span><span class="nx">zap</span><span class="p">.</span><span class="nx">Int</span><span class="p">(</span><span class="s">&quot;resource_spans_count&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">resourceSpansCount</span><span class="p">),</span>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">        </span><span class="nx">zap</span><span class="p">.</span><span class="nx">Int</span><span class="p">(</span><span class="s">&quot;total_spans&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">totalSpans</span><span class="p">),</span>
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">    </span><span class="p">)</span>
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>
-<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">    </span><span class="c1">// Process traces</span>
-<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">    </span><span class="nx">metrics</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">converter</span><span class="p">.</span><span class="nx">ConvertTracesToMetrics</span><span class="p">(</span><span class="nx">td</span><span class="p">)</span>
-<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">        </span><span class="nx">c</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="s">&quot;Failed to convert traces to metrics&quot;</span><span class="p">,</span>
-<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">            </span><span class="nx">zap</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">),</span>
-<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">            </span><span class="nx">zap</span><span class="p">.</span><span class="nx">Int</span><span class="p">(</span><span class="s">&quot;input_spans&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">totalSpans</span><span class="p">),</span>
-<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">        </span><span class="p">)</span>
-<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>
-<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="w">    </span><span class="c1">// Log output statistics</span>
-<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="w">    </span><span class="nx">resourceMetricsCount</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">metrics</span><span class="p">.</span><span class="nx">ResourceMetrics</span><span class="p">().</span><span class="nx">Len</span><span class="p">()</span>
-<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="w">    </span><span class="nx">totalMetrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span>
-<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">resourceMetricsCount</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a><span class="w">        </span><span class="nx">scopeMetrics</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">metrics</span><span class="p">.</span><span class="nx">ResourceMetrics</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">i</span><span class="p">).</span><span class="nx">ScopeMetrics</span><span class="p">()</span>
-<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">scopeMetrics</span><span class="p">.</span><span class="nx">Len</span><span class="p">();</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="w">            </span><span class="nx">totalMetrics</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">scopeMetrics</span><span class="p">.</span><span class="nx">At</span><span class="p">(</span><span class="nx">j</span><span class="p">).</span><span class="nx">Metrics</span><span class="p">().</span><span class="nx">Len</span><span class="p">()</span>
-<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>
-<a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a><span class="w">    </span><span class="nx">c</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">Debug</span><span class="p">(</span><span class="s">&quot;Traces converted to metrics&quot;</span><span class="p">,</span>
-<a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a><span class="w">        </span><span class="nx">zap</span><span class="p">.</span><span class="nx">Int</span><span class="p">(</span><span class="s">&quot;input_spans&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">totalSpans</span><span class="p">),</span>
-<a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a><span class="w">        </span><span class="nx">zap</span><span class="p">.</span><span class="nx">Int</span><span class="p">(</span><span class="s">&quot;output_resource_metrics&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">resourceMetricsCount</span><span class="p">),</span>
-<a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a><span class="w">        </span><span class="nx">zap</span><span class="p">.</span><span class="nx">Int</span><span class="p">(</span><span class="s">&quot;output_metrics&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">totalMetrics</span><span class="p">),</span>
-<a id="__codelineno-14-38" name="__codelineno-14-38" href="#__codelineno-14-38"></a><span class="w">    </span><span class="p">)</span>
-<a id="__codelineno-14-39" name="__codelineno-14-39" href="#__codelineno-14-39"></a>
-<a id="__codelineno-14-40" name="__codelineno-14-40" href="#__codelineno-14-40"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">nextConsumer</span><span class="p">.</span><span class="nx">ConsumeMetrics</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">metrics</span><span class="p">)</span>
-<a id="__codelineno-14-41" name="__codelineno-14-41" href="#__codelineno-14-41"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector provides comprehensive logging:</p>
+<ul>
+<li><strong>Input Statistics</strong>: Logs number of traces and samples processed</li>
+<li><strong>Processing Status</strong>: Debug information about conversion process</li>
+<li><strong>Output Statistics</strong>: Logs number of metrics generated</li>
+<li><strong>Error Context</strong>: Detailed error information for troubleshooting</li>
+<li><strong>Performance Metrics</strong>: Processing time and throughput information</li>
+</ul>
 <h2 id="performance-architecture">Performance Architecture</h2>
 <h3 id="caching">Caching</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ConverterConnector</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="nx">config</span><span class="w"> </span><span class="nx">ConverterConfig</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="nx">logger</span><span class="w"> </span><span class="o">*</span><span class="nx">zap</span><span class="p">.</span><span class="nx">Logger</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="nx">cache</span><span class="w">  </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="nx">mutex</span><span class="w">  </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">}</span>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">getCachedAttribute</span><span class="p">(</span><span class="nx">key</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">    </span><span class="nx">c</span><span class="p">.</span><span class="nx">mutex</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
-<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">mutex</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
-<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
-<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">    </span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">cache</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
-<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">exists</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span>
-<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>
-<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">    </span><span class="nx">strValue</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">value</span><span class="p">.(</span><span class="kt">string</span><span class="p">)</span>
-<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">strValue</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span>
-<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="p">}</span>
-<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>
-<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">setCachedAttribute</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">    </span><span class="nx">c</span><span class="p">.</span><span class="nx">mutex</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
-<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">mutex</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
-<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>
-<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="w">    </span><span class="nx">c</span><span class="p">.</span><span class="nx">cache</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">value</span>
-<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector implements intelligent caching:</p>
+<ul>
+<li><strong>Attribute Caching</strong>: Caches frequently accessed string table attributes</li>
+<li><strong>Pattern Caching</strong>: Caches compiled regex patterns for filters</li>
+<li><strong>Thread-Safe</strong>: Concurrent access with read-write locks</li>
+<li><strong>Memory Efficient</strong>: Automatic cache cleanup and size limits</li>
+</ul>
 <h3 id="batch-processing">Batch Processing</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="p">)</span><span class="w"> </span><span class="nx">processBatch</span><span class="p">(</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="nx">profiles</span><span class="w"> </span><span class="p">[]</span><span class="nx">pprofile</span><span class="p">.</span><span class="nx">Profiles</span><span class="p">,</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nx">batchSize</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="p">[]</span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">Metrics</span>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">profiles</span><span class="p">);</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">batchSize</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">        </span><span class="nx">end</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">batchSize</span>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">end</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">profiles</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">            </span><span class="nx">end</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">profiles</span><span class="p">)</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
-<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">        </span><span class="nx">batch</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">profiles</span><span class="p">[</span><span class="nx">i</span><span class="p">:</span><span class="nx">end</span><span class="p">]</span>
-<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="w">        </span><span class="nx">batchResults</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">processBatch</span><span class="p">(</span><span class="nx">batch</span><span class="p">)</span>
-<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
-<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>
-<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="w">        </span><span class="nx">results</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">results</span><span class="p">,</span><span class="w"> </span><span class="nx">batchResults</span><span class="o">...</span><span class="p">)</span>
-<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>
-<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">results</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
-<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector supports efficient batch processing:</p>
+<ul>
+<li><strong>Configurable Batch Size</strong>: Adjustable batch size for optimal performance</li>
+<li><strong>Parallel Processing</strong>: Concurrent processing of batches</li>
+<li><strong>Memory Management</strong>: Efficient memory usage for large datasets</li>
+<li><strong>Error Isolation</strong>: Batch failures don't affect other batches</li>
+</ul>
 <h2 id="testing-architecture">Testing Architecture</h2>
 <h3 id="test-structure">Test Structure</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>tests/
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>├── unit/
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>│   ├── converter_test.go
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>│   ├── config_test.go
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>│   └── connector_test.go
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>├── integration/
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>│   ├── end_to_end_test.go
-<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>│   └── performance_test.go
-<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>└── testdata/
-<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>    ├── profile_test_data.go
-<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>    └── config_test_data.go
-</code></pre></div>
-<h3 id="test-utilities">Test Utilities</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">createTestConverter</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="nx">ConverterConfig</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">ConverterConnector</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="nx">t</span><span class="p">.</span><span class="nx">Helper</span><span class="p">()</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="nx">logger</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">zap</span><span class="p">.</span><span class="nx">NewDevelopment</span><span class="p">()</span>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">ConverterConnector</span><span class="p">{</span>
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">        </span><span class="nx">config</span><span class="p">:</span><span class="w"> </span><span class="nx">config</span><span class="p">,</span>
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">        </span><span class="nx">logger</span><span class="p">:</span><span class="w"> </span><span class="nx">logger</span><span class="p">,</span>
-<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="p">}</span>
-<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
-<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="kd">func</span><span class="w"> </span><span class="nx">assertMetricsEqual</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">,</span><span class="w"> </span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="nx">pmetric</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="w">    </span><span class="nx">t</span><span class="p">.</span><span class="nx">Helper</span><span class="p">()</span>
-<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>
-<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="w">    </span><span class="c1">// Compare metrics structure and values</span>
-<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">expected</span><span class="p">.</span><span class="nx">ResourceMetrics</span><span class="p">().</span><span class="nx">Len</span><span class="p">(),</span><span class="w"> </span><span class="nx">actual</span><span class="p">.</span><span class="nx">ResourceMetrics</span><span class="p">().</span><span class="nx">Len</span><span class="p">())</span>
-<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>
-<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">expected</span><span class="p">.</span><span class="nx">ResourceMetrics</span><span class="p">().</span><span class="nx">Len</span><span class="p">();</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a><span class="w">        </span><span class="nx">expectedRM</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">expected</span><span class="p">.</span><span class="nx">ResourceMetrics</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
-<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a><span class="w">        </span><span class="nx">actualRM</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">actual</span><span class="p">.</span><span class="nx">ResourceMetrics</span><span class="p">().</span><span class="nx">At</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
-<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>
-<a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a><span class="w">        </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">expectedRM</span><span class="p">.</span><span class="nx">ScopeMetrics</span><span class="p">().</span><span class="nx">Len</span><span class="p">(),</span><span class="w"> </span><span class="nx">actualRM</span><span class="p">.</span><span class="nx">ScopeMetrics</span><span class="p">().</span><span class="nx">Len</span><span class="p">())</span>
-<a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a><span class="p">}</span>
-</code></pre></div>
+<p>The connector includes comprehensive testing:</p>
+<ul>
+<li><strong>Unit Tests</strong>: Individual component testing</li>
+<li><strong>Integration Tests</strong>: End-to-end testing with real data</li>
+<li><strong>Performance Tests</strong>: Load and stress testing</li>
+<li><strong>Configuration Tests</strong>: Validation of all configuration options</li>
+</ul>
+<h3 id="test-coverage">Test Coverage</h3>
+<p>The connector maintains high test coverage:</p>
+<ul>
+<li><strong>Configuration Validation</strong>: All configuration options tested</li>
+<li><strong>Metric Generation</strong>: CPU and memory metric generation tested</li>
+<li><strong>Filtering Logic</strong>: All filter types and patterns tested</li>
+<li><strong>Error Handling</strong>: Error scenarios and edge cases tested</li>
+<li><strong>Performance</strong>: Load testing and performance benchmarks</li>
+</ul>
 
 
 
@@ -2504,7 +2368,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 22, 2025 17:16:05 UTC">October 22, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 23, 2025 09:58:26 UTC">October 23, 2025</span>
   </span>
 
     
