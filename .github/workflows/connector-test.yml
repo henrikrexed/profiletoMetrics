@@ -57,11 +57,11 @@ jobs:
 
     - name: Test configuration ${{ matrix.config }}
       run: |
-        # Test configuration validation with feature gate
-        ./otelcol-profiletometrics --config=${{ matrix.config }} --feature-gates=+service.profilesSupport --dry-run
+        # Test configuration validation
+        ./otelcol-profiletometrics --config=${{ matrix.config }} --dry-run
         
         # Test configuration parsing
-        ./otelcol-profiletometrics --config=${{ matrix.config }} --feature-gates=+service.profilesSupport --help
+        ./otelcol-profiletometrics --config=${{ matrix.config }} --help
 
   # Test connector with real data
   connector-data-tests:
@@ -104,7 +104,7 @@ jobs:
 
     - name: Start collector with debug config
       run: |
-        ./otelcol-profiletometrics --config=examples/working-debug-config.yaml --feature-gates=+service.profilesSupport &
+        ./otelcol-profiletometrics --config=examples/working-debug-config.yaml &
         COLLECTOR_PID=$!
         echo $COLLECTOR_PID > collector.pid
         
@@ -287,8 +287,7 @@ jobs:
           -p 4318:4318 \
           -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           otelcol-profiletometrics:test \
-          --config=/etc/otelcol/config.yaml \
-          --feature-gates=+service.profilesSupport
+          --config=/etc/otelcol/config.yaml
         
         # Wait for collector to start
         sleep 10

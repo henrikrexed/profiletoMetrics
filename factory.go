@@ -1,13 +1,14 @@
-package connector
+package profiletometrics
 
 import (
 	"context"
 
-	"github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/connector"
 	"go.opentelemetry.io/collector/connector/xconnector"
 	"go.opentelemetry.io/collector/consumer"
+
+	"github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
 )
 
 const (
@@ -45,43 +46,45 @@ func createProfilesToMetricsConnector(
 
 func createDefaultConfig() component.Config {
 	return &Config{
-		Metrics: profiletometrics.MetricsConfig{
-			CPU: profiletometrics.CPUMetricConfig{
-				Enabled: true,
-				Name:    "cpu_time",
-				Unit:    "ns",
+		ConverterConfig: profiletometrics.ConverterConfig{
+			Metrics: profiletometrics.MetricsConfig{
+				CPU: profiletometrics.CPUMetricConfig{
+					Enabled: true,
+					Name:    "cpu_time",
+					Unit:    "ns",
+				},
+				Memory: profiletometrics.MemoryMetricConfig{
+					Enabled: true,
+					Name:    "memory_allocation",
+					Unit:    "bytes",
+				},
 			},
-			Memory: profiletometrics.MemoryMetricConfig{
-				Enabled: true,
-				Name:    "memory_allocation",
-				Unit:    "bytes",
+			Attributes: []profiletometrics.AttributeConfig{
+				{
+					Name:  "service.name",
+					Value: "service_name",
+					Type:  "literal",
+				},
+				{
+					Name:  "process.name",
+					Value: "process_name",
+					Type:  "literal",
+				},
+				{
+					Name:  "function.name",
+					Value: "function_name",
+					Type:  "regex",
+				},
 			},
-		},
-		Attributes: []profiletometrics.AttributeConfig{
-			{
-				Name:  "service.name",
-				Value: "service_name",
-				Type:  "literal",
+			ProcessFilter: profiletometrics.ProcessFilterConfig{
+				Enabled: false,
 			},
-			{
-				Name:  "process.name",
-				Value: "process_name",
-				Type:  "literal",
+			PatternFilter: profiletometrics.PatternFilterConfig{
+				Enabled: false,
 			},
-			{
-				Name:  "function.name",
-				Value: "function_name",
-				Type:  "regex",
+			ThreadFilter: profiletometrics.ThreadFilterConfig{
+				Enabled: false,
 			},
-		},
-		ProcessFilter: profiletometrics.ProcessFilterConfig{
-			Enabled: false,
-		},
-		PatternFilter: profiletometrics.PatternFilterConfig{
-			Enabled: false,
-		},
-		ThreadFilter: profiletometrics.ThreadFilterConfig{
-			Enabled: false,
 		},
 	}
 }

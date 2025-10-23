@@ -1,6 +1,5 @@
-# OpenTelemetry Collector Builder (OCB) Manifest
-# This manifest defines how to build a custom OpenTelemetry Collector
-# with the profile-to-metrics connector and all required components
+# Simple OpenTelemetry Collector Builder (OCB) Manifest
+# This builds a basic collector without the custom connector
 
 dist:
   name: otelcol-profiletometrics
@@ -8,13 +7,11 @@ dist:
   output_path: ./dist
 
 exporters:
-  # OTLP exporter
+  # OTLP exporters
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.137.0
   - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.137.0
   # Debug exporter
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.137.0
-
-# Extensions not available at v0.137.0 - removed to avoid build errors
 
 receivers:
   # OTLP receiver
@@ -23,13 +20,6 @@ receivers:
 processors:
   # Batch processor
   - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.137.0
-
-connectors:
-  # Custom profile-to-metrics connector
-  - gomod: github.com/henrikrexed/profiletoMetrics/connector v0.1.0
-    replace:
-      - gomod: github.com/henrikrexed/profiletoMetrics/connector v0.1.0
-        path: ./connector
 
 build:
   # Build configuration

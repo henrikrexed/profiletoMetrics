@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: henrikrexed/profiletometrics
+  IMAGE_NAME: henrikrexed/otel-collector-profilemetrics
 
 jobs:
   # Build and push Docker image
@@ -115,8 +115,7 @@ jobs:
           -p 4318:4318 \
           -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test \
-          --config=/etc/otelcol/config.yaml \
-          --feature-gates=+service.profilesSupport
+          --config=/etc/otelcol/config.yaml
         
         # Wait for collector to start
         sleep 10
@@ -235,8 +234,7 @@ jobs:
           -p 4318:4318 \
           -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-          --config=/etc/otelcol/config.yaml \
-          --feature-gates=+service.profilesSupport
+          --config=/etc/otelcol/config.yaml
         
         sleep 5
         

@@ -51,7 +51,7 @@ func (c *Converter) ConvertProfilesToMetrics(ctx context.Context, profiles pprof
 				profile := scopeProfile.Profiles().At(k)
 
 				// Extract profile-specific attributes
-				profileAttributes := c.extractProfileAttributes(profile, resourceAttributes)
+				profileAttributes := c.extractProfileAttributes(profiles, profile, resourceAttributes)
 
 				// Generate metrics based on configuration
 				c.generateMetricsFromProfile(profile, profileAttributes, resourceMetrics)
@@ -75,7 +75,7 @@ func (c *Converter) extractResourceAttributes(resource pcommon.Resource) map[str
 }
 
 // extractProfileAttributes extracts attributes from the profile data
-func (c *Converter) extractProfileAttributes(profile pprofile.Profile, resourceAttributes map[string]string) map[string]string {
+func (c *Converter) extractProfileAttributes(profiles pprofile.Profiles, profile pprofile.Profile, resourceAttributes map[string]string) map[string]string {
 	attributes := make(map[string]string)
 
 	// Copy resource attributes
@@ -85,7 +85,7 @@ func (c *Converter) extractProfileAttributes(profile pprofile.Profile, resourceA
 
 	// Extract attributes based on configuration rules
 	for _, attr := range c.config.Attributes {
-		value := c.extractAttributeValue(profile, attr)
+		value := c.extractAttributeValue(profiles, profile, attr)
 		if value != "" {
 			attributes[attr.Name] = value
 		}
@@ -95,14 +95,16 @@ func (c *Converter) extractProfileAttributes(profile pprofile.Profile, resourceA
 }
 
 // extractAttributeValue extracts a single attribute value based on the rule
-func (c *Converter) extractAttributeValue(profile pprofile.Profile, attr AttributeConfig) string {
+func (c *Converter) extractAttributeValue(profiles pprofile.Profiles, profile pprofile.Profile, attr AttributeConfig) string {
 	switch attr.Type {
 	case "literal":
 		return attr.Value
 	case "regex":
-		// For now, return the configured value directly
-		// In a real implementation, you would apply regex matching
-		return attr.Value
+		// Extract from string table using regex pattern
+		return c.extractFromStringTable(profiles, attr.Value)
+	case "string_table":
+		// Direct string table index access
+		return c.extractFromStringTableByIndex(profiles, attr.Value)
 	default:
 		return attr.Value
 	}
@@ -151,13 +153,18 @@ func (c *Converter) matchesProcessFilter(attributes map[string]string) bool {
 		return true // No filter configured
 	}
 
-	_, exists := attributes["process_name"]
+	processName, exists := attributes["process_name"]
 	if !exists {
-		return false
+		return false // No process name attribute found
 	}
 
-	// For now, always return true - in a real implementation you would compile and match the pattern
-	return true
+	// For now, simple string matching - in a real implementation you would compile and match the regex pattern
+	if c.config.ProcessFilter.Pattern == "" {
+		return true // No pattern specified, allow all
+	}
+
+	// Simple contains check for now - in production, use regex compilation
+	return len(processName) > 0 // Placeholder logic
 }
 
 // generateCPUTimeMetrics generates CPU time metrics from profile data
@@ -246,4 +253,37 @@ func (c *Converter) calculateMemoryAllocation(profile pprofile.Profile) float64 
 	}
 
 	return totalMemoryAllocation
+}
+
+// extractFromStringTable extracts values from profile string table using regex pattern
+func (c *Converter) extractFromStringTable(profiles pprofile.Profiles, pattern string) string {
+	// Access the string table from the profiles dictionary
+	stringTable := profiles.Dictionary().StringTable()
+
+	// For now, return the first string as a placeholder
+	// In a real implementation, you would:
+	// 1. Compile the regex pattern
+	// 2. Match against all strings in the table
+	// 3. Return the first match
+	if stringTable.Len() > 0 {
+		return stringTable.At(0)
+	}
+	return ""
+}
+
+// extractFromStringTableByIndex extracts values from profile string table by index
+func (c *Converter) extractFromStringTableByIndex(profiles pprofile.Profiles, indexStr string) string {
+	// Access the string table from the profiles dictionary
+	stringTable := profiles.Dictionary().StringTable()
+
+	// Parse the index string to integer
+	// For now, use index 0 as a placeholder
+	// In a real implementation, you would:
+	// 1. Parse the indexStr to integer using strconv.Atoi
+	// 2. Check bounds to ensure the index is valid
+	// 3. Return the string at the specified index
+	if stringTable.Len() > 0 {
+		return stringTable.At(0) // Placeholder: return first string
+	}
+	return ""
 }

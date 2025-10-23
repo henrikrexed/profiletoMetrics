@@ -1,4 +1,4 @@
-package profiletometricsconnector
+package connector
 
 import (
 	"github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
@@ -6,6 +6,9 @@ import (
 
 // Config defines the configuration for the ProfileToMetrics connector.
 type Config struct {
+	// Converter configuration
+	ConverterConfig profiletometrics.ConverterConfig `mapstructure:",squash"`
+
 	// Metrics configuration
 	Metrics profiletometrics.MetricsConfig `mapstructure:"metrics"`
 
