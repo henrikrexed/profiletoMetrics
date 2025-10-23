@@ -37,18 +37,22 @@ linters-settings:
           # Standard Go imports
           - "context"
           - "testing"
+          - "time"
           # OpenTelemetry Collector imports
           - "go.opentelemetry.io/collector/component"
           - "go.opentelemetry.io/collector/connector"
           - "go.opentelemetry.io/collector/connector/xconnector"
           - "go.opentelemetry.io/collector/consumer"
           - "go.opentelemetry.io/collector/pdata/pprofile"
+          - "go.opentelemetry.io/collector/pdata/pmetric"
+          - "go.opentelemetry.io/collector/pdata/pcommon"
           - "go.uber.org/zap"
           # Testing libraries
           - "github.com/stretchr/testify/assert"
           - "github.com/stretchr/testify/require"
-          # Internal package
+          # Internal packages
           - "github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
+          - "github.com/henrikrexed/profiletoMetrics/testdata"
 
 linters:
   enable:

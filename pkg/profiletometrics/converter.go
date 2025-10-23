@@ -164,7 +164,7 @@ func (c *Converter) matchesProcessFilter(attributes map[string]string) bool {
 	}
 
 	// Simple contains check for now - in production, use regex compilation
-	return len(processName) > 0 // Placeholder logic
+	return processName != "" // Placeholder logic
 }
 
 // generateCPUTimeMetrics generates CPU time metrics from profile data
