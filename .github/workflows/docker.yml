@@ -115,7 +115,8 @@ jobs:
           -p 4318:4318 \
           -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test \
-          --config=/etc/otelcol/config.yaml
+          --config=/etc/otelcol/config.yaml \
+          --feature-gates=+service.profilesSupport
         
         # Wait for collector to start
         sleep 10
@@ -234,7 +235,8 @@ jobs:
           -p 4318:4318 \
           -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-          --config=/etc/otelcol/config.yaml
+          --config=/etc/otelcol/config.yaml \
+          --feature-gates=+service.profilesSupport
         
         sleep 5
         

@@ -67,13 +67,7 @@ service:
       processors: [batch]
       connectors: [profiletometrics]
     
-    logs:
-      receivers: [otlp]
-      processors: [batch]
-      connectors: [profiletometrics]
-    
     metrics:
       receivers: [otlp]
       processors: [batch]
-      connectors: [profiletometrics]
       exporters: [debug]
