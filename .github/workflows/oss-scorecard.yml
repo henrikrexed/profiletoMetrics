@@ -58,24 +58,22 @@ jobs:
         else
           echo "✗ SECURITY.md not found"
           echo "Creating SECURITY.md template..."
-          cat > SECURITY.md << 'EOF'
-# Security Policy
-
-## Supported Versions
-
-- 1.x.x: Supported
-- < 1.0: Not supported
-
-## Reporting a Vulnerability
-
-Please report security vulnerabilities to security@example.com
-
-## Security Measures
-
-- All dependencies are regularly updated
-- Security scanning is performed on every build
-- OSS Scorecard is run weekly
-EOF
+          echo "# Security Policy" > SECURITY.md
+          echo "" >> SECURITY.md
+          echo "## Supported Versions" >> SECURITY.md
+          echo "" >> SECURITY.md
+          echo "- 1.x.x: Supported" >> SECURITY.md
+          echo "- < 1.0: Not supported" >> SECURITY.md
+          echo "" >> SECURITY.md
+          echo "## Reporting a Vulnerability" >> SECURITY.md
+          echo "" >> SECURITY.md
+          echo "Please report security vulnerabilities to security@example.com" >> SECURITY.md
+          echo "" >> SECURITY.md
+          echo "## Security Measures" >> SECURITY.md
+          echo "" >> SECURITY.md
+          echo "- All dependencies are regularly updated" >> SECURITY.md
+          echo "- Security scanning is performed on every build" >> SECURITY.md
+          echo "- OSS Scorecard is run weekly" >> SECURITY.md
         fi
 
     - name: Check for security headers
@@ -112,29 +110,27 @@ EOF
         else
           echo "✗ No license file found"
           echo "Creating LICENSE template..."
-          cat > LICENSE << 'EOF'
-MIT License
-
-Copyright (c) 2024 Henrik Rexed
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-EOF
+          echo "MIT License" > LICENSE
+          echo "" >> LICENSE
+          echo "Copyright (c) 2024 Henrik Rexed" >> LICENSE
+          echo "" >> LICENSE
+          echo "Permission is hereby granted, free of charge, to any person obtaining a copy" >> LICENSE
+          echo "of this software and associated documentation files (the \"Software\"), to deal" >> LICENSE
+          echo "in the Software without restriction, including without limitation the rights" >> LICENSE
+          echo "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell" >> LICENSE
+          echo "copies of the Software, and to permit persons to whom the Software is" >> LICENSE
+          echo "furnished to do so, subject to the following conditions:" >> LICENSE
+          echo "" >> LICENSE
+          echo "The above copyright notice and this permission notice shall be included in all" >> LICENSE
+          echo "copies or substantial portions of the Software." >> LICENSE
+          echo "" >> LICENSE
+          echo "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR" >> LICENSE
+          echo "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY," >> LICENSE
+          echo "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE" >> LICENSE
+          echo "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER" >> LICENSE
+          echo "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM," >> LICENSE
+          echo "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE" >> LICENSE
+          echo "SOFTWARE." >> LICENSE
         fi
 
     - name: Check license compatibility
@@ -170,52 +166,50 @@ EOF
         else
           echo "✗ CONTRIBUTING.md not found"
           echo "Creating CONTRIBUTING.md template..."
-          cat > CONTRIBUTING.md << 'EOF'
-# Contributing
-
-Thank you for your interest in contributing to this project!
-
-## Getting Started
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## Development
-
-### Prerequisites
-
-- Go 1.24+
-- Docker
-- Make
-
-### Building
-
-```bash
-make build
-```
-
-### Testing
-
-```bash
-make test
-```
-
-## Code Style
-
-- Follow Go conventions
-- Add tests for new features
-- Update documentation
-
-## Pull Request Process
-
-1. Ensure all tests pass
-2. Update documentation
-3. Add changelog entry
-4. Request review
-EOF
+          echo "# Contributing" > CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "Thank you for your interest in contributing to this project!" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "## Getting Started" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "1. Fork the repository" >> CONTRIBUTING.md
+          echo "2. Create a feature branch" >> CONTRIBUTING.md
+          echo "3. Make your changes" >> CONTRIBUTING.md
+          echo "4. Add tests" >> CONTRIBUTING.md
+          echo "5. Submit a pull request" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "## Development" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "### Prerequisites" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "- Go 1.24+" >> CONTRIBUTING.md
+          echo "- Docker" >> CONTRIBUTING.md
+          echo "- Make" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "### Building" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "\`\`\`bash" >> CONTRIBUTING.md
+          echo "make build" >> CONTRIBUTING.md
+          echo "\`\`\`" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "### Testing" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "\`\`\`bash" >> CONTRIBUTING.md
+          echo "make test" >> CONTRIBUTING.md
+          echo "\`\`\`" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "## Code Style" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "- Follow Go conventions" >> CONTRIBUTING.md
+          echo "- Add tests for new features" >> CONTRIBUTING.md
+          echo "- Update documentation" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "## Pull Request Process" >> CONTRIBUTING.md
+          echo "" >> CONTRIBUTING.md
+          echo "1. Ensure all tests pass" >> CONTRIBUTING.md
+          echo "2. Update documentation" >> CONTRIBUTING.md
+          echo "3. Add changelog entry" >> CONTRIBUTING.md
+          echo "4. Request review" >> CONTRIBUTING.md
         fi
 
     - name: Check for changelog
@@ -225,35 +219,33 @@ EOF
         else
           echo "✗ CHANGELOG.md not found"
           echo "Creating CHANGELOG.md template..."
-          cat > CHANGELOG.md << 'EOF'
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-### Added
-- Initial release
-- Profile to Metrics connector
-- Debug logging support
-- Docker image with custom collector
-
-### Changed
-- N/A
-
-### Deprecated
-- N/A
-
-### Removed
-- N/A
-
-### Fixed
-- N/A
-
-### Security
-- N/A
-EOF
+          echo "# Changelog" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)," >> CHANGELOG.md
+          echo "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)." >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "## [Unreleased]" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Added" >> CHANGELOG.md
+          echo "- Initial release" >> CHANGELOG.md
+          echo "- Profile to Metrics connector" >> CHANGELOG.md
+          echo "- Debug logging support" >> CHANGELOG.md
+          echo "- Docker image with custom collector" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Changed" >> CHANGELOG.md
+          echo "- N/A" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Deprecated" >> CHANGELOG.md
+          echo "- N/A" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Removed" >> CHANGELOG.md
+          echo "- N/A" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Fixed" >> CHANGELOG.md
+          echo "- N/A" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Security" >> CHANGELOG.md
+          echo "- N/A" >> CHANGELOG.md
         fi
