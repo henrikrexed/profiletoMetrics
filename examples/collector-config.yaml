@@ -241,23 +241,17 @@ exporters:
 
 service:
   pipelines:
-    # Profiles pipeline - receives profiles and converts them to metrics
-    profiles:
+    # Traces pipeline - receives traces and converts them to metrics via connector
+    traces:
       receivers: [otlp]
       processors: [resource, k8sattributes, filter, batch]
       connectors: [profiletometrics]
 
-    # Metrics pipeline - processes the converted metrics
+    # Metrics pipeline - processes metrics from various sources
     metrics:
-      receivers: [profiletometrics, signaltometrics, prometheus]
+      receivers: [otlp, prometheus]
       processors: [resource, k8sattributes, cumulativetodelta, transform, batch]
       exporters: [otlp, prometheus, debug, logging]
-
-    # Traces pipeline - processes traces and converts some to metrics
-    traces:
-      receivers: [otlp]
-      processors: [resource, k8sattributes, filter, batch]
-      connectors: [signaltometrics]
 
     # Logs pipeline - processes logs and converts some to metrics
     logs:

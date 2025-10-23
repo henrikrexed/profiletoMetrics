@@ -67,18 +67,7 @@ service:
       processors: [batch]
       connectors: [profiletometrics]
     
-    logs:
-      receivers: [otlp]
-      processors: [batch]
-      connectors: [profiletometrics]
-    
     metrics:
       receivers: [otlp]
-      processors: [batch]
-      connectors: [profiletometrics]
-    
-    # Output pipeline for generated metrics from connector
-    metrics:
-      receivers: [profiletometrics]
       processors: [batch]
       exporters: [debug]
