@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/connector"
@@ -22,7 +22,7 @@ func TestNewFactory(t *testing.T) {
 func TestCreateDefaultConfig(t *testing.T) {
 	config := createDefaultConfig()
 	assert.NotNil(t, config)
-	
+
 	cfg, ok := config.(*Config)
 	require.True(t, ok)
 	assert.True(t, cfg.ConverterConfig.Metrics.CPU.Enabled)
@@ -62,4 +62,3 @@ func TestCreateProfilesToMetricsConnector(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, connector)
 }
-

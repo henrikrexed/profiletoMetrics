@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/pdata/pprofile"
@@ -75,4 +75,3 @@ func TestProfileToMetricsConnector_ConsumeProfiles(t *testing.T) {
 	err = connector.ConsumeProfiles(context.Background(), profiles)
 	assert.NoError(t, err)
 }
-

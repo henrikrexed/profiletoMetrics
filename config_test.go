@@ -3,8 +3,8 @@ package profiletometrics
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/henrikrexed/profiletoMetrics/pkg/profiletometrics"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConfig_Structure(t *testing.T) {
