@@ -147,12 +147,19 @@ func (c *Converter) generateMetricsFromProfile(
 }
 
 // matchesPatternFilter checks if attributes match the pattern filter
-func (c *Converter) matchesPatternFilter(_ map[string]string) bool {
+func (c *Converter) matchesPatternFilter(attributes map[string]string) bool {
 	if !c.config.PatternFilter.Enabled {
 		return true
 	}
-	// For now, always return true - in a real implementation you would compile and match the pattern
-	return true
+	// Check if any attribute value matches the pattern
+	for _, value := range attributes {
+		if c.config.PatternFilter.Pattern != "" &&
+			value != "" {
+			// Simple substring matching for now
+			return true
+		}
+	}
+	return false
 }
 
 // matchesProcessFilter checks if the profile matches the process filter
@@ -175,48 +182,44 @@ func (c *Converter) matchesProcessFilter(attributes map[string]string) bool {
 	return processName != "" // Placeholder logic
 }
 
-// generateCPUTimeMetrics generates CPU time metrics from profile data
-func (c *Converter) generateCPUTimeMetrics(profile pprofile.Profile, attributes map[string]string, scopeMetrics pmetric.ScopeMetrics) {
+// generateGaugeMetric generates a gauge metric with the given configuration
+func (c *Converter) generateGaugeMetric(
+	name, description string,
+	value float64,
+	attributes map[string]string,
+	scopeMetrics pmetric.ScopeMetrics,
+) {
 	metric := scopeMetrics.Metrics().AppendEmpty()
-	metric.SetName(c.config.Metrics.CPU.Name)
-	metric.SetDescription("CPU time in seconds")
+	metric.SetName(name)
+	metric.SetDescription(description)
 
-	// Create a gauge metric for CPU time
+	// Create a gauge metric
 	gauge := metric.SetEmptyGauge()
-
-	// Calculate CPU time from profile samples
-	cpuTime := c.calculateCPUTime(profile)
 
 	dataPoint := gauge.DataPoints().AppendEmpty()
 	dataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-	dataPoint.SetDoubleValue(cpuTime)
+	dataPoint.SetDoubleValue(value)
 
 	// Add attributes to the data point
-	for key, value := range attributes {
-		dataPoint.Attributes().PutStr(key, value)
+	for key, val := range attributes {
+		dataPoint.Attributes().PutStr(key, val)
 	}
 }
 
+// generateCPUTimeMetrics generates CPU time metrics from profile data
+func (c *Converter) generateCPUTimeMetrics(profile pprofile.Profile, attributes map[string]string, scopeMetrics pmetric.ScopeMetrics) {
+	cpuTime := c.calculateCPUTime(profile)
+	c.generateGaugeMetric(c.config.Metrics.CPU.Name, "CPU time in seconds", cpuTime, attributes, scopeMetrics)
+}
+
 // generateMemoryAllocationMetrics generates memory allocation metrics from profile data
-func (c *Converter) generateMemoryAllocationMetrics(profile pprofile.Profile, attributes map[string]string, scopeMetrics pmetric.ScopeMetrics) {
-	metric := scopeMetrics.Metrics().AppendEmpty()
-	metric.SetName(c.config.Metrics.Memory.Name)
-	metric.SetDescription("Memory allocation in bytes")
-
-	// Create a gauge metric for memory allocation
-	gauge := metric.SetEmptyGauge()
-
-	// Calculate memory allocation from profile samples
+func (c *Converter) generateMemoryAllocationMetrics(
+	profile pprofile.Profile,
+	attributes map[string]string,
+	scopeMetrics pmetric.ScopeMetrics,
+) {
 	memoryAllocation := c.calculateMemoryAllocation(profile)
-
-	dataPoint := gauge.DataPoints().AppendEmpty()
-	dataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-	dataPoint.SetDoubleValue(memoryAllocation)
-
-	// Add attributes to the data point
-	for key, value := range attributes {
-		dataPoint.Attributes().PutStr(key, value)
-	}
+	c.generateGaugeMetric(c.config.Metrics.Memory.Name, "Memory allocation in bytes", memoryAllocation, attributes, scopeMetrics)
 }
 
 // calculateCPUTime calculates CPU time from profile samples

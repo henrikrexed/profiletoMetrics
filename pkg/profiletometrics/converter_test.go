@@ -12,11 +12,26 @@ import (
 	"github.com/henrikrexed/profiletoMetrics/testdata"
 )
 
+// validateSingleMetric validates a single metric with the expected name
+func validateSingleMetric(t *testing.T, metrics pmetric.Metrics, expectedName string) {
+	resourceMetrics := metrics.ResourceMetrics()
+	require.Equal(t, 1, resourceMetrics.Len())
+
+	scopeMetrics := resourceMetrics.At(0).ScopeMetrics()
+	require.Equal(t, 1, scopeMetrics.Len())
+
+	metricsSlice := scopeMetrics.At(0).Metrics()
+	require.Equal(t, 1, metricsSlice.Len())
+
+	metric := metricsSlice.At(0)
+	assert.Equal(t, expectedName, metric.Name())
+}
+
 func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 	tests := []struct {
 		name            string
 		config          *ConverterConfig
-		profileData     func() pprofile.Profiles
+		profileData     pprofile.Profiles
 		expectedMetrics int
 		validateMetrics func(t *testing.T, metrics pmetric.Metrics)
 	}{
@@ -43,9 +58,7 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 					},
 				},
 			},
-			profileData: func() pprofile.Profiles {
-				return testdata.CreateTestProfile()
-			},
+			profileData:     testdata.CreateTestProfile(),
 			expectedMetrics: 1, // One resource metrics container (but we're getting 2, so let's fix this)
 			validateMetrics: func(t *testing.T, metrics pmetric.Metrics) {
 				resourceMetrics := metrics.ResourceMetrics()
@@ -104,22 +117,10 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 					},
 				},
 			},
-			profileData: func() pprofile.Profiles {
-				return testdata.CreateTestProfile()
-			},
+			profileData:     testdata.CreateTestProfile(),
 			expectedMetrics: 1,
 			validateMetrics: func(t *testing.T, metrics pmetric.Metrics) {
-				resourceMetrics := metrics.ResourceMetrics()
-				require.Equal(t, 1, resourceMetrics.Len())
-
-				scopeMetrics := resourceMetrics.At(0).ScopeMetrics()
-				require.Equal(t, 1, scopeMetrics.Len())
-
-				metricsSlice := scopeMetrics.At(0).Metrics()
-				require.Equal(t, 1, metricsSlice.Len())
-
-				metric := metricsSlice.At(0)
-				assert.Equal(t, "cpu_time_only", metric.Name())
+				validateSingleMetric(t, metrics, "cpu_time_only")
 			},
 		},
 		{
@@ -133,22 +134,10 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 					},
 				},
 			},
-			profileData: func() pprofile.Profiles {
-				return testdata.CreateTestProfile()
-			},
+			profileData:     testdata.CreateTestProfile(),
 			expectedMetrics: 1,
 			validateMetrics: func(t *testing.T, metrics pmetric.Metrics) {
-				resourceMetrics := metrics.ResourceMetrics()
-				require.Equal(t, 1, resourceMetrics.Len())
-
-				scopeMetrics := resourceMetrics.At(0).ScopeMetrics()
-				require.Equal(t, 1, scopeMetrics.Len())
-
-				metricsSlice := scopeMetrics.At(0).Metrics()
-				require.Equal(t, 1, metricsSlice.Len())
-
-				metric := metricsSlice.At(0)
-				assert.Equal(t, "memory_only", metric.Name())
+				validateSingleMetric(t, metrics, "memory_only")
 			},
 		},
 	}
@@ -160,7 +149,7 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 			require.NoError(t, err)
 
 			// Process profile data
-			profiles := tt.profileData()
+			profiles := tt.profileData
 			metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
 			require.NoError(t, err)
 

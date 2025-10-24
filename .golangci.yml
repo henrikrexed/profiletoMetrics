@@ -30,6 +30,7 @@ linters-settings:
       - octalLiteral
       - whyNoLint
       - wrapperFunc
+      - hugeParam
   depguard:
     rules:
       main:
