@@ -17,7 +17,7 @@ COPY . .
 RUN go mod download
 
 # Build the collector using OCB
-RUN go install go.opentelemetry.io/collector/cmd/builder@v0.137.0
+RUN go install go.opentelemetry.io/collector/cmd/builder@v0.138.0
 RUN mv $(go env GOPATH)/bin/builder $(go env GOPATH)/bin/ocb
 
 # Run OCB with the manifest
@@ -74,4 +74,4 @@ CMD ["--config=/etc/otelcol/config.yaml"]
 LABEL maintainer="profile-to-metrics-team"
 LABEL description="OpenTelemetry Collector with Profile to Metrics Connector"
 LABEL version="0.1.0"
-LABEL collector.version="0.137.0"
+LABEL collector.version="0.138.0"

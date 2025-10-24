@@ -245,11 +245,11 @@ service:
     traces:
       receivers: [otlp]
       processors: [resource, k8sattributes, filter, batch]
-      connectors: [profiletometrics]
+      exporters: [profiletometrics]
 
     # Metrics pipeline - processes metrics from various sources
     metrics:
-      receivers: [otlp, prometheus]
+      receivers: [otlp, prometheus,signaltometrics,profiletometrics]
       processors: [resource, k8sattributes, cumulativetodelta, transform, batch]
       exporters: [otlp, prometheus, debug, logging]
 
@@ -257,7 +257,7 @@ service:
     logs:
       receivers: [otlp]
       processors: [resource, k8sattributes, filter, batch]
-      connectors: [signaltometrics]
+      exporters: [signaltometrics]
 
   extensions: []
   telemetry:

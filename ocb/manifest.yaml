@@ -8,18 +8,18 @@ dist:
 
 exporters:
   # OTLP exporters
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.137.0
-  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.137.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.138.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.138.0
   # Debug exporter
-  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.137.0
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.138.0
 
 receivers:
   # OTLP receiver
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.137.0
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.138.0
 
 processors:
   # Batch processor
-  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.137.0
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.138.0
 
 connectors:
   # Custom profile-to-metrics connector
@@ -31,7 +31,7 @@ replaces:
 build:
   # Build configuration
   go: "1.24"
-  ldflags: "-X go.opentelemetry.io/collector/cmd/builder/internal.Version=0.137.0"
+  ldflags: "-X go.opentelemetry.io/collector/cmd/builder/internal.Version=0.138.0"
   # Skip tests during build (set to false to run tests)
   skip_tests: false
   # Build tags
