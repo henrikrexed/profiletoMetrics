@@ -343,7 +343,9 @@ func TestConverter_StringTableExtraction(t *testing.T) {
 	require.NoError(t, err)
 
 	// Process test profile
-	profiles := testdata.CreateTestProfile()
+	profiles := func() pprofile.Profiles {
+				return testdata.CreateTestProfile()
+			}
 	metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
 	require.NoError(t, err)
 

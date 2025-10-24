@@ -75,7 +75,11 @@ func (c *Converter) extractResourceAttributes(resource pcommon.Resource) map[str
 }
 
 // extractProfileAttributes extracts attributes from the profile data
-func (c *Converter) extractProfileAttributes(profiles pprofile.Profiles, profile pprofile.Profile, resourceAttributes map[string]string) map[string]string {
+func (c *Converter) extractProfileAttributes(
+	profiles pprofile.Profiles,
+	profile pprofile.Profile,
+	resourceAttributes map[string]string,
+) map[string]string {
 	attributes := make(map[string]string)
 
 	// Copy resource attributes
@@ -95,7 +99,7 @@ func (c *Converter) extractProfileAttributes(profiles pprofile.Profiles, profile
 }
 
 // extractAttributeValue extracts a single attribute value based on the rule
-func (c *Converter) extractAttributeValue(profiles pprofile.Profiles, profile pprofile.Profile, attr AttributeConfig) string {
+func (c *Converter) extractAttributeValue(profiles pprofile.Profiles, _ pprofile.Profile, attr AttributeConfig) string {
 	switch attr.Type {
 	case "literal":
 		return attr.Value
@@ -111,7 +115,11 @@ func (c *Converter) extractAttributeValue(profiles pprofile.Profiles, profile pp
 }
 
 // generateMetricsFromProfile generates metrics from profile data
-func (c *Converter) generateMetricsFromProfile(profile pprofile.Profile, attributes map[string]string, resourceMetrics pmetric.ResourceMetrics) {
+func (c *Converter) generateMetricsFromProfile(
+	profile pprofile.Profile,
+	attributes map[string]string,
+	resourceMetrics pmetric.ResourceMetrics,
+) {
 	// Apply pattern filtering if enabled
 	if c.config.PatternFilter.Enabled && !c.matchesPatternFilter(attributes) {
 		return
@@ -139,7 +147,7 @@ func (c *Converter) generateMetricsFromProfile(profile pprofile.Profile, attribu
 }
 
 // matchesPatternFilter checks if attributes match the pattern filter
-func (c *Converter) matchesPatternFilter(attributes map[string]string) bool {
+func (c *Converter) matchesPatternFilter(_ map[string]string) bool {
 	if !c.config.PatternFilter.Enabled {
 		return true
 	}
@@ -256,7 +264,7 @@ func (c *Converter) calculateMemoryAllocation(profile pprofile.Profile) float64 
 }
 
 // extractFromStringTable extracts values from profile string table using regex pattern
-func (c *Converter) extractFromStringTable(profiles pprofile.Profiles, pattern string) string {
+func (c *Converter) extractFromStringTable(profiles pprofile.Profiles, _ string) string {
 	// Access the string table from the profiles dictionary
 	stringTable := profiles.Dictionary().StringTable()
 
@@ -272,7 +280,7 @@ func (c *Converter) extractFromStringTable(profiles pprofile.Profiles, pattern s
 }
 
 // extractFromStringTableByIndex extracts values from profile string table by index
-func (c *Converter) extractFromStringTableByIndex(profiles pprofile.Profiles, indexStr string) string {
+func (c *Converter) extractFromStringTableByIndex(profiles pprofile.Profiles, _ string) string {
 	// Access the string table from the profiles dictionary
 	stringTable := profiles.Dictionary().StringTable()
 

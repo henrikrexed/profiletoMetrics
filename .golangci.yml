@@ -61,7 +61,7 @@ linters:
     - dogsled
     - dupl
     - errcheck
-    - exportloopref
+    - copyloopvar
     - exhaustive
     - funlen
     - gochecknoinits
@@ -70,7 +70,7 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - gomnd
+    - mnd
     - goprintffuncname
     - gosec
     - gosimple
@@ -94,19 +94,19 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - gomnd
+        - mnd
         - funlen
         - goconst
         - gocyclo
     - path: testdata/
       linters:
-        - gomnd
+        - mnd
         - funlen
         - goconst
         - gocyclo
     - path: examples/
       linters:
-        - gomnd
+        - mnd
         - funlen
         - goconst
         - gocyclo
