@@ -177,7 +177,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      e: [profiletometrics]
+      exporters: [profiletometrics]
     metrics:
       receivers: [profiletometrics]
       exporters: [debug, otlp]
@@ -310,7 +310,7 @@ service:
       processors: [batch]
       exporters: [profiletometrics]
     metrics:
-      connectors: [profiletometrics]
+      receivers: [profiletometrics]
       processors: [batch]
       exporters: [debug, otlp]
 ```

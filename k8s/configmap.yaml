@@ -112,10 +112,10 @@ data:
         profiles:
           receivers: [otlp]
           processors: [batch, resource, k8sattributes]
-          connectors: [profiletometrics]
+          exporters: [profiletometrics]
         
         # Output pipeline for generated metrics
         metrics:
-          connectors: [profiletometrics]
+          receivers: [profiletometrics]
           processors: [batch]
           exporters: [debug, otlp]

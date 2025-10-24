@@ -27,7 +27,7 @@ func NewFactory() connector.Factory {
 
 func createProfilesToMetricsConnector(
 	_ context.Context,
-	set *connector.Settings,
+	set connector.Settings,
 	cfg component.Config,
 	nextConsumer consumer.Metrics,
 ) (xconnector.Profiles, error) {

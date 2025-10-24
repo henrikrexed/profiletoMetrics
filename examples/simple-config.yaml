@@ -53,9 +53,9 @@ service:
     profiles:
       receivers: [otlp]
       processors: [batch]
-      connectors: [profiletometrics]
+      exporters: [profiletometrics]
     
     metrics:
-      connectors: [profiletometrics]
+      receivers: [profiletometrics]
       processors: [batch]
       exporters: [debug, otlp]
