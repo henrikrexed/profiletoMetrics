@@ -30,8 +30,10 @@ func CreateTestProfile() pprofile.Profiles {
 
 		// Add values to the sample
 		values := sample.Values()
-		values.Append(int64(1000000 + i*100000)) // CPU time in nanoseconds
-		values.Append(int64(1024 + i*512))       // Memory allocation in bytes
+		// CPU time in nanoseconds (first value)
+		values.Append(int64(1000000 + i*100000)) // 1ms, 1.1ms, 1.2ms, 1.3ms, 1.4ms
+		// Memory allocation in bytes (second value)
+		values.Append(int64(1024 + i*512)) // 1KB, 1.5KB, 2KB, 2.5KB, 3KB
 	}
 
 	return profiles

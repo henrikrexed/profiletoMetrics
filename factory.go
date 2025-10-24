@@ -37,6 +37,10 @@ func createProfilesToMetricsConnector(
 	if err != nil {
 		return nil, err
 	}
+
+	// Set the logger on the converter
+	converter.SetLogger(set.Logger)
+
 	return &profileToMetricsConnector{
 		config:       config,
 		nextConsumer: nextConsumer,

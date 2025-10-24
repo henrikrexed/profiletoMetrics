@@ -270,15 +270,15 @@ func TestConverter_CalculateCPUTime(t *testing.T) {
 	// Create test profile with sample data
 	profile := pprofile.NewProfile()
 
-	// Add samples with CPU time values
+	// Add samples with CPU time values (in nanoseconds)
 	for i := 0; i < 3; i++ {
 		sample := profile.Sample().AppendEmpty()
 		values := sample.Values()
-		values.Append(int64(1000 + i*100)) // 1000, 1100, 1200
+		values.Append(int64(1000000000 + i*100000000)) // 1s, 1.1s, 1.2s in nanoseconds
 	}
 
 	cpuTime := converter.calculateCPUTime(profile)
-	expected := float64(1000 + 1100 + 1200)
+	expected := float64(1000000000+1100000000+1200000000) / 1e9 // Convert to seconds
 	assert.Equal(t, expected, cpuTime)
 }
 
@@ -297,12 +297,12 @@ func TestConverter_CalculateMemoryAllocation(t *testing.T) {
 	// Create test profile with sample data
 	profile := pprofile.NewProfile()
 
-	// Add samples with memory allocation values (assuming second value is memory)
+	// Add samples with memory allocation values (second value is memory)
 	for i := 0; i < 2; i++ {
 		sample := profile.Sample().AppendEmpty()
 		values := sample.Values()
-		values.Append(1000)                // CPU time
-		values.Append(int64(2000 + i*500)) // Memory: 2000, 2500
+		values.Append(int64(1000000000))   // CPU time in nanoseconds
+		values.Append(int64(2000 + i*500)) // Memory: 2000, 2500 bytes
 	}
 
 	memoryAllocation := converter.calculateMemoryAllocation(profile)
