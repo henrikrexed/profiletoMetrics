@@ -25,7 +25,6 @@ connectors:
         enabled: true
         name: "profile_memory_allocation_bytes"
         unit: "bytes"
-    
     attributes:
       - name: "process_name"
         value: "test-process"
@@ -33,15 +32,12 @@ connectors:
       - name: "service_name"
         value: "test-service"
         type: "literal"
-    
     process_filter:
       enabled: true
       pattern: ".*"
-    
     pattern_filter:
       enabled: false
       pattern: ""
-    
     thread_filter:
       enabled: false
       pattern: ""

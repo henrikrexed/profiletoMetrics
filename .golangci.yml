@@ -37,6 +37,7 @@ linters-settings:
         allow:
           # Standard Go imports
           - "context"
+          - "fmt"
           - "testing"
           - "time"
           # OpenTelemetry Collector imports
@@ -92,6 +93,11 @@ linters:
     - whitespace
 
 issues:
+  exclude-dirs:
+    - site/
+  exclude-files:
+    - ".*\\.js$"
+    - ".*\\.js\\.map$"
   exclude-rules:
     - path: _test\.go
       linters:
@@ -111,6 +117,3 @@ issues:
         - funlen
         - goconst
         - gocyclo
-    - path: site/
-      linters:
-        - misspell

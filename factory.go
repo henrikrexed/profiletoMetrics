@@ -2,6 +2,7 @@ package profiletometrics
 
 import (
 	"context"
+	"fmt"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/connector"
@@ -87,4 +88,13 @@ func createDefaultConfig() component.Config {
 			},
 		},
 	}
+}
+
+// Validate validates the configuration
+func (c *Config) Validate() error {
+	// Validate that at least one metric is enabled
+	if !c.ConverterConfig.Metrics.CPU.Enabled && !c.ConverterConfig.Metrics.Memory.Enabled {
+		return fmt.Errorf("at least one metric must be enabled")
+	}
+	return nil
 }
