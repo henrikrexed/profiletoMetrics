@@ -50,29 +50,29 @@ func createDefaultConfig() component.Config {
 		ConverterConfig: profiletometrics.ConverterConfig{
 			Metrics: profiletometrics.MetricsConfig{
 				CPU: profiletometrics.CPUMetricConfig{
-					Enabled: true,
-					Name:    "cpu_time",
-					Unit:    "ns",
+					Enabled:    true,
+					MetricName: "cpu_time",
+					Unit:       "ns",
 				},
 				Memory: profiletometrics.MemoryMetricConfig{
-					Enabled: true,
-					Name:    "memory_allocation",
-					Unit:    "bytes",
+					Enabled:    true,
+					MetricName: "memory_allocation",
+					Unit:       "bytes",
 				},
 			},
 			Attributes: []profiletometrics.AttributeConfig{
 				{
-					Name:  "service.name",
+					Key:   "service.name",
 					Value: "service_name",
 					Type:  "literal",
 				},
 				{
-					Name:  "process.name",
+					Key:   "process.name",
 					Value: "process_name",
 					Type:  "literal",
 				},
 				{
-					Name:  "function.name",
+					Key:   "function.name",
 					Value: "function_name",
 					Type:  "regex",
 				},

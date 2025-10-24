@@ -19,24 +19,28 @@ connectors:
     metrics:
       cpu:
         enabled: true
-        name: "profile_cpu_time_seconds"
+        metric_name: "profile_cpu_time_seconds"
         unit: "s"
       memory:
         enabled: true
-        name: "profile_memory_allocation_bytes"
+        metric_name: "profile_memory_allocation_bytes"
         unit: "bytes"
     
     attributes:
-      - name: "process_name"
+      - key: "process_name"
         value: "test_process"
         type: "literal"
-      - name: "service_name"
+      - key: "service_name"
         value: "test_service"
         type: "literal"
     
     process_filter:
       enabled: true
       pattern: ".*"
+    
+    pattern_filter:
+      enabled: false
+      pattern: ""
     
     thread_filter:
       enabled: false
@@ -52,7 +56,6 @@ service:
   pipelines:
     profiles:
       receivers: [otlp]
-      processors: [batch]
       exporters: [profiletometrics]
     
     metrics:

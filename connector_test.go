@@ -54,9 +54,9 @@ func TestProfileToMetricsConnector_ConsumeProfiles(t *testing.T) {
 	converter, err := profiletometrics.NewConverter(&profiletometrics.ConverterConfig{
 		Metrics: profiletometrics.MetricsConfig{
 			CPU: profiletometrics.CPUMetricConfig{
-				Enabled: true,
-				Name:    "cpu_time",
-				Unit:    "ns",
+				Enabled:    true,
+				MetricName: "cpu_time",
+				Unit:       "ns",
 			},
 		},
 	})

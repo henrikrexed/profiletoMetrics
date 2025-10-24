@@ -12,14 +12,14 @@ func TestConfig_Structure(t *testing.T) {
 		ConverterConfig: profiletometrics.ConverterConfig{
 			Metrics: profiletometrics.MetricsConfig{
 				CPU: profiletometrics.CPUMetricConfig{
-					Enabled: true,
-					Name:    "cpu_time",
-					Unit:    "ns",
+					Enabled:    true,
+					MetricName: "cpu_time",
+					Unit:       "ns",
 				},
 				Memory: profiletometrics.MemoryMetricConfig{
-					Enabled: true,
-					Name:    "memory_allocation",
-					Unit:    "bytes",
+					Enabled:    true,
+					MetricName: "memory_allocation",
+					Unit:       "bytes",
 				},
 			},
 		},
@@ -27,8 +27,8 @@ func TestConfig_Structure(t *testing.T) {
 
 	assert.True(t, config.ConverterConfig.Metrics.CPU.Enabled)
 	assert.True(t, config.ConverterConfig.Metrics.Memory.Enabled)
-	assert.Equal(t, "cpu_time", config.ConverterConfig.Metrics.CPU.Name)
-	assert.Equal(t, "memory_allocation", config.ConverterConfig.Metrics.Memory.Name)
+	assert.Equal(t, "cpu_time", config.ConverterConfig.Metrics.CPU.MetricName)
+	assert.Equal(t, "memory_allocation", config.ConverterConfig.Metrics.Memory.MetricName)
 }
 
 func TestConfig_Empty(t *testing.T) {

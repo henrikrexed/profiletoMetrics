@@ -27,8 +27,8 @@ func TestCreateDefaultConfig(t *testing.T) {
 	require.True(t, ok)
 	assert.True(t, cfg.ConverterConfig.Metrics.CPU.Enabled)
 	assert.True(t, cfg.ConverterConfig.Metrics.Memory.Enabled)
-	assert.Equal(t, "cpu_time", cfg.ConverterConfig.Metrics.CPU.Name)
-	assert.Equal(t, "memory_allocation", cfg.ConverterConfig.Metrics.Memory.Name)
+	assert.Equal(t, "cpu_time", cfg.ConverterConfig.Metrics.CPU.MetricName)
+	assert.Equal(t, "memory_allocation", cfg.ConverterConfig.Metrics.Memory.MetricName)
 }
 
 func TestCreateProfilesToMetricsConnector(t *testing.T) {
@@ -42,9 +42,9 @@ func TestCreateProfilesToMetricsConnector(t *testing.T) {
 		ConverterConfig: profiletometrics.ConverterConfig{
 			Metrics: profiletometrics.MetricsConfig{
 				CPU: profiletometrics.CPUMetricConfig{
-					Enabled: true,
-					Name:    "cpu_time",
-					Unit:    "ns",
+					Enabled:    true,
+					MetricName: "cpu_time",
+					Unit:       "ns",
 				},
 			},
 		},

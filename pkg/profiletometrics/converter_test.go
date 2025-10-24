@@ -40,19 +40,19 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 			config: &ConverterConfig{
 				Metrics: MetricsConfig{
 					CPU: CPUMetricConfig{
-						Enabled: true,
-						Name:    "test_cpu_time",
-						Unit:    "s",
+						Enabled:    true,
+						MetricName: "test_cpu_time",
+						Unit:       "s",
 					},
 					Memory: MemoryMetricConfig{
-						Enabled: true,
-						Name:    "test_memory_allocation",
-						Unit:    "bytes",
+						Enabled:    true,
+						MetricName: "test_memory_allocation",
+						Unit:       "bytes",
 					},
 				},
 				Attributes: []AttributeConfig{
 					{
-						Name:  "process_name",
+						Key:   "process_name",
 						Value: "test_process",
 						Type:  "literal",
 					},
@@ -111,9 +111,9 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 			config: &ConverterConfig{
 				Metrics: MetricsConfig{
 					CPU: CPUMetricConfig{
-						Enabled: true,
-						Name:    "cpu_time_only",
-						Unit:    "s",
+						Enabled:    true,
+						MetricName: "cpu_time_only",
+						Unit:       "s",
 					},
 				},
 			},
@@ -128,9 +128,9 @@ func TestConverter_ConvertProfilesToMetrics(t *testing.T) {
 			config: &ConverterConfig{
 				Metrics: MetricsConfig{
 					Memory: MemoryMetricConfig{
-						Enabled: true,
-						Name:    "memory_only",
-						Unit:    "bytes",
+						Enabled:    true,
+						MetricName: "memory_only",
+						Unit:       "bytes",
 					},
 				},
 			},
@@ -314,14 +314,14 @@ func TestConverter_StringTableExtraction(t *testing.T) {
 	config := &ConverterConfig{
 		Metrics: MetricsConfig{
 			CPU: CPUMetricConfig{
-				Enabled: true,
-				Name:    "cpu_time",
-				Unit:    "s",
+				Enabled:    true,
+				MetricName: "cpu_time",
+				Unit:       "s",
 			},
 		},
 		Attributes: []AttributeConfig{
 			{
-				Name:  "function_name",
+				Key:   "function_name",
 				Value: "test_function",
 				Type:  "literal",
 			},

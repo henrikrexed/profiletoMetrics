@@ -8,21 +8,21 @@ type MetricsConfig struct {
 
 // CPUMetricConfig defines CPU metric configuration
 type CPUMetricConfig struct {
-	Enabled bool   `mapstructure:"enabled"`
-	Name    string `mapstructure:"name"`
-	Unit    string `mapstructure:"unit"`
+	Enabled    bool   `mapstructure:"enabled"`
+	MetricName string `mapstructure:"metric_name"`
+	Unit       string `mapstructure:"unit"`
 }
 
 // MemoryMetricConfig defines memory metric configuration
 type MemoryMetricConfig struct {
-	Enabled bool   `mapstructure:"enabled"`
-	Name    string `mapstructure:"name"`
-	Unit    string `mapstructure:"unit"`
+	Enabled    bool   `mapstructure:"enabled"`
+	MetricName string `mapstructure:"metric_name"`
+	Unit       string `mapstructure:"unit"`
 }
 
 // AttributeConfig defines attribute extraction configuration
 type AttributeConfig struct {
-	Name  string `mapstructure:"name"`
+	Key   string `mapstructure:"key"`
 	Value string `mapstructure:"value"`
 	Type  string `mapstructure:"type"` // "literal" or "regex"
 }

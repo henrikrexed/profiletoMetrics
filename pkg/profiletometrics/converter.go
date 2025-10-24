@@ -11,11 +11,11 @@ import (
 
 // ConverterConfig defines the configuration for the converter
 type ConverterConfig struct {
-	Metrics       MetricsConfig
-	Attributes    []AttributeConfig
-	ProcessFilter ProcessFilterConfig
-	PatternFilter PatternFilterConfig
-	ThreadFilter  ThreadFilterConfig
+	Metrics       MetricsConfig       `mapstructure:"metrics"`
+	Attributes    []AttributeConfig   `mapstructure:"attributes"`
+	ProcessFilter ProcessFilterConfig `mapstructure:"process_filter"`
+	PatternFilter PatternFilterConfig `mapstructure:"pattern_filter"`
+	ThreadFilter  ThreadFilterConfig  `mapstructure:"thread_filter"`
 }
 
 // Converter converts profiling data to metrics
@@ -91,7 +91,7 @@ func (c *Converter) extractProfileAttributes(
 	for _, attr := range c.config.Attributes {
 		value := c.extractAttributeValue(profiles, profile, attr)
 		if value != "" {
-			attributes[attr.Name] = value
+			attributes[attr.Key] = value
 		}
 	}
 
@@ -209,7 +209,7 @@ func (c *Converter) generateGaugeMetric(
 // generateCPUTimeMetrics generates CPU time metrics from profile data
 func (c *Converter) generateCPUTimeMetrics(profile pprofile.Profile, attributes map[string]string, scopeMetrics pmetric.ScopeMetrics) {
 	cpuTime := c.calculateCPUTime(profile)
-	c.generateGaugeMetric(c.config.Metrics.CPU.Name, "CPU time in seconds", cpuTime, attributes, scopeMetrics)
+	c.generateGaugeMetric(c.config.Metrics.CPU.MetricName, "CPU time in seconds", cpuTime, attributes, scopeMetrics)
 }
 
 // generateMemoryAllocationMetrics generates memory allocation metrics from profile data
@@ -219,7 +219,7 @@ func (c *Converter) generateMemoryAllocationMetrics(
 	scopeMetrics pmetric.ScopeMetrics,
 ) {
 	memoryAllocation := c.calculateMemoryAllocation(profile)
-	c.generateGaugeMetric(c.config.Metrics.Memory.Name, "Memory allocation in bytes", memoryAllocation, attributes, scopeMetrics)
+	c.generateGaugeMetric(c.config.Metrics.Memory.MetricName, "Memory allocation in bytes", memoryAllocation, attributes, scopeMetrics)
 }
 
 // calculateCPUTime calculates CPU time from profile samples
