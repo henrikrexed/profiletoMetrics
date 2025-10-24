@@ -86,7 +86,7 @@ jobs:
 
     - name: Start collector with debug config
       run: |
-        ./otelcol-profiletometrics --config=examples/working-debug-config.yaml > collector.log 2>&1 &
+        ./otelcol-profiletometrics --config=examples/working-debug-config.yaml --feature-gates=+service.profilesSupport > collector.log 2>&1 &
         COLLECTOR_PID=$!
         echo $COLLECTOR_PID > collector.pid
         
@@ -268,7 +268,7 @@ jobs:
           -p 4318:4318 \
           -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           otelcol-profiletometrics:test \
-          --config=/etc/otelcol/config.yaml || {
+          --config=/etc/otelcol/config.yaml --feature-gates=+service.profilesSupport || {
           echo "Failed to start collector container"
           exit 1
         }
@@ -292,7 +292,7 @@ jobs:
         
         # Test configuration validation
         echo "Testing configuration validation..."
-        docker exec otelcol-test /otelcol-profiletometrics --config=/etc/otelcol/config.yaml --dry-run || {
+        docker exec otelcol-test /otelcol-profiletometrics --config=/etc/otelcol/config.yaml --feature-gates=+service.profilesSupport --dry-run || {
           echo "Configuration validation failed"
           docker logs otelcol-test
           exit 1
