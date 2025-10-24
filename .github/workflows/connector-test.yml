@@ -105,24 +105,22 @@ jobs:
 
     - name: Send test data
       run: |
-        # Send trace data
-        curl -X POST http://localhost:4318/v1/traces \
+        # Send profile data
+        curl -X POST http://localhost:4318/v1/profiles \
           -H "Content-Type: application/json" \
           -d '{
-            "resourceSpans": [{
+            "resourceProfiles": [{
               "resource": {
                 "attributes": [{
                   "key": "service.name",
                   "value": {"stringValue": "test-service"}
                 }]
               },
-              "scopeSpans": [{
+              "scopeProfiles": [{
                 "scope": {"name": "test-scope"},
-                "spans": [{
-                  "traceId": "12345678901234567890123456789012",
-                  "spanId": "1234567890123456",
-                  "name": "test-span",
-                  "kind": "SPAN_KIND_INTERNAL",
+                "profiles": [{
+                  "profileId": "12345678901234567890123456789012",
+                  "name": "test-profile",
                   "startTimeUnixNano": "1640995200000000000",
                   "endTimeUnixNano": "1640995201000000000"
                 }]
@@ -300,32 +298,30 @@ jobs:
           exit 1
         }
         
-        # Test OTLP endpoint
-        echo "Testing OTLP endpoint..."
-        curl -X POST http://localhost:4318/v1/traces \
+        # Test OTLP profiles endpoint
+        echo "Testing OTLP profiles endpoint..."
+        curl -X POST http://localhost:4318/v1/profiles \
           -H "Content-Type: application/json" \
           -d '{
-            "resourceSpans": [{
+            "resourceProfiles": [{
               "resource": {
                 "attributes": [{
                   "key": "service.name",
                   "value": {"stringValue": "test-service"}
                 }]
               },
-              "scopeSpans": [{
+              "scopeProfiles": [{
                 "scope": {"name": "test-scope"},
-                "spans": [{
-                  "traceId": "12345678901234567890123456789012",
-                  "spanId": "1234567890123456",
-                  "name": "test-span",
-                  "kind": "SPAN_KIND_INTERNAL",
+                "profiles": [{
+                  "profileId": "12345678901234567890123456789012",
+                  "name": "test-profile",
                   "startTimeUnixNano": "1640995200000000000",
                   "endTimeUnixNano": "1640995201000000000"
                 }]
               }]
             }]
           }' || {
-          echo "OTLP endpoint test failed"
+          echo "OTLP profiles endpoint test failed"
           docker logs otelcol-test
           exit 1
         }

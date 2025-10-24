@@ -45,7 +45,7 @@ sequenceDiagram
     participant Exporter
 
     Client->>Collector: Send Profiling Data
-    Collector->>Connector: Process Traces/Logs
+    Collector->>Connector: Process Profiles
     Connector->>Converter: Convert to Metrics
     Converter->>Converter: Extract Attributes
     Converter->>Converter: Process Samples
@@ -182,7 +182,7 @@ The ProfileToMetrics connector follows the standard OpenTelemetry Collector conn
 
 The converter processes profiling data through several stages:
 
-1. **Profile Extraction**: Extracts profile data from incoming traces
+1. **Profile Extraction**: Extracts profile data from incoming profiles
 2. **Attribute Extraction**: Extracts attributes from the string table using regex or literal patterns
 3. **Sample Processing**: Processes CPU and memory samples
 4. **Metric Generation**: Creates OpenTelemetry metrics with proper attributes
@@ -297,7 +297,7 @@ The connector provides comprehensive error handling:
 
 The connector provides comprehensive logging:
 
-- **Input Statistics**: Logs number of traces and samples processed
+- **Input Statistics**: Logs number of profiles and samples processed
 - **Processing Status**: Debug information about conversion process
 - **Output Statistics**: Logs number of metrics generated
 - **Error Context**: Detailed error information for troubleshooting

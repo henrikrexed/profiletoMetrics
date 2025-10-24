@@ -62,10 +62,6 @@ service:
         thereafter: 1
 
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-    
     profiles:
       receivers: [otlp]
       processors: [batch]

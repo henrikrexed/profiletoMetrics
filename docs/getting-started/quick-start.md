@@ -40,11 +40,13 @@ exporters:
 
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
-      connectors: [profiletometrics]
+      processors: [batch]
+      exporters: [profiletometrics]
     metrics:
       receivers: [profiletometrics]
+      processors: [batch]
       exporters: [debug]
 ```
 
@@ -82,8 +84,8 @@ You should see debug output showing:
 
 ```
 2024-01-15T10:30:00.000Z	info	ProfileToMetrics connector started
-2024-01-15T10:30:00.000Z	debug	Processing traces	{"resource_spans_count": 1, "total_spans": 1}
-2024-01-15T10:30:00.000Z	debug	Traces converted to metrics	{"input_spans": 1, "output_metrics": 2}
+2024-01-15T10:30:00.000Z	debug	Processing profiles	{"resource_profiles_count": 1, "total_profiles": 1}
+2024-01-15T10:30:00.000Z	debug	Profiles converted to metrics	{"input_profiles": 1, "output_metrics": 2}
 ```
 
 ## Step 5: Check Metrics

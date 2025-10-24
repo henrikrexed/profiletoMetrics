@@ -170,14 +170,14 @@ docker run --feature-gates=+service.profilesSupport otelcol
 
 ## Pipeline Configuration
 
-The connector works with the traces pipeline as a workaround since profiles are not yet a native signal type:
+The connector works with the profiles pipeline to convert profiling data to metrics:
 
 ```yaml
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      connectors: [profiletometrics]
+      e: [profiletometrics]
     metrics:
       receivers: [profiletometrics]
       exporters: [debug, otlp]
@@ -212,7 +212,7 @@ The connector provides comprehensive error handling:
 
 The connector provides structured logging:
 
-- **Input Statistics**: Number of traces and samples processed
+- **Input Statistics**: Number of profiles and samples processed
 - **Processing Status**: Debug information about conversion process
 - **Output Statistics**: Number of metrics generated
 - **Error Context**: Detailed error information for troubleshooting
@@ -305,10 +305,12 @@ exporters:
 
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
-      connectors: [profiletometrics]
+      processors: [batch]
+      exporters: [profiletometrics]
     metrics:
-      receivers: [profiletometrics]
+      connectors: [profiletometrics]
+      processors: [batch]
       exporters: [debug, otlp]
 ```

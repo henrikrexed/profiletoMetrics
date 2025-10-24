@@ -108,26 +108,14 @@ data:
           development: false
       
       pipelines:
-        # Traces pipeline
-        traces:
-          receivers: [otlp]
-          processors: [batch, resource, k8sattributes]
-          connectors: [profiletometrics]
-        
-        # Logs pipeline  
-        logs:
-          receivers: [otlp]
-          processors: [batch, resource, k8sattributes]
-          connectors: [profiletometrics]
-        
-        # Metrics pipeline
-        metrics:
+        # Profiles pipeline
+        profiles:
           receivers: [otlp]
           processors: [batch, resource, k8sattributes]
           connectors: [profiletometrics]
         
         # Output pipeline for generated metrics
-        metrics_output:
-          receivers: [profiletometrics]
+        metrics:
+          connectors: [profiletometrics]
           processors: [batch]
           exporters: [debug, otlp]
