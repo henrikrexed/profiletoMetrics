@@ -280,7 +280,7 @@ jobs:
         cache-to: type=gha,mode=max
         sbom: true
         provenance: true
-        attests: true
+        attests: sbom=true,provenance=true
 
     - name: Test Docker image
       run: |
