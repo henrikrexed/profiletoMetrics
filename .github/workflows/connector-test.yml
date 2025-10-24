@@ -253,21 +253,55 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t otelcol-profiletometrics:test -f docker/Dockerfile .
+        
+        # Test the built binary
+        echo "Testing the built binary..."
+        docker run --rm otelcol-profiletometrics:test --help || {
+          echo "Binary test failed"
+          exit 1
+        }
 
     - name: Test Docker image with debug config
       run: |
-        # Start collector in Docker
+        # Start collector in Docker with proper error handling
+        echo "Starting collector container..."
         docker run -d --name otelcol-test \
           -p 4317:4317 \
           -p 4318:4318 \
           -v $(pwd)/examples/working-debug-config.yaml:/etc/otelcol/config.yaml \
           otelcol-profiletometrics:test \
-          --config=/etc/otelcol/config.yaml
+          --config=/etc/otelcol/config.yaml || {
+          echo "Failed to start collector container"
+          exit 1
+        }
         
         # Wait for collector to start
-        sleep 10
+        echo "Waiting for collector to start..."
+        sleep 15
+        
+        # Check if container is running
+        if ! docker ps | grep -q otelcol-test; then
+          echo "Collector container is not running. Container logs:"
+          docker logs otelcol-test
+          echo "Container status:"
+          docker ps -a | grep otelcol-test
+          exit 1
+        fi
+        
+        # Check collector logs for errors
+        echo "Checking collector logs..."
+        docker logs otelcol-test
+        
+        # Test configuration validation
+        echo "Testing configuration validation..."
+        docker exec otelcol-test /otelcol-profiletometrics --config=/etc/otelcol/config.yaml --dry-run || {
+          echo "Configuration validation failed"
+          docker logs otelcol-test
+          exit 1
+        }
         
         # Test OTLP endpoint
+        echo "Testing OTLP endpoint..."
         curl -X POST http://localhost:4318/v1/traces \
           -H "Content-Type: application/json" \
           -d '{
@@ -290,10 +324,13 @@ jobs:
                 }]
               }]
             }]
-          }'
+          }' || {
+          echo "OTLP endpoint test failed"
+          docker logs otelcol-test
+          exit 1
+        }
         
-        # Check logs for debug output
-        docker logs otelcol-test
+        echo "All tests passed successfully!"
         
         # Cleanup
         docker stop otelcol-test
