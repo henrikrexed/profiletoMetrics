@@ -65,9 +65,13 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
+    
+    profiles:
+      receivers: [otlp]
+      processors: [batch]
       connectors: [profiletometrics]
     
     metrics:
-      receivers: [otlp]
+      : [profiletometrics]
       processors: [batch]
       exporters: [debug]

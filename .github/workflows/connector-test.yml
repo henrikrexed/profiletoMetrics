@@ -36,7 +36,7 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}-${{ github.run_id }}
         restore-keys: |
           ${{ runner.os }}-go-
 
@@ -83,7 +83,7 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}-${{ github.run_id }}
         restore-keys: |
           ${{ runner.os }}-go-
 
@@ -104,7 +104,7 @@ jobs:
 
     - name: Start collector with debug config
       run: |
-        ./otelcol-profiletometrics --config=examples/working-debug-config.yaml &
+        ./otelcol-profiletometrics --config=examples/working-debug-config.yaml > collector.log 2>&1 &
         COLLECTOR_PID=$!
         echo $COLLECTOR_PID > collector.pid
         
@@ -116,6 +116,8 @@ jobs:
           echo "Collector started successfully"
         else
           echo "Collector failed to start"
+          echo "Collector logs:"
+          cat collector.log
           exit 1
         fi
 
@@ -245,7 +247,7 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}-${{ github.run_id }}
         restore-keys: |
           ${{ runner.os }}-go-
 
