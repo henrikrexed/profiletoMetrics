@@ -30,15 +30,6 @@ jobs:
       with:
         go-version: '1.24'
 
-    - name: Cache Go modules
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}-${{ github.run_id }}
-        restore-keys: |
-          ${{ runner.os }}-go-
 
     - name: Install dependencies
       run: |
@@ -77,15 +68,6 @@ jobs:
       with:
         go-version: '1.24'
 
-    - name: Cache Go modules
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}-${{ github.run_id }}
-        restore-keys: |
-          ${{ runner.os }}-go-
 
     - name: Install dependencies
       run: |
@@ -241,15 +223,6 @@ jobs:
       with:
         go-version: '1.24'
 
-    - name: Cache Go modules
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}-${{ github.run_id }}
-        restore-keys: |
-          ${{ runner.os }}-go-
 
     - name: Install dependencies
       run: |

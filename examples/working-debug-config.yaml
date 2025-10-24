@@ -72,6 +72,6 @@ service:
       connectors: [profiletometrics]
     
     metrics:
-      : [profiletometrics]
+      connectors: [profiletometrics]
       processors: [batch]
       exporters: [debug]
