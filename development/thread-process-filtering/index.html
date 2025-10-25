@@ -12,13 +12,9 @@
         <meta name="author" content="Henrik Rexed">
       
       
-        <link rel="canonical" href="https://henrikrexed.github.io/profiletoMetrics/getting-started/quick-start/">
+        <link rel="canonical" href="https://henrikrexed.github.io/profiletoMetrics/development/thread-process-filtering/">
       
       
-        <link rel="prev" href="../installation/">
-      
-      
-        <link rel="next" href="../../configuration/connector-config/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +22,7 @@
     
     
       
-        <title>Quick Start - ProfileToMetrics Connector</title>
+        <title>Thread and Process Filtering for Profile Metrics - ProfileToMetrics Connector</title>
       
     
     
@@ -78,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#quick-start" class="md-skip">
+        <a href="#thread-and-process-filtering-for-profile-metrics" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Quick Start
+              Thread and Process Filtering for Profile Metrics
             
           </span>
         </div>
@@ -242,13 +238,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../overview/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../getting-started/overview/" class="md-tabs__link">
           
   
   
@@ -328,7 +322,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../development/architecture/" class="md-tabs__link">
+        <a href="../architecture/" class="md-tabs__link">
           
   
   
@@ -437,31 +431,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -474,7 +465,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Getting Started
@@ -488,7 +479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../overview/" class="md-nav__link">
+      <a href="../../getting-started/overview/" class="md-nav__link">
         
   
   
@@ -511,7 +502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+      <a href="../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -531,32 +522,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Quick Start
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../getting-started/quick-start/" class="md-nav__link">
         
   
   
@@ -567,239 +536,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      Prerequisites
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-1-create-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 1: Create Configuration
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-2-run-the-collector" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 2: Run the Collector
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-3-send-test-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3: Send Test Data
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-4-verify-output" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4: Verify Output
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-5-check-metrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 5: Check Metrics
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advanced-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advanced Configuration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Advanced Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#enable-debug-logging" class="md-nav__link">
-    <span class="md-ellipsis">
-      Enable Debug Logging
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#add-more-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Add More Attributes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#filter-by-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      Filter by Process
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kubernetes-quick-start" class="md-nav__link">
-    <span class="md-ellipsis">
-      Kubernetes Quick Start
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Kubernetes Quick Start">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-apply-manifests" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Apply Manifests
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-check-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Check Status
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-port-forward" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Port Forward
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Troubleshooting
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#common-issues" class="md-nav__link">
-    <span class="md-ellipsis">
-      Common Issues
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Common Issues">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-connection-refused" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Connection Refused
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-configuration-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Configuration Errors
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-no-metrics-generated" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. No Metrics Generated
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#debug-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      Debug Commands
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      Next Steps
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1227,7 +963,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -1250,7 +986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/contributing.md" class="md-nav__link">
+      <a href="../contributing.md" class="md-nav__link">
         
   
   
@@ -1273,7 +1009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/github-workflows.md" class="md-nav__link">
+      <a href="../github-workflows.md" class="md-nav__link">
         
   
   
@@ -1444,91 +1180,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Prerequisites
+      Overview
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-1-create-configuration" class="md-nav__link">
+  <a href="#current-implementation-status" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 1: Create Configuration
+      Current Implementation Status
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-2-run-the-collector" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 2: Run the Collector
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-3-send-test-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3: Send Test Data
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-4-verify-output" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4: Verify Output
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-5-check-metrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 5: Check Metrics
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advanced-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advanced Configuration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Advanced Configuration">
+    <nav class="md-nav" aria-label="Current Implementation Status">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#enable-debug-logging" class="md-nav__link">
+  <a href="#implemented" class="md-nav__link">
     <span class="md-ellipsis">
-      Enable Debug Logging
+      ✅ Implemented
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#add-more-attributes" class="md-nav__link">
+  <a href="#pending-implementation" class="md-nav__link">
     <span class="md-ellipsis">
-      Add More Attributes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#filter-by-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      Filter by Process
+      ⚠️ Pending Implementation
     </span>
   </a>
   
@@ -1540,37 +1222,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#kubernetes-quick-start" class="md-nav__link">
+  <a href="#how-it-would-work-once-implemented" class="md-nav__link">
     <span class="md-ellipsis">
-      Kubernetes Quick Start
+      How It Would Work (Once Implemented)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Kubernetes Quick Start">
+    <nav class="md-nav" aria-label="How It Would Work (Once Implemented)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-apply-manifests" class="md-nav__link">
+  <a href="#usage-example" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Apply Manifests
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-check-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Check Status
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-port-forward" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Port Forward
+      Usage Example
     </span>
   </a>
   
@@ -1582,61 +1246,64 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
+  <a href="#implementation-approach" class="md-nav__link">
     <span class="md-ellipsis">
-      Troubleshooting
+      Implementation Approach
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Troubleshooting">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Locations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-level-metrics-proposed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function-Level Metrics (Proposed)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function-Level Metrics (Proposed)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#common-issues" class="md-nav__link">
+  <a href="#overview_1" class="md-nav__link">
     <span class="md-ellipsis">
-      Common Issues
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Common Issues">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-connection-refused" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Connection Refused
+      Overview
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-configuration-errors" class="md-nav__link">
+  <a href="#proposed-metrics-structure" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Configuration Errors
+      Proposed Metrics Structure
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-no-metrics-generated" class="md-nav__link">
+  <a href="#implementation-approach_1" class="md-nav__link">
     <span class="md-ellipsis">
-      3. No Metrics Generated
+      Implementation Approach
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
-  <a href="#debug-commands" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Debug Commands
+      Configuration
     </span>
   </a>
   
@@ -1648,9 +1315,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
+  <a href="#future-enhancements" class="md-nav__link">
     <span class="md-ellipsis">
-      Next Steps
+      Future Enhancements
     </span>
   </a>
   
@@ -1672,7 +1339,7 @@
 
 
   
-    <a href="https://github.com/henrikrexed/profiletoMetrics/edit/main/docs/getting-started/quick-start.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/henrikrexed/profiletoMetrics/edit/main/docs/development/thread-process-filtering.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1681,181 +1348,180 @@
     
       
     
-    <a href="https://github.com/henrikrexed/profiletoMetrics/raw/main/docs/getting-started/quick-start.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/henrikrexed/profiletoMetrics/raw/main/docs/development/thread-process-filtering.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="quick-start">Quick Start</h1>
-<p>Get up and running with the ProfileToMetrics Connector in minutes.</p>
-<h2 id="prerequisites">Prerequisites</h2>
+<h1 id="thread-and-process-filtering-for-profile-metrics">Thread and Process Filtering for Profile Metrics</h1>
+<h2 id="overview">Overview</h2>
+<p>This feature enables users to calculate CPU time and memory allocation metrics for specific threads or processes within profile data. This allows for granular analysis of which threads or processes are consuming the most resources.</p>
+<h2 id="current-implementation-status">Current Implementation Status</h2>
+<h3 id="implemented">✅ Implemented</h3>
+<ol>
+<li><strong>Filter Support Infrastructure</strong>:</li>
+<li>Added <code>calculateCPUTimeForFilter()</code> method to calculate CPU time with optional filtering</li>
+<li>Added <code>calculateMemoryAllocationForFilter()</code> method to calculate memory allocation with optional filtering</li>
+<li>Added <code>matchesSampleFilter()</code> method to check if a sample matches filter criteria</li>
+<li>
+<p>Added helper functions <code>generateThreadMetrics()</code> and <code>generateProcessMetrics()</code> to generate metrics for specific threads/processes</p>
+</li>
+<li>
+<p><strong>Metric Generation</strong>:</p>
+</li>
+<li>The main profile processing loop calls <code>getUniqueThreadNames()</code> and <code>getUniqueProcessNames()</code> </li>
+<li>For each unique thread/process, it generates dedicated metrics with sanitized names</li>
+<li>Metrics are named like <code>cpu_time_thread_thread_name</code> and <code>memory_allocation_process_process_name</code></li>
+</ol>
+<h3 id="pending-implementation">⚠️ Pending Implementation</h3>
+<p>The feature is currently stubbed out because the OpenTelemetry pprofile API doesn't provide direct access to sample attributes. The following functions need to be implemented based on the actual data structure:</p>
+<ol>
+<li><strong><code>getSampleAttributeValue()</code></strong>: Currently returns empty string. Needs to:</li>
+<li>Parse attributes from the sample data structure</li>
+<li>Extract thread.name, process.executable.name, or other attributes</li>
+<li>
+<p>Handle the actual pprofile data model (which may store attributes in location/mapping/labels)</p>
+</li>
+<li>
+<p><strong><code>getUniqueThreadNames()</code></strong>: Currently returns empty list. Needs to:</p>
+</li>
+<li>Iterate through profile samples</li>
+<li>Extract unique thread names from sample attributes</li>
+<li>
+<p>Return a list of unique thread identifiers</p>
+</li>
+<li>
+<p><strong><code>getUniqueProcessNames()</code></strong>: Currently returns empty list. Needs to:</p>
+</li>
+<li>Iterate through profile samples  </li>
+<li>Extract unique process names from sample attributes</li>
+<li>Return a list of unique process identifiers</li>
+</ol>
+<h2 id="how-it-would-work-once-implemented">How It Would Work (Once Implemented)</h2>
+<h3 id="usage-example">Usage Example</h3>
+<p>When a user receives profile data with the following structure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Sample #1:
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  thread.name: &quot;wrk:worker_1&quot;
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  process.executable.name: &quot;envoy&quot;
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Sample #2:
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  thread.name: &quot;wrk:worker_2&quot;
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  process.executable.name: &quot;envoy&quot;
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Sample #3:
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  thread.name: &quot;main&quot;
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  process.executable.name: &quot;app&quot;
+</code></pre></div>
+<p>The connector would automatically generate:</p>
+<p><strong>Thread-Specific Metrics:</strong>
+- <code>cpu_time_thread_wrk_worker_1</code>
+- <code>cpu_time_thread_wrk_worker_2</code>
+- <code>cpu_time_thread_main</code>
+- <code>memory_allocation_thread_wrk_worker_1</code>
+- <code>memory_allocation_thread_wrk_worker_2</code>
+- <code>memory_allocation_thread_main</code></p>
+<p><strong>Process-Specific Metrics:</strong>
+- <code>cpu_time_process_envoy</code>
+- <code>cpu_time_process_app</code>
+- <code>memory_allocation_process_envoy</code>
+- <code>memory_allocation_process_app</code></p>
+<h2 id="implementation-approach">Implementation Approach</h2>
+<p>To properly implement this feature, you need to:</p>
+<ol>
+<li><strong>Understand the pprofile Data Structure</strong>:</li>
+<li>Research how OpenTelemetry stores sample-level attributes</li>
+<li>Check if attributes are stored in Location, Mapping, or Label structures</li>
+<li>
+<p>Review the pprofile protobuf definitions</p>
+</li>
+<li>
+<p><strong>Access Sample Attributes</strong>:</p>
+</li>
+<li>Implement attribute extraction based on the actual data structure</li>
+<li>May need to traverse profile.Location, profile.Mapping, or profile.Label structures</li>
+<li>
+<p>Handle different attribute storage mechanisms (string table, direct values, etc.)</p>
+</li>
+<li>
+<p><strong>Handle Attribute Names</strong>:</p>
+</li>
+<li>Standardize attribute key names (e.g., "thread.name" vs "thread_name")</li>
+<li>Support multiple attribute naming conventions</li>
+<li>
+<p>Handle missing attributes gracefully</p>
+</li>
+<li>
+<p><strong>Test with Real Data</strong>:</p>
+</li>
+<li>Use actual profile data from eBPF profilers or similar tools</li>
+<li>Verify attribute extraction works correctly</li>
+<li>Test with various attribute formats and structures</li>
+</ol>
+<h2 id="code-locations">Code Locations</h2>
 <ul>
-<li>Docker installed</li>
-<li>Basic understanding of OpenTelemetry</li>
+<li>Filter functions: <code>pkg/profiletometrics/converter.go</code> lines 304-421</li>
+<li>Helper functions: <code>pkg/profiletometrics/converter.go</code> lines 417-453  </li>
+<li>Main integration: <code>pkg/profiletometrics/converter.go</code> lines 238-250</li>
 </ul>
-<h2 id="step-1-create-configuration">Step 1: Create Configuration</h2>
-<p>Create a <code>config.yaml</code> file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">receivers</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">otlp</span><span class="p">:</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">protocols</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="nt">grpc</span><span class="p">:</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:4317</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nt">connectors</span><span class="p">:</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nt">profiletometrics</span><span class="p">:</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">      </span><span class="nt">cpu</span><span class="p">:</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="nt">metric_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cpu_time&quot;</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">      </span><span class="nt">memory</span><span class="p">:</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">        </span><span class="nt">metric_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;memory_allocation&quot;</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="nt">attributes</span><span class="p">:</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;service.name&quot;</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-service&quot;</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">process_filter</span><span class="p">:</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">      </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-app.*&quot;</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="nt">exporters</span><span class="p">:</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">  </span><span class="nt">debug</span><span class="p">:</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="nt">verbosity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">detailed</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="nt">service</span><span class="p">:</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">  </span><span class="nt">pipelines</span><span class="p">:</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="nt">profiles</span><span class="p">:</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">      </span><span class="nt">receivers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">otlp</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">      </span><span class="nt">processors</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">batch</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">      </span><span class="nt">exporters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">profiletometrics</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">      </span><span class="nt">receivers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">profiletometrics</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">      </span><span class="nt">processors</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">batch</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">      </span><span class="nt">exporters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">debug</span><span class="p p-Indicator">]</span>
+<h2 id="function-level-metrics-proposed">Function-Level Metrics (Proposed)</h2>
+<h3 id="overview_1">Overview</h3>
+<p>Since processes and threads are composed of multiple functions, we should support:</p>
+<ol>
+<li><strong>Function-level metrics</strong>: CPU time and memory allocation per function</li>
+<li><strong>Hierarchical aggregation</strong>: Function metrics roll up to process/thread totals</li>
+<li><strong>Global process totals</strong>: Total CPU/memory across all threads in a process</li>
+</ol>
+<h3 id="proposed-metrics-structure">Proposed Metrics Structure</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># Process-level metrics
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>cpu_time_process_envoy = &lt;total CPU across all threads&gt;
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>memory_allocation_process_envoy = &lt;total memory across all threads&gt;
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a># Thread-level metrics  
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>cpu_time_thread_wrk_worker_1 = &lt;total CPU for this thread&gt;
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>memory_allocation_thread_wrk_worker_1 = &lt;total memory for this thread&gt;
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a># Function-level metrics (within a thread)
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>cpu_time_function_main_thread_main_function = &lt;CPU for main function in main thread&gt;
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>cpu_time_function_main_thread_envoy_accept = &lt;CPU for accept function in main thread&gt;
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>memory_allocation_function_main_thread_main_function = &lt;memory for main function&gt;
 </code></pre></div>
-<h2 id="step-2-run-the-collector">Step 2: Run the Collector</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Pull the image</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>pull<span class="w"> </span>hrexed/otel-collector-profilemetrics:latest
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Run the collector with profiles feature gate enabled</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">4317</span>:4317<span class="w"> </span>-p<span class="w"> </span><span class="m">8888</span>:8888<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span>--feature-gates<span class="o">=</span>+service.profilesSupport<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/config.yaml:/etc/otelcol/config.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span>hrexed/otel-collector-profilemetrics:latest
+<h3 id="implementation-approach_1">Implementation Approach</h3>
+<ol>
+<li><strong>Access Stack Traces</strong>: Use <code>profile.Location()</code> to get function information</li>
+<li><strong>Calculate Function Metrics</strong>: Sum CPU/memory for each unique function</li>
+<li><strong>Maintain Hierarchical Totals</strong>: Ensure function totals equal thread totals, thread totals equal process totals</li>
+<li><strong>Handle Cardinality</strong>: Consider limits on function metrics to prevent explosion</li>
+</ol>
+<h3 id="configuration">Configuration</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">connectors</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">profiletometrics</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">      </span><span class="nt">cpu</span><span class="p">:</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">      </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">      </span><span class="c1"># Enable function-level metrics</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">      </span><span class="nt">function_metrics</span><span class="p">:</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">        </span><span class="nt">max_functions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w">  </span><span class="c1"># Limit to prevent cardinality explosion</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="c1"># Enable thread/process aggregation</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nt">thread_metrics</span><span class="p">:</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">process_metrics</span><span class="p">:</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
-<p><strong>⚠️ Important</strong>: The <code>+service.profilesSupport</code> feature gate must be enabled to use the profiles pipeline.</p>
-<h2 id="step-3-send-test-data">Step 3: Send Test Data</h2>
-<p>In another terminal, send test profiling data:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Clone the repository</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/henrikrexed/profiletoMetrics.git
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">cd</span><span class="w"> </span>profiletoMetrics
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># Send test data</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>./scripts/send-test-data.sh
-</code></pre></div>
-<h2 id="step-4-verify-output">Step 4: Verify Output</h2>
-<p>You should see debug output showing:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>2024-01-15T10:30:00.000Z    info    ProfileToMetrics connector started
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>2024-01-15T10:30:00.000Z    debug   Processing profiles {&quot;resource_profiles_count&quot;: 1, &quot;total_profiles&quot;: 1}
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>2024-01-15T10:30:00.000Z    debug   Profiles converted to metrics   {&quot;input_profiles&quot;: 1, &quot;output_metrics&quot;: 2}
-</code></pre></div>
-<h2 id="step-5-check-metrics">Step 5: Check Metrics</h2>
-<p>Visit the metrics endpoint:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>http://localhost:8888/metrics
-</code></pre></div>
-<p>You should see metrics like:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a># HELP cpu_time CPU time in seconds
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a># TYPE cpu_time counter
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>cpu_time{service_name=&quot;my-service&quot;} 0.123
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a># HELP memory_allocation Memory allocation in bytes
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a># TYPE memory_allocation counter
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>memory_allocation{service_name=&quot;my-service&quot;} 1024
-</code></pre></div>
-<h2 id="advanced-configuration">Advanced Configuration</h2>
-<h3 id="enable-debug-logging">Enable Debug Logging</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">service</span><span class="p">:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">telemetry</span><span class="p">:</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">logs</span><span class="p">:</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">debug</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="nt">development</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</code></pre></div>
-<h3 id="add-more-attributes">Add More Attributes</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">connectors</span><span class="p">:</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">profiletometrics</span><span class="p">:</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">attributes</span><span class="p">:</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;service.name&quot;</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-service&quot;</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;environment&quot;</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;production&quot;</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;version&quot;</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
-</code></pre></div>
-<h3 id="filter-by-process">Filter by Process</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">connectors</span><span class="p">:</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">profiletometrics</span><span class="p">:</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">process_filter</span><span class="p">:</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-app.*&quot;</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">thread_filter</span><span class="p">:</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">      </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;worker-.*&quot;</span>
-</code></pre></div>
-<h2 id="kubernetes-quick-start">Kubernetes Quick Start</h2>
-<h3 id="1-apply-manifests">1. Apply Manifests</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/namespace.yaml
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/rbac.yaml
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/configmap.yaml
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/deployment.yaml
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/service.yaml
-</code></pre></div>
-<h3 id="2-check-status">2. Check Status</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>otel-collector
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>otel-collector<span class="w"> </span>deployment/otel-collector
-</code></pre></div>
-<h3 id="3-port-forward">3. Port Forward</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>kubectl<span class="w"> </span>port-forward<span class="w"> </span>-n<span class="w"> </span>otel-collector<span class="w"> </span>svc/otel-collector<span class="w"> </span><span class="m">4317</span>:4317<span class="w"> </span><span class="m">8888</span>:8888
-</code></pre></div>
-<h2 id="troubleshooting">Troubleshooting</h2>
-<h3 id="common-issues">Common Issues</h3>
-<h4 id="1-connection-refused">1. Connection Refused</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Check if collector is running</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>docker<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>otel-collector
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Check logs</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>docker<span class="w"> </span>logs<span class="w"> </span>&lt;container-id&gt;
-</code></pre></div>
-<h4 id="2-configuration-errors">2. Configuration Errors</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Validate configuration</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/config.yaml:/etc/otelcol/config.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span>hrexed/otel-collector-profilemetrics:latest<span class="w"> </span>--config<span class="o">=</span>/etc/otelcol/config.yaml<span class="w"> </span>--dry-run
-</code></pre></div>
-<h4 id="3-no-metrics-generated">3. No Metrics Generated</h4>
-<ul>
-<li>Check if profiling data is being sent</li>
-<li>Verify connector configuration</li>
-<li>Enable debug logging</li>
-</ul>
-<h3 id="debug-commands">Debug Commands</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Check collector health</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>curl<span class="w"> </span>http://localhost:8888/
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Check metrics</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>curl<span class="w"> </span>http://localhost:8888/metrics
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Check logs with debug level</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>docker<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span><span class="nv">OTEL_LOG_LEVEL</span><span class="o">=</span>debug<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">  </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/config.yaml:/etc/otelcol/config.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">  </span>hrexed/otel-collector-profilemetrics:latest
-</code></pre></div>
-<h2 id="next-steps">Next Steps</h2>
-<ul>
-<li><a href="configuration/connector-config.md">Configuration Guide</a></li>
-<li><a href="deployment/docker.md">Docker Deployment</a></li>
-<li><a href="deployment/kubernetes.md">Kubernetes Deployment</a></li>
-<li><a href="testing/unit-tests.md">Testing Guide</a></li>
-</ul>
+<h2 id="future-enhancements">Future Enhancements</h2>
+<p>Once the basic filtering is implemented, consider:</p>
+<ol>
+<li><strong>Configuration Support</strong>: Allow users to enable/disable thread/process/function metrics</li>
+<li><strong>Pattern Matching</strong>: Support regex patterns for thread/process/function names</li>
+<li><strong>Aggregation</strong>: Support min/max/avg aggregations per thread/process/function</li>
+<li><strong>Cardinality Control</strong>: Limit the number of unique threads/processes/functions to track</li>
+<li><strong>Sampling</strong>: Sample high-cardinality function data</li>
+<li><strong>Call Tree Metrics</strong>: Track parent-child relationships in call stacks</li>
+</ol>
 
 
 
@@ -1878,7 +1544,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 24, 2025 06:41:20 UTC">October 24, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 25, 2025 16:45:58 UTC">October 25, 2025</span>
   </span>
 
     
@@ -1888,7 +1554,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 22, 2025 17:16:05 UTC">October 22, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 25, 2025 16:45:58 UTC">October 25, 2025</span>
   </span>
 
     
