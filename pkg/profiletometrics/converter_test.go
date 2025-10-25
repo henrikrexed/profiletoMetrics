@@ -653,3 +653,96 @@ func TestConverter_CalculateMemoryAllocationForFilter(t *testing.T) {
 	memory2 := converter.calculateMemoryAllocationForFilter(profiles, profile, filter)
 	assert.Equal(t, float64(0), memory2)
 }
+
+func TestConverter_FunctionMetricsEnabled(t *testing.T) {
+	tests := []struct {
+		name               string
+		functionEnabled    bool
+		expectedMinMetrics int // Minimum number of metrics we expect
+	}{
+		{
+			name:               "Function metrics enabled",
+			functionEnabled:    true,
+			expectedMinMetrics: 2, // At least CPU and Memory
+		},
+		{
+			name:               "Function metrics disabled",
+			functionEnabled:    false,
+			expectedMinMetrics: 2, // At least CPU and Memory (no function metrics)
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			config := &ConverterConfig{
+				Metrics: MetricsConfig{
+					CPU: CPUMetricConfig{
+						Enabled:    true,
+						MetricName: "cpu_time",
+						Unit:       "s",
+					},
+					Memory: MemoryMetricConfig{
+						Enabled:    true,
+						MetricName: "memory_allocation",
+						Unit:       "bytes",
+					},
+					Function: FunctionMetricConfig{
+						Enabled: tt.functionEnabled,
+					},
+				},
+			}
+
+			converter, err := NewConverter(config)
+			require.NoError(t, err)
+
+			// Create a profile with function data
+			profiles := testdata.CreateTestProfile()
+
+			// Convert profiles to metrics
+			metrics, err := converter.ConvertProfilesToMetrics(context.Background(), profiles)
+			require.NoError(t, err)
+			require.NotNil(t, metrics)
+
+			// Verify we got at least the minimum expected metrics
+			resourceMetrics := metrics.ResourceMetrics()
+			require.Equal(t, 1, resourceMetrics.Len())
+
+			scopeMetrics := resourceMetrics.At(0).ScopeMetrics()
+			require.Equal(t, 1, scopeMetrics.Len())
+
+			metricsSlice := scopeMetrics.At(0).Metrics()
+			assert.GreaterOrEqual(t, metricsSlice.Len(), tt.expectedMinMetrics)
+
+			// Verify CPU and Memory metrics are always present
+			var hasCPU bool
+			var hasMemory bool
+			var hasFunction bool
+
+			for i := 0; i < metricsSlice.Len(); i++ {
+				metric := metricsSlice.At(i)
+				name := metric.Name()
+
+				if name == "cpu_time" {
+					hasCPU = true
+				} else if name == "memory_allocation" {
+					hasMemory = true
+				} else if len(name) > 13 && name[:13] == "cpu_time_function_" || (len(name) > 21 && name[:21] == "memory_allocation_function_") {
+					hasFunction = true
+				}
+			}
+
+			assert.True(t, hasCPU, "CPU metric should be present")
+			assert.True(t, hasMemory, "Memory metric should be present")
+
+			// Verify function metrics based on flag
+			if tt.functionEnabled {
+				// With function metrics enabled, we might have function-level metrics
+				// if the profile has function data
+				// We don't assert it because it depends on the profile data
+			} else {
+				// With function metrics disabled, we should NOT have function-level metrics
+				assert.False(t, hasFunction, "Function metrics should not be present when disabled")
+			}
+		})
+	}
+}

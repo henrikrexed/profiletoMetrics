@@ -274,8 +274,10 @@ func (c *Converter) generateMetricsFromProfile(
 		c.generateProcessMetrics(profiles, profile, attributes, scopeMetrics, processName)
 	}
 
-	// Generate function-level metrics
-	c.generateFunctionMetrics(profiles, profile, attributes, scopeMetrics)
+	// Generate function-level metrics (if enabled)
+	if c.config.Metrics.Function.Enabled {
+		c.generateFunctionMetrics(profiles, profile, attributes, scopeMetrics)
+	}
 }
 
 // matchesPatternFilter checks if attributes match the pattern filter

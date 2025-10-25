@@ -25,6 +25,8 @@ connectors:
         enabled: true
         metric_name: "profile_memory_allocation_bytes"
         unit: "bytes"
+      function:
+        enabled: true  # Enable function-level metrics
     
     attributes:
       - key: "process_name"

@@ -63,6 +63,9 @@ func createDefaultConfig() component.Config {
 					MetricName: "memory_allocation",
 					Unit:       "bytes",
 				},
+				Function: profiletometrics.FunctionMetricConfig{
+					Enabled: true,
+				},
 			},
 			Attributes: []profiletometrics.AttributeConfig{
 				{

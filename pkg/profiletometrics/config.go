@@ -2,8 +2,9 @@ package profiletometrics
 
 // MetricsConfig defines the metrics configuration
 type MetricsConfig struct {
-	CPU    CPUMetricConfig    `mapstructure:"cpu"`
-	Memory MemoryMetricConfig `mapstructure:"memory"`
+	CPU      CPUMetricConfig      `mapstructure:"cpu"`
+	Memory   MemoryMetricConfig   `mapstructure:"memory"`
+	Function FunctionMetricConfig `mapstructure:"function"`
 }
 
 // CPUMetricConfig defines CPU metric configuration
@@ -18,6 +19,11 @@ type MemoryMetricConfig struct {
 	Enabled    bool   `mapstructure:"enabled"`
 	MetricName string `mapstructure:"metric_name"`
 	Unit       string `mapstructure:"unit"`
+}
+
+// FunctionMetricConfig defines function-level metric configuration
+type FunctionMetricConfig struct {
+	Enabled bool `mapstructure:"enabled"`
 }
 
 // AttributeConfig defines attribute extraction configuration

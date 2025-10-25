@@ -63,6 +63,20 @@ connectors:
         unit: "bytes"                   # Metric unit
 ```
 
+#### Function Metrics
+
+Control whether to generate per-function metrics:
+
+```yaml
+connectors:
+  profiletometrics:
+    metrics:
+      function:
+        enabled: true                   # Enable function-level metrics (default: true)
+```
+
+**Note**: Function-level metrics are automatically extracted from profile stack traces. When enabled, they can significantly increase metric cardinality.
+
 ### Attribute Configuration
 
 Extract attributes from the profiling data's string table.
@@ -154,6 +168,8 @@ connectors:
         metric_name: "memory_allocation"
         description: "Memory allocation in bytes"
         unit: "bytes"
+      function:
+        enabled: true                   # Enable function-level metrics
     
     # Attribute extraction
     attributes:
@@ -277,10 +293,14 @@ connectors:
         enabled: true
       memory:
         enabled: true
+      function:
+        enabled: false                  # Disable to reduce metric cardinality
     attributes:
       - key: "service.name"
         value: "my-service"
 ```
+
+**Note**: In the simple setup example above, function-level metrics are disabled to reduce cardinality. Enable them if you need per-function metrics.
 
 ### Production Setup
 
@@ -298,6 +318,8 @@ connectors:
         metric_name: "application_memory_allocation"
         description: "Application memory allocation"
         unit: "bytes"
+      function:
+        enabled: true                   # Enable function-level metrics
     
     attributes:
       - key: "service.name"
