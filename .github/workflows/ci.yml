@@ -81,6 +81,20 @@ jobs:
       run: |
         go tool cover -html=coverage.out -o coverage.html
 
+    - name: Check test coverage threshold
+      run: |
+        echo "Checking test coverage threshold..."
+        COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        echo "Current coverage: $COVERAGE%"
+        COVERAGE_THRESHOLD=60.0
+        if (( $(echo "$COVERAGE < $COVERAGE_THRESHOLD" | bc -l) )); then
+          echo "ERROR: Test coverage ($COVERAGE%) is below required threshold ($COVERAGE_THRESHOLD%)"
+          echo "Please add more tests to increase coverage"
+          exit 1
+        else
+          echo "✓ Test coverage ($COVERAGE%) meets required threshold ($COVERAGE_THRESHOLD%)"
+        fi
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:

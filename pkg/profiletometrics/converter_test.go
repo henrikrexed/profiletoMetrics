@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/pprofile"
+	"go.uber.org/zap"
 
 	"github.com/henrikrexed/profiletoMetrics/testdata"
 )
@@ -277,7 +278,14 @@ func TestConverter_CalculateCPUTime(t *testing.T) {
 		values.Append(int64(1000000000 + i*100000000)) // 1s, 1.1s, 1.2s in nanoseconds
 	}
 
-	cpuTime := converter.calculateCPUTime(profile)
+	// Create a profiles container to pass to calculateCPUTime
+	profiles := pprofile.NewProfiles()
+	resourceProfiles := profiles.ResourceProfiles().AppendEmpty()
+	scopeProfiles := resourceProfiles.ScopeProfiles().AppendEmpty()
+	profileInProfiles := scopeProfiles.Profiles().AppendEmpty()
+	profile.CopyTo(profileInProfiles)
+
+	cpuTime := converter.calculateCPUTime(profiles, profileInProfiles)
 	expected := float64(1000000000+1100000000+1200000000) / 1e9 // Convert to seconds
 	assert.Equal(t, expected, cpuTime)
 }
@@ -305,7 +313,14 @@ func TestConverter_CalculateMemoryAllocation(t *testing.T) {
 		values.Append(int64(2000 + i*500)) // Memory: 2000, 2500 bytes
 	}
 
-	memoryAllocation := converter.calculateMemoryAllocation(profile)
+	// Create a profiles container to pass to calculateMemoryAllocation
+	profiles := pprofile.NewProfiles()
+	resourceProfiles := profiles.ResourceProfiles().AppendEmpty()
+	scopeProfiles := resourceProfiles.ScopeProfiles().AppendEmpty()
+	profileInProfiles := scopeProfiles.Profiles().AppendEmpty()
+	profile.CopyTo(profileInProfiles)
+
+	memoryAllocation := converter.calculateMemoryAllocation(profiles, profileInProfiles)
 	expected := float64(2000 + 2500)
 	assert.Equal(t, expected, memoryAllocation)
 }
@@ -357,4 +372,284 @@ func TestConverter_StringTableExtraction(t *testing.T) {
 	functionName, exists := attributes.Get("function_name")
 	require.True(t, exists)
 	assert.Equal(t, "test_function", functionName.AsString())
+}
+
+func TestConverter_GetSampleAttributeValue(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	// Create test profile
+	profiles := testdata.CreateTestProfile()
+	sample := pprofile.NewSample()
+
+	// Test attribute extraction (may return empty string if no attributes)
+	value := converter.getSampleAttributeValue(profiles, sample, "thread.name")
+
+	// Just verify the function doesn't panic
+	assert.NotNil(t, value)
+}
+
+func TestConverter_MatchesSampleFilter(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := testdata.CreateTestProfile()
+	sample := pprofile.NewSample()
+
+	// Test with nil filter
+	result := converter.matchesSampleFilter(profiles, sample, nil)
+	assert.True(t, result, "Nil filter should match all")
+
+	// Test with empty filter
+	result = converter.matchesSampleFilter(profiles, sample, map[string]string{})
+	assert.True(t, result, "Empty filter should match all")
+
+	// Test with non-empty filter (will fail to match since sample has no attributes)
+	result = converter.matchesSampleFilter(profiles, sample, map[string]string{"thread.name": "test"})
+	assert.False(t, result, "Filter should not match when no attributes present")
+}
+
+func TestConverter_SetLogger(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	// Set a logger
+	logger, _ := zap.NewProduction()
+	converter.SetLogger(logger)
+
+	// Verify logger was set by calling a method that uses it
+	converter.logInfo("Test message")
+
+	// No assertions - just verifying it doesn't panic
+}
+
+func TestConverter_SanitizeMetricName(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"simple name", "cpu_time", "cpu_time"},
+		{"with spaces", "cpu time", "cpu_time"},
+		{"with special chars", "cpu-time@test", "cpu_time_test"},
+		{"with numbers", "cpu123time", "cpu123time"},
+		{"mixed case", "CPU_Time", "CPU_Time"},
+		{"with dots", "cpu.time", "cpu_time"},
+		{"with slashes", "cpu/time", "cpu_time"},
+		{"empty string", "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := sanitizeMetricName(tt.input)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestConverter_GetFunctionName(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	// Create profiles with dictionary
+	profiles := pprofile.NewProfiles()
+	dictionary := profiles.Dictionary()
+	stringTable := dictionary.StringTable()
+
+	// Add function name to string table
+	stringTable.Append("my_function")
+
+	// Create function
+	fn := pprofile.NewFunction()
+	fn.SetNameStrindex(0)
+	functionTable := dictionary.FunctionTable()
+	functionTable.AppendEmpty().CopyTo(fn)
+
+	// Test getting function name
+	functionName := converter.getFunctionName(profiles, 0)
+	assert.Equal(t, "my_function", functionName)
+
+	// Test with invalid index
+	functionName = converter.getFunctionName(profiles, -1)
+	assert.Equal(t, "", functionName)
+
+	// Test with index out of range
+	functionName = converter.getFunctionName(profiles, 999)
+	assert.Equal(t, "", functionName)
+}
+
+func TestConverter_GetLocationFunctionName(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	dictionary := profiles.Dictionary()
+	stringTable := dictionary.StringTable()
+
+	// Setup function
+	stringTable.Append("test_function")
+	fn := pprofile.NewFunction()
+	fn.SetNameStrindex(0)
+	dictionary.FunctionTable().AppendEmpty().CopyTo(fn)
+
+	// Create location with line
+	location := pprofile.NewLocation()
+	line := location.Line().AppendEmpty()
+	line.SetFunctionIndex(0)
+
+	// Test
+	functionName := converter.getLocationFunctionName(profiles, location)
+	assert.Equal(t, "test_function", functionName)
+
+	// Test with empty lines
+	location2 := pprofile.NewLocation()
+	functionName2 := converter.getLocationFunctionName(profiles, location2)
+	assert.Equal(t, "", functionName2)
+}
+
+func TestConverter_GetSampleFunctionName(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+
+	// Test with invalid stack index (negative)
+	sample := pprofile.NewSample()
+	sample.SetStackIndex(-1)
+	functionName := converter.getSampleFunctionName(profiles, sample)
+	assert.Equal(t, "", functionName)
+
+	// Test with no stack index
+	sample2 := pprofile.NewSample()
+	sample2.SetStackIndex(0)
+	functionName2 := converter.getSampleFunctionName(profiles, sample2)
+	// May be empty if stack doesn't exist or has no locations
+	assert.NotNil(t, functionName2)
+}
+
+func TestConverter_GetUniqueThreadNames(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	profile := pprofile.NewProfile()
+
+	// This should return empty list if no thread.name attributes are present
+	threadNames := converter.getUniqueThreadNames(profiles, profile)
+	assert.Equal(t, 0, len(threadNames))
+}
+
+func TestConverter_GetUniqueProcessNames(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	profile := pprofile.NewProfile()
+
+	// This should return empty list if no process.executable.name attributes are present
+	processNames := converter.getUniqueProcessNames(profiles, profile)
+	assert.Equal(t, 0, len(processNames))
+}
+
+func TestConverter_ExtractAttributeValue(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := testdata.CreateTestProfile()
+	profile := pprofile.NewProfile()
+
+	// Test literal type
+	attr := AttributeConfig{
+		Key:   "test_attr",
+		Value: "test_value",
+		Type:  "literal",
+	}
+	value := converter.extractAttributeValue(profiles, profile, attr)
+	assert.Equal(t, "test_value", value)
+
+	// Test regex type (will use empty string for now)
+	attr2 := AttributeConfig{
+		Key:   "test_attr2",
+		Value: ".*",
+		Type:  "regex",
+	}
+	value2 := converter.extractAttributeValue(profiles, profile, attr2)
+	// May be empty depending on implementation
+	assert.NotNil(t, value2)
+
+	// Test default/unknown type
+	attr3 := AttributeConfig{
+		Key:   "test_attr3",
+		Value: "default",
+		Type:  "unknown",
+	}
+	value3 := converter.extractAttributeValue(profiles, profile, attr3)
+	assert.Equal(t, "default", value3)
+}
+
+func TestConverter_CalculateCPUTimeForFilter(t *testing.T) {
+	config := &ConverterConfig{
+		Metrics: MetricsConfig{
+			CPU: CPUMetricConfig{
+				Enabled: true,
+			},
+		},
+	}
+
+	converter, err := NewConverter(config)
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	profile := pprofile.NewProfile()
+
+	// Add samples
+	for i := 0; i < 3; i++ {
+		sample := profile.Sample().AppendEmpty()
+		values := sample.Values()
+		values.Append(int64(1000000000 + i*100000000))
+	}
+
+	// Test without filter
+	cpuTime := converter.calculateCPUTimeForFilter(profiles, profile, nil)
+	expected := float64(1000000000+1100000000+1200000000) / 1e9
+	assert.InDelta(t, expected, cpuTime, 0.0001)
+
+	// Test with filter (that won't match)
+	filter := map[string]string{"thread.name": "nonexistent"}
+	cpuTime2 := converter.calculateCPUTimeForFilter(profiles, profile, filter)
+	assert.Equal(t, float64(0), cpuTime2)
+}
+
+func TestConverter_CalculateMemoryAllocationForFilter(t *testing.T) {
+	config := &ConverterConfig{
+		Metrics: MetricsConfig{
+			Memory: MemoryMetricConfig{
+				Enabled: true,
+			},
+		},
+	}
+
+	converter, err := NewConverter(config)
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	profile := pprofile.NewProfile()
+
+	// Add samples with memory values
+	for i := 0; i < 2; i++ {
+		sample := profile.Sample().AppendEmpty()
+		values := sample.Values()
+		values.Append(int64(1000000000))
+		values.Append(int64(2000 + i*500))
+	}
+
+	// Test without filter
+	memory := converter.calculateMemoryAllocationForFilter(profiles, profile, nil)
+	expected := float64(2000 + 2500)
+	assert.Equal(t, expected, memory)
+
+	// Test with filter (that won't match)
+	filter := map[string]string{"thread.name": "nonexistent"}
+	memory2 := converter.calculateMemoryAllocationForFilter(profiles, profile, filter)
+	assert.Equal(t, float64(0), memory2)
 }
