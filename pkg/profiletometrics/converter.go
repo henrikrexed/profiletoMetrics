@@ -260,12 +260,16 @@ func (c *Converter) generateMetricsFromProfile(
 		c.generateMemoryAllocationMetrics(profiles, profile, attributes, scopeMetrics)
 	}
 
-	// Generate metrics for specific threads
-	threadNames := c.getUniqueThreadNames(profiles, profile)
-	for _, threadName := range threadNames {
-		c.logDebug("Generating metrics for thread", zap.String("thread_name", threadName))
-		c.generateThreadMetrics(profiles, profile, attributes, scopeMetrics, threadName)
-	}
+	// Thread-level metrics disabled to reduce cardinality
+	// Focus is on process -> function relationship for operational insights
+	/*
+		// Generate metrics for specific threads
+		threadNames := c.getUniqueThreadNames(profiles, profile)
+		for _, threadName := range threadNames {
+			c.logDebug("Generating metrics for thread", zap.String("thread_name", threadName))
+			c.generateThreadMetrics(profiles, profile, attributes, scopeMetrics, threadName)
+		}
+	*/
 
 	// Generate metrics for specific processes
 	processNames := c.getUniqueProcessNames(profiles, profile)
@@ -464,37 +468,46 @@ func (c *Converter) generateFunctionMetrics(
 	memoryMetric.SetDescription(memDescription)
 	memoryGauge := memoryMetric.SetEmptyGauge()
 
-	// Create data points for each function
-	for _, functionName := range functionNames {
-		c.logDebug("Adding data point for function", zap.String("function_name", functionName))
+	// Get all unique process names to combine with function names
+	processNames := c.getUniqueProcessNames(profiles, profile)
 
-		// Calculate values for this function
-		cpuTime := c.calculateFunctionCPUTime(profiles, profile, functionName)
-		memoryAllocation := c.calculateFunctionMemoryAllocation(profiles, profile, functionName)
+	// Create data points for each (process, function) combination
+	for _, processName := range processNames {
+		for _, functionName := range functionNames {
+			c.logDebug("Adding data point for process and function",
+				zap.String("process_name", processName),
+				zap.String("function_name", functionName))
 
-		// Create CPU data point with function attribute
-		cpuDataPoint := cpuGauge.DataPoints().AppendEmpty()
-		cpuDataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-		cpuDataPoint.SetDoubleValue(cpuTime)
+			// Calculate values for this process and function combination
+			cpuTime := c.calculateFunctionCPUTimeForProcess(profiles, profile, processName, functionName)
+			memoryAllocation := c.calculateFunctionMemoryAllocationForProcess(profiles, profile, processName, functionName)
 
-		// Add base attributes
-		for key, val := range attributes {
-			cpuDataPoint.Attributes().PutStr(key, val)
+			// Create CPU data point with both process and function attributes
+			cpuDataPoint := cpuGauge.DataPoints().AppendEmpty()
+			cpuDataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+			cpuDataPoint.SetDoubleValue(cpuTime)
+
+			// Add base attributes
+			for key, val := range attributes {
+				cpuDataPoint.Attributes().PutStr(key, val)
+			}
+			// Add process and function names as attributes
+			cpuDataPoint.Attributes().PutStr("process.name", processName)
+			cpuDataPoint.Attributes().PutStr("function.name", functionName)
+
+			// Create memory data point with both process and function attributes
+			memoryDataPoint := memoryGauge.DataPoints().AppendEmpty()
+			memoryDataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+			memoryDataPoint.SetDoubleValue(memoryAllocation)
+
+			// Add base attributes
+			for key, val := range attributes {
+				memoryDataPoint.Attributes().PutStr(key, val)
+			}
+			// Add process and function names as attributes
+			memoryDataPoint.Attributes().PutStr("process.name", processName)
+			memoryDataPoint.Attributes().PutStr("function.name", functionName)
 		}
-		// Add function name as attribute
-		cpuDataPoint.Attributes().PutStr("function.name", functionName)
-
-		// Create memory data point with function attribute
-		memoryDataPoint := memoryGauge.DataPoints().AppendEmpty()
-		memoryDataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-		memoryDataPoint.SetDoubleValue(memoryAllocation)
-
-		// Add base attributes
-		for key, val := range attributes {
-			memoryDataPoint.Attributes().PutStr(key, val)
-		}
-		// Add function name as attribute
-		memoryDataPoint.Attributes().PutStr("function.name", functionName)
 	}
 }
 
@@ -576,6 +589,74 @@ func (c *Converter) calculateFunctionMemoryAllocation(profiles pprofile.Profiles
 			} else {
 				totalMemoryAllocation += 2048.0 // Default 2KB for stack trace profiles
 			}
+		}
+	}
+
+	return totalMemoryAllocation
+}
+
+// calculateFunctionCPUTimeForProcess calculates CPU time for a specific function within a specific process
+func (c *Converter) calculateFunctionCPUTimeForProcess(profiles pprofile.Profiles, profile pprofile.Profile, processName, functionName string) float64 {
+	var totalCPUTime float64
+	defaultProfileDuration := 1.0
+	sampleCount := profile.Sample().Len()
+
+	for i := 0; i < sampleCount; i++ {
+		sample := profile.Sample().At(i)
+		
+		// Check if sample belongs to this process
+		sampleProcessName := c.getSampleAttributeValue(profiles, sample, "process.executable.name")
+		if sampleProcessName != processName {
+			continue
+		}
+		
+		// Check if sample belongs to this function
+		sampleFunctionName := c.getSampleFunctionName(profiles, sample)
+		if sampleFunctionName != functionName {
+			continue
+		}
+
+		// Add the value
+		values := sample.Values()
+		if values.Len() > 0 {
+			cpuTimeNs := float64(values.At(0))
+			totalCPUTime += cpuTimeNs / nanosecondsPerSecond
+		} else if sampleCount > 0 && defaultProfileDuration > 0 {
+			totalCPUTime += defaultProfileDuration / float64(sampleCount)
+		}
+	}
+
+	return totalCPUTime
+}
+
+// calculateFunctionMemoryAllocationForProcess calculates memory allocation for a specific function within a specific process
+func (c *Converter) calculateFunctionMemoryAllocationForProcess(profiles pprofile.Profiles, profile pprofile.Profile, processName, functionName string) float64 {
+	var totalMemoryAllocation float64
+	sampleCount := profile.Sample().Len()
+
+	for i := 0; i < sampleCount; i++ {
+		sample := profile.Sample().At(i)
+		
+		// Check if sample belongs to this process
+		sampleProcessName := c.getSampleAttributeValue(profiles, sample, "process.executable.name")
+		if sampleProcessName != processName {
+			continue
+		}
+		
+		// Check if sample belongs to this function
+		sampleFunctionName := c.getSampleFunctionName(profiles, sample)
+		if sampleFunctionName != functionName {
+			continue
+		}
+
+		// Add the value
+		values := sample.Values()
+		if values.Len() > 1 {
+			totalMemoryAllocation += float64(values.At(1))
+		} else if values.Len() == 1 {
+			totalMemoryAllocation += float64(values.At(0))
+		} else {
+			totalMemoryAllocation += 2048.0 // Default 2KB for stack trace profiles
 		}
 	}
 

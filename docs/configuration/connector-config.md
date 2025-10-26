@@ -82,14 +82,14 @@ When `function.enabled` is set to `true`, the connector generates metrics with *
 **Generated Metrics:**
 
 1. **CPU Time Per Function**:
-   - Metric: `cpu_time_per_function` (or `<cpu.metric_name>_per_function`)
+   - Metric: `cpu_time` (uses base metric name)
    - Attributes: `function.name="<function_name>"`
-   - Example: `cpu_time_per_function{function.name="main"}`
+   - Example: `cpu_time{function.name="main"}`
 
 2. **Memory Allocation Per Function**:
-   - Metric: `memory_allocation_per_function` (or `<memory.metric_name>_per_function`)
+   - Metric: `memory_allocation` (uses base metric name)
    - Attributes: `function.name="<function_name>"`
-   - Example: `memory_allocation_per_function{function.name="handler"}`
+   - Example: `memory_allocation{function.name="handler"}`
 
 **Function Name Extraction:**
 
@@ -100,7 +100,7 @@ Function names are automatically extracted from profile stack traces:
 
 **Cardinality Considerations:**
 
-- **Low Cardinality**: All functions are grouped under two metrics (`cpu_time_per_function` and `memory_allocation_per_function`)
+- **Low Cardinality**: All functions share the same base metrics (`cpu_time` and `memory_allocation`)
 - The `function.name` attribute value determines the number of distinct time series
 - A profile with 100 unique functions creates 200 time series (2 metrics × 100 functions)
 
@@ -153,18 +153,6 @@ connectors:
     process_filter:
       enabled: true                     # Enable process filtering
       pattern: "my-app.*"              # Regex pattern for process names
-```
-
-#### Thread Filtering
-
-Filter metrics based on thread names:
-
-```yaml
-connectors:
-  profiletometrics:
-    thread_filter:
-      enabled: true                    # Enable thread filtering
-      pattern: "worker-.*"            # Regex pattern for thread names
 ```
 
 #### Pattern Filtering
@@ -222,10 +210,6 @@ connectors:
     process_filter:
       enabled: true
       pattern: "my-app.*"
-    
-    thread_filter:
-      enabled: true
-      pattern: "worker-.*"
     
     pattern_filter:
       enabled: true
@@ -325,32 +309,32 @@ When function metrics are enabled, you can query them using the `function.name` 
 
 **Total CPU time by function:**
 ```promql
-sum by (function.name) (cpu_time_per_function)
+sum by (function.name) (cpu_time{function.name!=""})
 ```
 
 **Top 10 functions by CPU time:**
 ```promql
-topk(10, sum by (function.name) (rate(cpu_time_per_function[5m])))
+topk(10, sum by (function.name) (rate(cpu_time{function.name!=""}[5m])))
 ```
 
 **Total memory allocation per function:**
 ```promql
-sum by (function.name) (memory_allocation_per_function)
+sum by (function.name) (memory_allocation{function.name!=""})
 ```
 
 **Functions with highest memory usage:**
 ```promql
-topk(5, sum by (function.name) (rate(memory_allocation_per_function[5m])))
+topk(5, sum by (function.name) (rate(memory_allocation{function.name!=""}[5m])))
 ```
 
 **Filter specific function:**
 ```promql
-cpu_time_per_function{function.name="myHandler"}
+cpu_time{function.name="myHandler"}
 ```
 
 **Functions in a specific service:**
 ```promql
-cpu_time_per_function{service.name="my-service"}
+cpu_time{service.name="my-service", function.name!=""}
 ```
 
 ### Metrics Structure
@@ -360,14 +344,16 @@ With function metrics enabled, your metric hierarchy looks like:
 ```
 Total Metrics:
 ├── cpu_time                           # Overall CPU time
-├── cpu_time_per_function              # Per-function CPU (with function.name attribute)
+├── cpu_time{function.name="main"}     # Per-function CPU (with function.name attribute)
+├── cpu_time{function.name="handler"}  # Per-function CPU (with function.name attribute)
 ├── memory_allocation                  # Overall memory
-└── memory_allocation_per_function     # Per-function memory (with function.name attribute)
+├── memory_allocation{function.name="main"}     # Per-function memory (with function.name attribute)
+└── memory_allocation{function.name="handler"}  # Per-function memory (with function.name attribute)
 
 With Attributes:
 ├── cpu_time{service.name="app"}
-├── cpu_time_per_function{service.name="app", function.name="main"}
-├── cpu_time_per_function{service.name="app", function.name="handler"}
+├── cpu_time{service.name="app", function.name="main"}
+├── cpu_time{service.name="app", function.name="handler"}
 └── ...
 ```
 

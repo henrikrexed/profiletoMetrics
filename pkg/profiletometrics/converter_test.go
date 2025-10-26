@@ -766,6 +766,8 @@ func TestConverter_GenerateFunctionMetrics(t *testing.T) {
 	stringTable := dictionary.StringTable()
 	stringTable.Append("main")
 	stringTable.Append("handler")
+	stringTable.Append("process.executable.name")
+	stringTable.Append("myprocess")
 
 	// Setup function table
 	functionTable := dictionary.FunctionTable()
@@ -791,11 +793,22 @@ func TestConverter_GenerateFunctionMetrics(t *testing.T) {
 	stack2 := stackTable.AppendEmpty()
 	stack2.LocationIndices().Append(1)
 
-	// Add samples
+	// Setup attribute table for process names
+	attributeTable := dictionary.AttributeTable()
+	attr1 := attributeTable.AppendEmpty()
+	attr1.SetKeyStrindex(2) // "process.executable.name"
+	attr1.Value().SetStr("myprocess") // String value
+	attr2 := attributeTable.AppendEmpty()
+	attr2.SetKeyStrindex(2) // "process.executable.name"
+	attr2.Value().SetStr("myprocess") // String value
+
+	// Add samples with process attributes
 	sample1 := profile.Sample().AppendEmpty()
 	sample1.SetStackIndex(0)
+	sample1.AttributeIndices().Append(0) // Reference to first attribute
 	sample2 := profile.Sample().AppendEmpty()
 	sample2.SetStackIndex(1)
+	sample2.AttributeIndices().Append(1) // Reference to second attribute
 
 	// Create scope metrics
 	scopeMetrics := pmetric.NewScopeMetrics()
