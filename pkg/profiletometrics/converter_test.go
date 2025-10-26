@@ -716,7 +716,6 @@ func TestConverter_FunctionMetricsEnabled(t *testing.T) {
 			// Verify CPU and Memory metrics are always present
 			var hasCPU bool
 			var hasMemory bool
-			var hasFunction bool
 
 			for i := 0; i < metricsSlice.Len(); i++ {
 				metric := metricsSlice.At(i)
@@ -726,23 +725,298 @@ func TestConverter_FunctionMetricsEnabled(t *testing.T) {
 					hasCPU = true
 				} else if name == "memory_allocation" {
 					hasMemory = true
-				} else if len(name) > 13 && name[:13] == "cpu_time_function_" || (len(name) > 21 && name[:21] == "memory_allocation_function_") {
-					hasFunction = true
 				}
+				// Function, thread, and process metrics all use the same base metric names
+				// with different attributes, so we don't need to distinguish them by name
 			}
 
 			assert.True(t, hasCPU, "CPU metric should be present")
 			assert.True(t, hasMemory, "Memory metric should be present")
-
-			// Verify function metrics based on flag
-			if tt.functionEnabled {
-				// With function metrics enabled, we might have function-level metrics
-				// if the profile has function data
-				// We don't assert it because it depends on the profile data
-			} else {
-				// With function metrics disabled, we should NOT have function-level metrics
-				assert.False(t, hasFunction, "Function metrics should not be present when disabled")
-			}
 		})
 	}
+}
+
+func TestConverter_GenerateFunctionMetrics(t *testing.T) {
+	config := &ConverterConfig{
+		Metrics: MetricsConfig{
+			CPU: CPUMetricConfig{
+				Enabled:    true,
+				MetricName: "cpu_time",
+			},
+			Memory: MemoryMetricConfig{
+				Enabled:    true,
+				MetricName: "memory_allocation",
+			},
+			Function: FunctionMetricConfig{
+				Enabled: true,
+			},
+		},
+	}
+
+	converter, err := NewConverter(config)
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	resourceProfiles := profiles.ResourceProfiles().AppendEmpty()
+	scopeProfiles := resourceProfiles.ScopeProfiles().AppendEmpty()
+	profile := scopeProfiles.Profiles().AppendEmpty()
+
+	// Setup string table
+	dictionary := profiles.Dictionary()
+	stringTable := dictionary.StringTable()
+	stringTable.Append("main")
+	stringTable.Append("handler")
+
+	// Setup function table
+	functionTable := dictionary.FunctionTable()
+	fn1 := functionTable.AppendEmpty()
+	fn1.SetNameStrindex(0) // "main"
+	fn2 := functionTable.AppendEmpty()
+	fn2.SetNameStrindex(1) // "handler"
+
+	// Setup location table
+	locationTable := dictionary.LocationTable()
+	loc1 := locationTable.AppendEmpty()
+	line1 := loc1.Line().AppendEmpty()
+	line1.SetFunctionIndex(0) // main
+
+	loc2 := locationTable.AppendEmpty()
+	line2 := loc2.Line().AppendEmpty()
+	line2.SetFunctionIndex(1) // handler
+
+	// Setup stack table
+	stackTable := dictionary.StackTable()
+	stack1 := stackTable.AppendEmpty()
+	stack1.LocationIndices().Append(0)
+	stack2 := stackTable.AppendEmpty()
+	stack2.LocationIndices().Append(1)
+
+	// Add samples
+	sample1 := profile.Sample().AppendEmpty()
+	sample1.SetStackIndex(0)
+	sample2 := profile.Sample().AppendEmpty()
+	sample2.SetStackIndex(1)
+
+	// Create scope metrics
+	scopeMetrics := pmetric.NewScopeMetrics()
+
+	// Generate function metrics
+	attributes := map[string]string{"service.name": "test"}
+	converter.generateFunctionMetrics(profiles, profile, attributes, scopeMetrics)
+
+	// Verify metrics were created
+	metrics := scopeMetrics.Metrics()
+	assert.GreaterOrEqual(t, metrics.Len(), 2, "Should have at least 2 metrics")
+
+	// Find metrics with function attributes
+	var hasCPUWithFunction bool
+	var hasMemoryWithFunction bool
+	for i := 0; i < metrics.Len(); i++ {
+		metric := metrics.At(i)
+		if metric.Name() == "cpu_time" {
+			gauge := metric.Gauge()
+			if gauge.DataPoints().Len() > 0 {
+				// Check if any data point has function.name attribute
+				for j := 0; j < gauge.DataPoints().Len(); j++ {
+					dp := gauge.DataPoints().At(j)
+					if _, exists := dp.Attributes().Get("function.name"); exists {
+						hasCPUWithFunction = true
+					}
+				}
+			}
+		} else if metric.Name() == "memory_allocation" {
+			gauge := metric.Gauge()
+			if gauge.DataPoints().Len() > 0 {
+				// Check if any data point has function.name attribute
+				for j := 0; j < gauge.DataPoints().Len(); j++ {
+					dp := gauge.DataPoints().At(j)
+					if _, exists := dp.Attributes().Get("function.name"); exists {
+						hasMemoryWithFunction = true
+					}
+				}
+			}
+		}
+	}
+
+	assert.True(t, hasCPUWithFunction, "Should have cpu_time metric with function.name attribute")
+	assert.True(t, hasMemoryWithFunction, "Should have memory_allocation metric with function.name attribute")
+}
+
+func TestConverter_GetSampleFunctionNameWithRealData(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	dictionary := profiles.Dictionary()
+
+	// Setup string table
+	stringTable := dictionary.StringTable()
+	stringTable.Append("my_function")
+
+	// Setup function
+	functionTable := dictionary.FunctionTable()
+	fn := functionTable.AppendEmpty()
+	fn.SetNameStrindex(0)
+
+	// Setup location
+	locationTable := dictionary.LocationTable()
+	location := locationTable.AppendEmpty()
+	line := location.Line().AppendEmpty()
+	line.SetFunctionIndex(0)
+
+	// Setup stack
+	stackTable := dictionary.StackTable()
+	stack := stackTable.AppendEmpty()
+	stack.LocationIndices().Append(0)
+
+	// Create sample
+	sample := pprofile.NewSample()
+	sample.SetStackIndex(0)
+
+	// Test
+	functionName := converter.getSampleFunctionName(profiles, sample)
+	assert.Equal(t, "my_function", functionName)
+}
+
+func TestConverter_CalculateFunctionCPUTime(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	profile := pprofile.NewProfile()
+
+	// Setup function name resolution
+	dictionary := profiles.Dictionary()
+	stringTable := dictionary.StringTable()
+	stringTable.Append("target_function")
+	stringTable.Append("other_function")
+
+	functionTable := dictionary.FunctionTable()
+	fn1 := functionTable.AppendEmpty()
+	fn1.SetNameStrindex(0)
+	fn2 := functionTable.AppendEmpty()
+	fn2.SetNameStrindex(1)
+
+	locationTable := dictionary.LocationTable()
+	loc1 := locationTable.AppendEmpty()
+	line1 := loc1.Line().AppendEmpty()
+	line1.SetFunctionIndex(0)
+
+	stackTable := dictionary.StackTable()
+	stack1 := stackTable.AppendEmpty()
+	stack1.LocationIndices().Append(0)
+
+	// Add samples
+	sample1 := profile.Sample().AppendEmpty()
+	sample1.SetStackIndex(0)
+	values1 := sample1.Values()
+	values1.Append(int64(1000000000)) // 1 second
+
+	sample2 := profile.Sample().AppendEmpty()
+	sample2.SetStackIndex(0)
+	values2 := sample2.Values()
+	values2.Append(int64(500000000)) // 0.5 seconds
+
+	cpuTime := converter.calculateFunctionCPUTime(profiles, profile, "target_function")
+	expected := 1.5 // 1s + 0.5s
+	assert.InDelta(t, expected, cpuTime, 0.01)
+}
+
+func TestConverter_CalculateFunctionMemoryAllocation(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	profile := pprofile.NewProfile()
+
+	// Setup function name resolution
+	dictionary := profiles.Dictionary()
+	stringTable := dictionary.StringTable()
+	stringTable.Append("target_function")
+
+	functionTable := dictionary.FunctionTable()
+	fn := functionTable.AppendEmpty()
+	fn.SetNameStrindex(0)
+
+	locationTable := dictionary.LocationTable()
+	location := locationTable.AppendEmpty()
+	line := location.Line().AppendEmpty()
+	line.SetFunctionIndex(0)
+
+	stackTable := dictionary.StackTable()
+	stack := stackTable.AppendEmpty()
+	stack.LocationIndices().Append(0)
+
+	// Add samples with memory values
+	sample1 := profile.Sample().AppendEmpty()
+	sample1.SetStackIndex(0)
+	values1 := sample1.Values()
+	values1.Append(int64(1000))
+	values1.Append(int64(2000)) // Memory
+
+	sample2 := profile.Sample().AppendEmpty()
+	sample2.SetStackIndex(0)
+	values2 := sample2.Values()
+	values2.Append(int64(1000))
+	values2.Append(int64(3000)) // Memory
+
+	memory := converter.calculateFunctionMemoryAllocation(profiles, profile, "target_function")
+	expected := float64(2000 + 3000)
+	assert.Equal(t, expected, memory)
+}
+
+func TestConverter_GenerateThreadMetrics(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{
+		Metrics: MetricsConfig{
+			CPU: CPUMetricConfig{
+				Enabled:    true,
+				MetricName: "cpu_time",
+			},
+			Memory: MemoryMetricConfig{
+				Enabled:    true,
+				MetricName: "memory_allocation",
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	profile := pprofile.NewProfile()
+	attributes := map[string]string{"service.name": "test"}
+	scopeMetrics := pmetric.NewScopeMetrics()
+
+	// Generate thread metrics (should work even without actual thread data)
+	converter.generateThreadMetrics(profiles, profile, attributes, scopeMetrics, "test_thread")
+
+	// Verify metrics were created (even if empty)
+	// The function should not panic
+	assert.NotNil(t, scopeMetrics)
+}
+
+func TestConverter_GenerateProcessMetrics(t *testing.T) {
+	converter, err := NewConverter(&ConverterConfig{
+		Metrics: MetricsConfig{
+			CPU: CPUMetricConfig{
+				Enabled:    true,
+				MetricName: "cpu_time",
+			},
+			Memory: MemoryMetricConfig{
+				Enabled:    true,
+				MetricName: "memory_allocation",
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	profiles := pprofile.NewProfiles()
+	profile := pprofile.NewProfile()
+	attributes := map[string]string{"service.name": "test"}
+	scopeMetrics := pmetric.NewScopeMetrics()
+
+	// Generate process metrics
+	converter.generateProcessMetrics(profiles, profile, attributes, scopeMetrics, "test_process")
+
+	// Verify metrics were created (even if empty)
+	// The function should not panic
+	assert.NotNil(t, scopeMetrics)
 }

@@ -75,7 +75,43 @@ connectors:
         enabled: true                   # Enable function-level metrics (default: true)
 ```
 
-**Note**: Function-level metrics are automatically extracted from profile stack traces. When enabled, they can significantly increase metric cardinality.
+**Function Metrics Behavior:**
+
+When `function.enabled` is set to `true`, the connector generates metrics with **function names as attributes** rather than creating separate metrics for each function. This approach significantly reduces metric cardinality while still providing per-function visibility.
+
+**Generated Metrics:**
+
+1. **CPU Time Per Function**:
+   - Metric: `cpu_time_per_function` (or `<cpu.metric_name>_per_function`)
+   - Attributes: `function.name="<function_name>"`
+   - Example: `cpu_time_per_function{function.name="main"}`
+
+2. **Memory Allocation Per Function**:
+   - Metric: `memory_allocation_per_function` (or `<memory.metric_name>_per_function`)
+   - Attributes: `function.name="<function_name>"`
+   - Example: `memory_allocation_per_function{function.name="handler"}`
+
+**Function Name Extraction:**
+
+Function names are automatically extracted from profile stack traces:
+- The connector traverses the profile's location, mapping, and function tables
+- Each stack trace sample is analyzed to identify the called functions
+- Function names are resolved from the profile's string table
+
+**Cardinality Considerations:**
+
+- **Low Cardinality**: All functions are grouped under two metrics (`cpu_time_per_function` and `memory_allocation_per_function`)
+- The `function.name` attribute value determines the number of distinct time series
+- A profile with 100 unique functions creates 200 time series (2 metrics × 100 functions)
+
+**Benefits:**
+
+- ✅ Reduced metric cardinality compared to per-function metrics
+- ✅ Consistent metric structure for easier querying
+- ✅ Automatic function discovery from stack traces
+- ✅ Can be disabled to reduce cardinality if not needed
+
+**Note**: Function-level metrics are automatically extracted from profile stack traces. When enabled, they can increase metric cardinality based on the number of unique functions in your profiles. Disable this feature if you don't need function-level visibility.
 
 ### Attribute Configuration
 
@@ -279,6 +315,60 @@ connectors:
       log_level: "debug"
       log_samples: true
       log_attributes: true
+```
+
+## Querying Function Metrics
+
+When function metrics are enabled, you can query them using the `function.name` attribute:
+
+### PromQL Examples
+
+**Total CPU time by function:**
+```promql
+sum by (function.name) (cpu_time_per_function)
+```
+
+**Top 10 functions by CPU time:**
+```promql
+topk(10, sum by (function.name) (rate(cpu_time_per_function[5m])))
+```
+
+**Total memory allocation per function:**
+```promql
+sum by (function.name) (memory_allocation_per_function)
+```
+
+**Functions with highest memory usage:**
+```promql
+topk(5, sum by (function.name) (rate(memory_allocation_per_function[5m])))
+```
+
+**Filter specific function:**
+```promql
+cpu_time_per_function{function.name="myHandler"}
+```
+
+**Functions in a specific service:**
+```promql
+cpu_time_per_function{service.name="my-service"}
+```
+
+### Metrics Structure
+
+With function metrics enabled, your metric hierarchy looks like:
+
+```
+Total Metrics:
+├── cpu_time                           # Overall CPU time
+├── cpu_time_per_function              # Per-function CPU (with function.name attribute)
+├── memory_allocation                  # Overall memory
+└── memory_allocation_per_function     # Per-function memory (with function.name attribute)
+
+With Attributes:
+├── cpu_time{service.name="app"}
+├── cpu_time_per_function{service.name="app", function.name="main"}
+├── cpu_time_per_function{service.name="app", function.name="handler"}
+└── ...
 ```
 
 ## Configuration Examples

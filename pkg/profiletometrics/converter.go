@@ -373,7 +373,7 @@ func (c *Converter) generateMemoryAllocationMetrics(profiles pprofile.Profiles, 
 	c.generateGaugeMetric(c.config.Metrics.Memory.MetricName, "Memory allocation in bytes", memoryAllocation, attributes, scopeMetrics)
 }
 
-// generateThreadMetrics generates CPU time and memory metrics for a specific thread
+// generateThreadMetrics generates CPU time and memory metrics for threads with thread.name as attribute
 func (c *Converter) generateThreadMetrics(
 	profiles pprofile.Profiles,
 	profile pprofile.Profile,
@@ -383,20 +383,23 @@ func (c *Converter) generateThreadMetrics(
 ) {
 	filter := map[string]string{"thread.name": threadName}
 
-	// Generate CPU time metric for specific thread
-	threadCPUMetricName := fmt.Sprintf("%s_thread_%s", c.config.Metrics.CPU.MetricName, sanitizeMetricName(threadName))
-	c.generateMetricWithFilter(profile, attributes, scopeMetrics,
-		threadCPUMetricName, fmt.Sprintf("CPU time for thread %s in seconds", threadName), c.config.Metrics.CPU.Unit,
-		func(p pprofile.Profile) float64 { return c.calculateCPUTimeForFilter(profiles, p, filter) })
+	// Add thread.name attribute
+	threadAttributes := make(map[string]string)
+	for k, v := range attributes {
+		threadAttributes[k] = v
+	}
+	threadAttributes["thread.name"] = threadName
 
-	// Generate memory allocation metric for specific thread
-	threadMemoryMetricName := fmt.Sprintf("%s_thread_%s", c.config.Metrics.Memory.MetricName, sanitizeMetricName(threadName))
-	c.generateMetricWithFilter(profile, attributes, scopeMetrics,
-		threadMemoryMetricName, fmt.Sprintf("Memory allocation for thread %s in bytes", threadName), c.config.Metrics.Memory.Unit,
-		func(p pprofile.Profile) float64 { return c.calculateMemoryAllocationForFilter(profiles, p, filter) })
+	// Generate CPU time metric with thread.name as attribute
+	cpuTime := c.calculateCPUTimeForFilter(profiles, profile, filter)
+	c.generateGaugeMetric(c.config.Metrics.CPU.MetricName, "CPU time in seconds", cpuTime, threadAttributes, scopeMetrics)
+
+	// Generate memory allocation metric with thread.name as attribute
+	memoryAllocation := c.calculateMemoryAllocationForFilter(profiles, profile, filter)
+	c.generateGaugeMetric(c.config.Metrics.Memory.MetricName, "Memory allocation in bytes", memoryAllocation, threadAttributes, scopeMetrics)
 }
 
-// generateProcessMetrics generates CPU time and memory metrics for a specific process
+// generateProcessMetrics generates CPU time and memory metrics for processes with process.name as attribute
 func (c *Converter) generateProcessMetrics(
 	profiles pprofile.Profiles,
 	profile pprofile.Profile,
@@ -406,17 +409,20 @@ func (c *Converter) generateProcessMetrics(
 ) {
 	filter := map[string]string{"process.executable.name": processName}
 
-	// Generate CPU time metric for specific process
-	processCPUMetricName := fmt.Sprintf("%s_process_%s", c.config.Metrics.CPU.MetricName, sanitizeMetricName(processName))
-	c.generateMetricWithFilter(profile, attributes, scopeMetrics,
-		processCPUMetricName, fmt.Sprintf("CPU time for process %s in seconds", processName), c.config.Metrics.CPU.Unit,
-		func(p pprofile.Profile) float64 { return c.calculateCPUTimeForFilter(profiles, p, filter) })
+	// Add process.name attribute
+	processAttributes := make(map[string]string)
+	for k, v := range attributes {
+		processAttributes[k] = v
+	}
+	processAttributes["process.name"] = processName
 
-	// Generate memory allocation metric for specific process
-	processMemoryMetricName := fmt.Sprintf("%s_process_%s", c.config.Metrics.Memory.MetricName, sanitizeMetricName(processName))
-	c.generateMetricWithFilter(profile, attributes, scopeMetrics,
-		processMemoryMetricName, fmt.Sprintf("Memory allocation for process %s in bytes", processName), c.config.Metrics.Memory.Unit,
-		func(p pprofile.Profile) float64 { return c.calculateMemoryAllocationForFilter(profiles, p, filter) })
+	// Generate CPU time metric with process.name as attribute
+	cpuTime := c.calculateCPUTimeForFilter(profiles, profile, filter)
+	c.generateGaugeMetric(c.config.Metrics.CPU.MetricName, "CPU time in seconds", cpuTime, processAttributes, scopeMetrics)
+
+	// Generate memory allocation metric with process.name as attribute
+	memoryAllocation := c.calculateMemoryAllocationForFilter(profiles, profile, filter)
+	c.generateGaugeMetric(c.config.Metrics.Memory.MetricName, "Memory allocation in bytes", memoryAllocation, processAttributes, scopeMetrics)
 }
 
 // generateFunctionMetrics generates CPU time and memory metrics for specific functions
@@ -426,32 +432,93 @@ func (c *Converter) generateFunctionMetrics(
 	attributes map[string]string,
 	scopeMetrics pmetric.ScopeMetrics,
 ) {
+	c.logDebug("generateFunctionMetrics called - starting function metric generation")
+
+	// Get all function names
 	functionNames := c.getUniqueFunctionNames(profiles, profile)
 
+	if len(functionNames) == 0 {
+		c.logDebug("No functions found in profile")
+		return
+	}
+
+	c.logDebug("Generating function-level metrics",
+		zap.Int("function_count", len(functionNames)),
+		zap.Strings("function_names", functionNames))
+
+	// Create a metric for CPU time with function attributes
+	cpuMetricName := c.config.Metrics.CPU.MetricName
+	description := "CPU time in seconds"
+
+	cpuMetric := scopeMetrics.Metrics().AppendEmpty()
+	cpuMetric.SetName(cpuMetricName)
+	cpuMetric.SetDescription(description)
+	cpuGauge := cpuMetric.SetEmptyGauge()
+
+	// Create a metric for memory allocation with function attributes
+	memoryMetricName := c.config.Metrics.Memory.MetricName
+	memDescription := "Memory allocation in bytes"
+
+	memoryMetric := scopeMetrics.Metrics().AppendEmpty()
+	memoryMetric.SetName(memoryMetricName)
+	memoryMetric.SetDescription(memDescription)
+	memoryGauge := memoryMetric.SetEmptyGauge()
+
+	// Create data points for each function
 	for _, functionName := range functionNames {
-		c.logDebug("Generating metrics for function", zap.String("function_name", functionName))
+		c.logDebug("Adding data point for function", zap.String("function_name", functionName))
 
-		// Generate CPU time metric for specific function
-		functionCPUMetricName := fmt.Sprintf("%s_function_%s", c.config.Metrics.CPU.MetricName, sanitizeMetricName(functionName))
+		// Calculate values for this function
 		cpuTime := c.calculateFunctionCPUTime(profiles, profile, functionName)
-		c.generateGaugeMetric(functionCPUMetricName, fmt.Sprintf("CPU time for function %s in seconds", functionName), cpuTime, attributes, scopeMetrics)
-
-		// Generate memory allocation metric for specific function
-		functionMemoryMetricName := fmt.Sprintf("%s_function_%s", c.config.Metrics.Memory.MetricName, sanitizeMetricName(functionName))
 		memoryAllocation := c.calculateFunctionMemoryAllocation(profiles, profile, functionName)
-		c.generateGaugeMetric(functionMemoryMetricName, fmt.Sprintf("Memory allocation for function %s in bytes", functionName), memoryAllocation, attributes, scopeMetrics)
+
+		// Create CPU data point with function attribute
+		cpuDataPoint := cpuGauge.DataPoints().AppendEmpty()
+		cpuDataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+		cpuDataPoint.SetDoubleValue(cpuTime)
+
+		// Add base attributes
+		for key, val := range attributes {
+			cpuDataPoint.Attributes().PutStr(key, val)
+		}
+		// Add function name as attribute
+		cpuDataPoint.Attributes().PutStr("function.name", functionName)
+
+		// Create memory data point with function attribute
+		memoryDataPoint := memoryGauge.DataPoints().AppendEmpty()
+		memoryDataPoint.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+		memoryDataPoint.SetDoubleValue(memoryAllocation)
+
+		// Add base attributes
+		for key, val := range attributes {
+			memoryDataPoint.Attributes().PutStr(key, val)
+		}
+		// Add function name as attribute
+		memoryDataPoint.Attributes().PutStr("function.name", functionName)
 	}
 }
 
 // getUniqueFunctionNames extracts all unique function names from a profile
 func (c *Converter) getUniqueFunctionNames(profiles pprofile.Profiles, profile pprofile.Profile) []string {
+	c.logDebug("Starting to extract unique function names",
+		zap.Int("samples_count", profile.Sample().Len()))
+
 	functionNames := make(map[string]bool)
 
 	for i := 0; i < profile.Sample().Len(); i++ {
 		sample := profile.Sample().At(i)
+		c.logDebug("Processing sample for function name",
+			zap.Int("sample_index", i))
+
 		functionName := c.getSampleFunctionName(profiles, sample)
 		if functionName != "" {
+			c.logDebug("Found function name",
+				zap.Int("sample_index", i),
+				zap.String("function_name", functionName))
 			functionNames[functionName] = true
+		} else {
+			c.logDebug("No function name found for sample",
+				zap.Int("sample_index", i))
 		}
 	}
 
@@ -590,7 +657,11 @@ func (c *Converter) getFunctionName(profiles pprofile.Profiles, functionIndex in
 func (c *Converter) getLocationFunctionName(profiles pprofile.Profiles, location pprofile.Location) string {
 	// Locations have Lines, and Lines have FunctionIndex
 	lines := location.Line()
+	c.logDebug("Getting function name from location",
+		zap.Int("lines_count", lines.Len()))
+
 	if lines.Len() == 0 {
+		c.logDebug("Location has no lines")
 		return ""
 	}
 
@@ -598,12 +669,18 @@ func (c *Converter) getLocationFunctionName(profiles pprofile.Profiles, location
 	line := lines.At(0)
 	functionIndex := line.FunctionIndex()
 
+	c.logDebug("Location line info",
+		zap.Int32("function_index", functionIndex))
+
 	return c.getFunctionName(profiles, functionIndex)
 }
 
 // getSampleFunctionName gets the top function name from a sample's stack
 func (c *Converter) getSampleFunctionName(profiles pprofile.Profiles, sample pprofile.Sample) string {
 	stackIndex := sample.StackIndex()
+	c.logDebug("Getting function name from sample",
+		zap.Int32("stack_index", stackIndex))
+
 	if stackIndex < 0 {
 		c.logDebug("Sample has no stack index")
 		return ""
@@ -611,6 +688,10 @@ func (c *Converter) getSampleFunctionName(profiles pprofile.Profiles, sample ppr
 
 	dictionary := profiles.Dictionary()
 	stackTable := dictionary.StackTable()
+
+	c.logDebug("Stack table info",
+		zap.Int32("stack_index", stackIndex),
+		zap.Int("stack_table_len", stackTable.Len()))
 
 	if stackIndex >= int32(stackTable.Len()) {
 		c.logDebug("Stack index out of range",
@@ -622,14 +703,23 @@ func (c *Converter) getSampleFunctionName(profiles pprofile.Profiles, sample ppr
 	stack := stackTable.At(int(stackIndex))
 	locationIndices := stack.LocationIndices()
 
+	c.logDebug("Stack location indices",
+		zap.Int32("stack_index", stackIndex),
+		zap.Int("location_indices_count", locationIndices.Len()))
+
 	if locationIndices.Len() == 0 {
 		c.logDebug("Stack has no locations")
 		return ""
 	}
 
-	// Get the first location (top of the call stack)
-	locationIndex := locationIndices.At(0)
+	// Get the LAST location (top of the call stack)
+	// The stack grows downward, so the most recent function is at the end
+	locationIndex := locationIndices.At(locationIndices.Len() - 1)
 	locationTable := dictionary.LocationTable()
+
+	c.logDebug("Location table info",
+		zap.Int32("location_index", locationIndex),
+		zap.Int("location_table_len", locationTable.Len()))
 
 	if locationIndex < 0 || locationIndex >= int32(locationTable.Len()) {
 		c.logDebug("Location index out of range",
@@ -639,7 +729,14 @@ func (c *Converter) getSampleFunctionName(profiles pprofile.Profiles, sample ppr
 	}
 
 	location := locationTable.At(int(locationIndex))
-	return c.getLocationFunctionName(profiles, location)
+	functionName := c.getLocationFunctionName(profiles, location)
+
+	c.logDebug("Extracted function name from sample",
+		zap.Int32("stack_index", stackIndex),
+		zap.Int32("location_index", locationIndex),
+		zap.String("function_name", functionName))
+
+	return functionName
 }
 
 // getUniqueThreadNames extracts all unique thread names from a profile
