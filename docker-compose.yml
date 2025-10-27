@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  otel-collector:
+    image: hrexed/otel-collector-profilemetrics:0.1.0
+    container_name: otel-collector-profilemetrics
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8888:8888"   # Metrics endpoint
+      - "8889:8889"   # Prometheus exporter
+    volumes:
+      - ./examples/simple-config.yaml:/etc/otelcol/config.yaml:ro
+      - otel-data:/var/lib/otelcol
+      - otel-tmp:/tmp/otelcol
+    environment:
+      - OTEL_SERVICE_NAME=otel-collector-profilemetrics
+      - OTEL_SERVICE_VERSION=0.1.0
+      - OTEL_LOG_LEVEL=info
+    command:
+      - "/otelcol-profiletometrics"
+      - "--config=/etc/otelcol/config.yaml"
+      - "--feature-gates=+service.profilesSupport"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+volumes:
+  otel-data:
+    driver: local
+  otel-tmp:
+    driver: local
+
+networks:
+  default:
+    name: otel-network

@@ -19,7 +19,7 @@ This guide covers different ways to install and use the ProfileToMetrics Connect
 otelcol --feature-gates=+service.profilesSupport
 
 # Docker
-docker run --feature-gates=+service.profilesSupport ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+docker run --feature-gates=+service.profilesSupport hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 ## Installation Methods
@@ -31,7 +31,7 @@ The easiest way to get started is using the pre-built Docker image.
 #### Pull the Image
 
 ```bash
-docker pull ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+docker pull hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 #### Run with Configuration
@@ -40,7 +40,7 @@ docker pull ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
 docker run -p 4317:4317 -p 8888:8888 \
   --feature-gates=+service.profilesSupport \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+  hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 #### Environment Variables

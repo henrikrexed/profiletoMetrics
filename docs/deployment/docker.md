@@ -8,7 +8,7 @@ Deploy the ProfileToMetrics Connector using Docker containers.
 
 ```bash
 # Docker run with feature gate
-docker run --feature-gates=+service.profilesSupport ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+docker run --feature-gates=+service.profilesSupport hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 ## Quick Start
@@ -17,12 +17,12 @@ docker run --feature-gates=+service.profilesSupport ghcr.io/henrikrexed/otel-col
 
 ```bash
 # Pull the latest image
-docker pull ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+docker pull hrexed/otel-collector-profilemetrics:0.1.0
 
 # Run with basic configuration
 docker run -p 4317:4317 -p 8888:8888 \
   --feature-gates=+service.profilesSupport \
-  ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+  hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 ### With Configuration File
@@ -50,9 +50,9 @@ exporters:
 
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
-      connectors: [profiletometrics]
+      exporters: [profiletometrics]
     metrics:
       receivers: [profiletometrics]
       exporters: [debug]
@@ -62,7 +62,7 @@ EOF
 docker run -p 4317:4317 -p 8888:8888 \
   --feature-gates=+service.profilesSupport \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+  hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 ## Image Variants
@@ -70,7 +70,7 @@ docker run -p 4317:4317 -p 8888:8888 \
 ### Latest (Recommended)
 
 ```bash
-docker pull hrexed/otel-collector-profilemetrics:latest
+docker pull hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 ### Specific Version
@@ -83,10 +83,10 @@ docker pull hrexed/otel-collector-profilemetrics:0.1.0
 
 ```bash
 # AMD64
-docker pull hrexed/otel-collector-profilemetrics:latest-amd64
+docker pull hrexed/otel-collector-profilemetrics:0.1.0-amd64
 
 # ARM64
-docker pull hrexed/otel-collector-profilemetrics:latest-arm64
+docker pull hrexed/otel-collector-profilemetrics:0.1.0-arm64
 ```
 
 ## Configuration
@@ -130,7 +130,7 @@ version: '3.8'
 
 services:
   otel-collector:
-    image: hrexed/otel-collector-profilemetrics:latest
+    image: hrexed/otel-collector-profilemetrics:0.1.0
     ports:
       - "4317:4317"
       - "4318:4318"
@@ -149,7 +149,7 @@ version: '3.8'
 
 services:
   otel-collector:
-    image: hrexed/otel-collector-profilemetrics:latest
+    image: hrexed/otel-collector-profilemetrics:0.1.0
     ports:
       - "4317:4317"
       - "4318:4318"
@@ -189,7 +189,7 @@ version: '3.8'
 
 services:
   otel-collector:
-    image: hrexed/otel-collector-profilemetrics:latest
+    image: hrexed/otel-collector-profilemetrics:0.1.0
     ports:
       - "4317:4317"
       - "4318:4318"
@@ -216,7 +216,7 @@ version: '3.8'
 
 services:
   otel-collector:
-    image: hrexed/otel-collector-profilemetrics:latest
+    image: hrexed/otel-collector-profilemetrics:0.1.0
     ports:
       - "4317:4317"
       - "4318:4318"
@@ -239,7 +239,7 @@ version: '3.8'
 
 services:
   otel-collector:
-    image: hrexed/otel-collector-profilemetrics:latest
+    image: hrexed/otel-collector-profilemetrics:0.1.0
     ports:
       - "4317:4317"
       - "4318:4318"
@@ -273,82 +273,7 @@ make docker-build
 make docker-build VERSION=0.1.0
 ```
 
-### Custom Dockerfile
 
-```dockerfile
-FROM hrexed/otel-collector-profilemetrics:latest
-
-# Add custom configuration
-COPY custom-config.yaml /etc/otelcol/config.yaml
-
-# Add custom processors
-COPY custom-processors/ /etc/otelcol/processors/
-
-# Set environment variables
-ENV OTEL_LOG_LEVEL=debug
-ENV OTEL_LOG_FORMAT=console
-```
-
-## Troubleshooting
-
-### Common Issues
-
-#### 1. Port Already in Use
-
-```bash
-# Check what's using the port
-lsof -i :4317
-
-# Kill the process
-kill -9 <PID>
-```
-
-#### 2. Configuration Errors
-
-```bash
-# Validate configuration
-docker run --rm -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  hrexed/otel-collector-profilemetrics:latest --config=/etc/otelcol/config.yaml --dry-run
-```
-
-#### 3. Permission Issues
-
-```bash
-# Check file permissions
-ls -la config.yaml
-
-# Fix permissions
-chmod 644 config.yaml
-```
-
-### Debug Commands
-
-```bash
-# Check container logs
-docker logs <container-id>
-
-# Check container status
-docker ps | grep otel-collector
-
-# Check resource usage
-docker stats <container-id>
-
-# Execute commands in container
-docker exec -it <container-id> /bin/sh
-```
-
-### Health Checks
-
-```bash
-# Check collector health
-curl http://localhost:8888/
-
-# Check metrics
-curl http://localhost:8888/metrics
-
-# Check configuration
-curl http://localhost:8888/config
-```
 
 ## Monitoring
 
@@ -388,7 +313,7 @@ version: '3.8'
 
 services:
   otel-collector:
-    image: hrexed/otel-collector-profilemetrics:latest
+    image: hrexed/otel-collector-profilemetrics:0.1.0
     ports:
       - "127.0.0.1:4317:4317"  # Bind to localhost only
       - "127.0.0.1:4318:4318"
@@ -420,7 +345,7 @@ version: '3.8'
 
 services:
   otel-collector:
-    image: hrexed/otel-collector-profilemetrics:latest
+    image: hrexed/otel-collector-profilemetrics:0.1.0
     deploy:
       resources:
         limits:

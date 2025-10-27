@@ -28,8 +28,8 @@ exporters:
 service:
   pipelines:
     traces:
-      receivers: [otlp]
-      connectors: [profiletometrics]
+      profiles: [otlp]
+      exporters: [profiletometrics]
     metrics:
       receivers: [profiletometrics]
       exporters: [debug]
@@ -170,16 +170,7 @@ exporters:
       max_elapsed_time: 300s
 ```
 
-### Prometheus Exporter
 
-```yaml
-exporters:
-  prometheus:
-    endpoint: "0.0.0.0:8889"
-    namespace: "otel"
-    const_labels:
-      service: "profiletometrics"
-```
 
 ## Service Configuration
 
@@ -188,14 +179,13 @@ exporters:
 ```yaml
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
-      processors: [batch, resource, filter]
-      connectors: [profiletometrics]
+       exporters: [profiletometrics]
     metrics:
       receivers: [profiletometrics]
       processors: [batch, resource, transform]
-      exporters: [debug, otlp, prometheus]
+      exporters: [debug, otlp]
     logs:
       receivers: [otlp]
       processors: [batch, resource]
@@ -273,14 +263,13 @@ exporters:
 
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
-      processors: [batch, resource]
       connectors: [profiletometrics]
     metrics:
       receivers: [profiletometrics]
       processors: [batch, resource, filter]
-      exporters: [debug, otlp, prometheus]
+      exporters: [debug, otlp]
   
   telemetry:
     logs:
@@ -300,7 +289,6 @@ service:
   telemetry:
     logs:
       level: debug
-      development: true
 
 exporters:
   debug:
@@ -314,7 +302,6 @@ service:
   telemetry:
     logs:
       level: info
-      development: false
 
 exporters:
   otlp:
@@ -363,45 +350,6 @@ otelcol --config config.yaml --dry-run
 otelcol --config config.yaml --check-config
 ```
 
-### Common Validation Errors
-
-#### 1. Invalid Pipeline Configuration
-
-```yaml
-# ❌ Invalid - missing receivers
-service:
-  pipelines:
-    metrics:
-      exporters: [debug]
-
-# ✅ Valid - includes receivers
-service:
-  pipelines:
-    metrics:
-      receivers: [profiletometrics]
-      exporters: [debug]
-```
-
-#### 2. Invalid Connector Usage
-
-```yaml
-# ❌ Invalid - connector in wrong pipeline
-service:
-  pipelines:
-    metrics:
-      receivers: [otlp]
-      connectors: [profiletometrics]
-
-# ✅ Valid - connector in traces pipeline
-service:
-  pipelines:
-    traces:
-      receivers: [otlp]
-      connectors: [profiletometrics]
-    metrics:
-      receivers: [profiletometrics]
-      exporters: [debug]
-```
 
 ## Troubleshooting
 

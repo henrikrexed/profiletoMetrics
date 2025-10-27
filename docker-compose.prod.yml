@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  otel-collector:
+    image: hrexed/otel-collector-profilemetrics:0.1.0
+    container_name: otel-collector-profilemetrics-prod
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8888:8888"   # Metrics endpoint
+    volumes:
+      - ./examples/collector-config.yaml:/etc/otelcol/config.yaml:ro
+      - otel-data:/var/lib/otelcol
+      - otel-tmp:/tmp/otelcol
+    environment:
+      - OTEL_SERVICE_NAME=otel-collector-profilemetrics
+      - OTEL_SERVICE_VERSION=0.1.0
+      - OTEL_LOG_LEVEL=info
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=otel-collector-profilemetrics,service.version=0.1.0
+    command:
+      - "/otelcol-profiletometrics"
+      - "--config=/etc/otelcol/config.yaml"
+      - "--feature-gates=+service.profilesSupport"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # Optional: Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./examples/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    depends_on:
+      - otel-collector
+
+volumes:
+  otel-data:
+    driver: local
+  otel-tmp:
+    driver: local
+  prometheus-data:
+    driver: local
+
+networks:
+  default:
+    name: otel-network

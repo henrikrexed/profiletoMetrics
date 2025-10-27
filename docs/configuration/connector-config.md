@@ -223,7 +223,7 @@ exporters:
 
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
       connectors: [profiletometrics]
     metrics:
@@ -469,5 +469,4 @@ service:
   telemetry:
     logs:
       level: debug
-      development: true
 ```

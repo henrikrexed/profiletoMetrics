@@ -74,13 +74,13 @@ graph TB
 
 ```bash
 # Pull the image
-docker pull ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+docker pull hrexed/otel-collector-profilemetrics:0.1.0
 
 # Run with configuration and feature gate
 docker run -p 4317:4317 -p 8888:8888 \
   --feature-gates=+service.profilesSupport \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  ghcr.io/henrikrexed/otel-collector-profilemetrics:latest
+  hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 ### 2. Using Kubernetes

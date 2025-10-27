@@ -175,7 +175,7 @@ The connector works with the profiles pipeline to convert profiling data to metr
 ```yaml
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
       exporters: [profiletometrics]
     metrics:

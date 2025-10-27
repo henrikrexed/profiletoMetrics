@@ -54,13 +54,13 @@ service:
 
 ```bash
 # Pull the image
-docker pull hrexed/otel-collector-profilemetrics:latest
+docker pull hrexed/otel-collector-profilemetrics:0.1.0
 
 # Run the collector with profiles feature gate enabled
 docker run -p 4317:4317 -p 8888:8888 \
   --feature-gates=+service.profilesSupport \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  hrexed/otel-collector-profilemetrics:latest
+  hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 **⚠️ Important**: The `+service.profilesSupport` feature gate must be enabled to use the profiles pipeline.
@@ -159,42 +159,9 @@ kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
 ```
 
-### 2. Check Status
-
-```bash
-kubectl get pods -n otel-collector
-kubectl logs -n otel-collector deployment/otel-collector
-```
-
-### 3. Port Forward
-
-```bash
-kubectl port-forward -n otel-collector svc/otel-collector 4317:4317 8888:8888
-```
-
 ## Troubleshooting
 
-### Common Issues
-
-#### 1. Connection Refused
-
-```bash
-# Check if collector is running
-docker ps | grep otel-collector
-
-# Check logs
-docker logs <container-id>
-```
-
-#### 2. Configuration Errors
-
-```bash
-# Validate configuration
-docker run --rm -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  hrexed/otel-collector-profilemetrics:latest --config=/etc/otelcol/config.yaml --dry-run
-```
-
-#### 3. No Metrics Generated
+#### 1. No Metrics Generated
 
 - Check if profiling data is being sent
 - Verify connector configuration
@@ -212,7 +179,7 @@ curl http://localhost:8888/metrics
 # Check logs with debug level
 docker run -e OTEL_LOG_LEVEL=debug \
   -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-  hrexed/otel-collector-profilemetrics:latest
+  hrexed/otel-collector-profilemetrics:0.1.0
 ```
 
 ## Next Steps
