@@ -796,10 +796,10 @@ func TestConverter_GenerateFunctionMetrics(t *testing.T) {
 	// Setup attribute table for process names
 	attributeTable := dictionary.AttributeTable()
 	attr1 := attributeTable.AppendEmpty()
-	attr1.SetKeyStrindex(2) // "process.executable.name"
+	attr1.SetKeyStrindex(2)           // "process.executable.name"
 	attr1.Value().SetStr("myprocess") // String value
 	attr2 := attributeTable.AppendEmpty()
-	attr2.SetKeyStrindex(2) // "process.executable.name"
+	attr2.SetKeyStrindex(2)           // "process.executable.name"
 	attr2.Value().SetStr("myprocess") // String value
 
 	// Add samples with process attributes

@@ -13,6 +13,11 @@ import (
 
 const (
 	nanosecondsPerSecond = 1e9
+
+	// Attribute extraction types
+	attrTypeLiteral     = "literal"
+	attrTypeRegex       = "regex"
+	attrTypeStringTable = "string_table"
 )
 
 // ConverterConfig defines the configuration for the converter
@@ -66,7 +71,7 @@ func (c *Converter) logWarn(msg string, fields ...zap.Field) {
 
 // matchesSampleFilter checks if a sample matches the given filter criteria
 func (c *Converter) matchesSampleFilter(profiles pprofile.Profiles, sample pprofile.Sample, filter map[string]string) bool {
-	if filter == nil || len(filter) == 0 {
+	if len(filter) == 0 {
 		return true // No filter means match all
 	}
 
@@ -215,12 +220,12 @@ func (c *Converter) extractProfileAttributes(
 // extractAttributeValue extracts a single attribute value based on the rule
 func (c *Converter) extractAttributeValue(profiles pprofile.Profiles, _ pprofile.Profile, attr AttributeConfig) string {
 	switch attr.Type {
-	case "literal":
+	case attrTypeLiteral:
 		return attr.Value
-	case "regex":
+	case attrTypeRegex:
 		// Extract from string table using regex pattern
 		return c.extractFromStringTable(profiles, attr.Value)
-	case "string_table":
+	case attrTypeStringTable:
 		// Direct string table index access
 		return c.extractFromStringTableByIndex(profiles, attr.Value)
 	default:
@@ -259,17 +264,6 @@ func (c *Converter) generateMetricsFromProfile(
 	if c.config.Metrics.Memory.Enabled {
 		c.generateMemoryAllocationMetrics(profiles, profile, attributes, scopeMetrics)
 	}
-
-	// Thread-level metrics disabled to reduce cardinality
-	// Focus is on process -> function relationship for operational insights
-	/*
-		// Generate metrics for specific threads
-		threadNames := c.getUniqueThreadNames(profiles, profile)
-		for _, threadName := range threadNames {
-			c.logDebug("Generating metrics for thread", zap.String("thread_name", threadName))
-			c.generateThreadMetrics(profiles, profile, attributes, scopeMetrics, threadName)
-		}
-	*/
 
 	// Generate metrics for specific processes
 	processNames := c.getUniqueProcessNames(profiles, profile)
@@ -342,27 +336,6 @@ func (c *Converter) generateGaugeMetric(
 	for key, val := range attributes {
 		dataPoint.Attributes().PutStr(key, val)
 	}
-}
-
-// generateMetric creates a metric with the given configuration and value
-func (c *Converter) generateMetric(
-	profile pprofile.Profile,
-	attributes map[string]string,
-	scopeMetrics pmetric.ScopeMetrics,
-	metricName, description, unit string,
-	calculateValue func(pprofile.Profile) float64,
-) {
-	c.logDebug("Generating metric",
-		zap.String("metric_name", metricName),
-		zap.String("unit", unit))
-
-	value := calculateValue(profile)
-
-	c.logDebug("Metric generated",
-		zap.Float64("value", value),
-		zap.String("metric_name", metricName))
-
-	c.generateGaugeMetric(metricName, description, value, attributes, scopeMetrics)
 }
 
 // generateCPUTimeMetrics generates CPU time metrics from profile data
@@ -530,7 +503,7 @@ func (c *Converter) getUniqueFunctionNames(profiles pprofile.Profiles, profile p
 				zap.String("function_name", functionName))
 			functionNames[functionName] = true
 		} else {
-			c.logDebug("No function name found for sample",
+			c.logDebug("Skipping sample with empty function name",
 				zap.Int("sample_index", i))
 		}
 	}
@@ -557,6 +530,11 @@ func (c *Converter) calculateFunctionCPUTime(profiles pprofile.Profiles, profile
 		sample := profile.Sample().At(i)
 		sampleFunctionName := c.getSampleFunctionName(profiles, sample)
 
+		// Skip samples with empty function names
+		if sampleFunctionName == "" {
+			continue
+		}
+
 		if sampleFunctionName == functionName {
 			values := sample.Values()
 			if values.Len() > 0 {
@@ -579,6 +557,11 @@ func (c *Converter) calculateFunctionMemoryAllocation(profiles pprofile.Profiles
 	for i := 0; i < sampleCount; i++ {
 		sample := profile.Sample().At(i)
 		sampleFunctionName := c.getSampleFunctionName(profiles, sample)
+
+		// Skip samples with empty function names
+		if sampleFunctionName == "" {
+			continue
+		}
 
 		if sampleFunctionName == functionName {
 			values := sample.Values()
@@ -603,15 +586,18 @@ func (c *Converter) calculateFunctionCPUTimeForProcess(profiles pprofile.Profile
 
 	for i := 0; i < sampleCount; i++ {
 		sample := profile.Sample().At(i)
-		
+
 		// Check if sample belongs to this process
 		sampleProcessName := c.getSampleAttributeValue(profiles, sample, "process.executable.name")
 		if sampleProcessName != processName {
 			continue
 		}
-		
+
 		// Check if sample belongs to this function
 		sampleFunctionName := c.getSampleFunctionName(profiles, sample)
+		if sampleFunctionName == "" {
+			continue // Skip samples with empty function names
+		}
 		if sampleFunctionName != functionName {
 			continue
 		}
@@ -636,15 +622,18 @@ func (c *Converter) calculateFunctionMemoryAllocationForProcess(profiles pprofil
 
 	for i := 0; i < sampleCount; i++ {
 		sample := profile.Sample().At(i)
-		
+
 		// Check if sample belongs to this process
 		sampleProcessName := c.getSampleAttributeValue(profiles, sample, "process.executable.name")
 		if sampleProcessName != processName {
 			continue
 		}
-		
+
 		// Check if sample belongs to this function
 		sampleFunctionName := c.getSampleFunctionName(profiles, sample)
+		if sampleFunctionName == "" {
+			continue // Skip samples with empty function names
+		}
 		if sampleFunctionName != functionName {
 			continue
 		}
@@ -661,27 +650,6 @@ func (c *Converter) calculateFunctionMemoryAllocationForProcess(profiles pprofil
 	}
 
 	return totalMemoryAllocation
-}
-
-// generateMetricWithFilter creates a metric with the given configuration, value, and filter
-func (c *Converter) generateMetricWithFilter(
-	profile pprofile.Profile,
-	attributes map[string]string,
-	scopeMetrics pmetric.ScopeMetrics,
-	metricName, description, unit string,
-	calculateValue func(pprofile.Profile) float64,
-) {
-	c.logDebug("Generating filtered metric",
-		zap.String("metric_name", metricName),
-		zap.String("unit", unit))
-
-	value := calculateValue(profile)
-
-	c.logDebug("Filtered metric generated",
-		zap.Float64("value", value),
-		zap.String("metric_name", metricName))
-
-	c.generateGaugeMetric(metricName, description, value, attributes, scopeMetrics)
 }
 
 // sanitizeMetricName sanitizes a string to be used as a metric name
@@ -701,6 +669,7 @@ func sanitizeMetricName(name string) string {
 // getFunctionName extracts the function name from a function index using the profiles dictionary
 func (c *Converter) getFunctionName(profiles pprofile.Profiles, functionIndex int32) string {
 	if functionIndex < 0 {
+		c.logDebug("Function index is negative", zap.Int32("function_index", functionIndex))
 		return ""
 	}
 
@@ -727,6 +696,13 @@ func (c *Converter) getFunctionName(profiles pprofile.Profiles, functionIndex in
 	}
 
 	functionName := stringTable.At(int(nameIndex))
+	if functionName == "" {
+		c.logDebug("Function name is empty string",
+			zap.Int32("function_index", functionIndex),
+			zap.Int32("name_index", nameIndex))
+		return ""
+	}
+
 	c.logDebug("Resolved function name",
 		zap.Int32("function_index", functionIndex),
 		zap.String("function_name", functionName))
@@ -753,7 +729,13 @@ func (c *Converter) getLocationFunctionName(profiles pprofile.Profiles, location
 	c.logDebug("Location line info",
 		zap.Int32("function_index", functionIndex))
 
-	return c.getFunctionName(profiles, functionIndex)
+	functionName := c.getFunctionName(profiles, functionIndex)
+	if functionName == "" {
+		c.logDebug("Function name is empty - skipping")
+		return ""
+	}
+
+	return functionName
 }
 
 // getSampleFunctionName gets the top function name from a sample's stack
