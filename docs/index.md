@@ -127,9 +127,9 @@ exporters:
 
 service:
   pipelines:
-    traces:
+    profiles:
       receivers: [otlp]
-      connectors: [profiletometrics]
+      exporters: [profiletometrics]
     metrics:
       receivers: [profiletometrics]
       exporters: [debug, otlp]
