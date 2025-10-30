@@ -147,7 +147,7 @@ Given the string table above, here's how filtering works with configuration:
 ```yaml
 process_filter:
   enabled: true
-  pattern: "main|worker.*"  # Matches "main" or "worker-1"
+  patterns: ["main|worker.*"]  # Matches "main" or "worker-1"
 
 thread_filter:
   enabled: true
@@ -230,8 +230,8 @@ The connector validates:
 Filter metrics based on process names using regex patterns:
 
 - **Enabled**: Toggle process filtering on/off
-- **Pattern**: Regex pattern to match process names
-- **Examples**: `"my-app.*"`, `"(worker|scheduler).*"`
+- **Patterns**: One or more regex patterns to match process names
+- **Examples**: `patterns: ["my-app.*"]`, `patterns: ["(worker|scheduler).*"]`
 
 ### Thread Filtering
 

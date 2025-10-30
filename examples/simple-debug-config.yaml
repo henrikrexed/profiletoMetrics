@@ -36,15 +36,15 @@ connectors:
     
     process_filter:
       enabled: true
-      pattern: ".*"
+      patterns: [".*"]
     
     pattern_filter:
       enabled: false
-      pattern: ""
+      patterns: [""]
     
     thread_filter:
       enabled: false
-      pattern: ""
+      patterns: [""]
 
 exporters:
   debug:

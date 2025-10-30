@@ -16,7 +16,7 @@
 
 # Variables
 PROJECT_NAME := profiletoMetrics
-VERSION := $(or $(VERSION),0.1.0)
+VERSION := $(or $(VERSION),0.1.1)
 COLLECTOR_VERSION := 0.137.0
 DOCKER_IMAGE := $(or $(DOCKER_IMAGE),hrexed/otel-collector-profilemetrics)
 DOCKER_TAG := $(or $(DOCKER_TAG),$(VERSION))

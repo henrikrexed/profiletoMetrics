@@ -24,7 +24,7 @@
 
     Filter by process, thread, and pattern matching for precise metric generation
 
-    [:octicons-arrow-right-24: Filtering](configuration/connector-config.md#filtering)
+    [:octicons-arrow-right-24: Filtering](configuration/connector-config.md)
 
 -   :material-docker:{ .lg .middle } **Easy Deployment**
 
@@ -117,7 +117,7 @@ connectors:
         value: "my-service"
     process_filter:
       enabled: true
-      pattern: "my-app.*"
+      patterns: ["my-app.*"]
 
 exporters:
   debug:
@@ -140,9 +140,7 @@ service:
 - **[Getting Started](getting-started/overview.md)** - Overview, installation, and quick start
 - **[Configuration](configuration/connector-config.md)** - Detailed configuration options
 - **[Deployment](deployment/docker.md)** - Docker and Kubernetes deployment
-- **[Testing](testing/unit-tests.md)** - Testing strategies and examples
-- **[Development](development/architecture.md)** - Architecture and contributing guide
-- **[API Reference](api/connector-api.md)** - Complete API documentation
+- **[Development](development/architecture.md)** - Architecture
 
 ## Support
 

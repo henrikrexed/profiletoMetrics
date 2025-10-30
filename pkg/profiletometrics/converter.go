@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"regexp"
+
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/pprofile"
@@ -95,41 +97,7 @@ func (c *Converter) matchesSampleFilter(profiles pprofile.Profiles, sample pprof
 // In the pprofile schema, samples have AttributeIndices that point to AttributeTable entries
 // Each AttributeTable entry has KeyStrindex, Value, and UnitStrindex
 func (c *Converter) getSampleAttributeValue(profiles pprofile.Profiles, sample pprofile.Sample, key string) string {
-	attributeIndices := sample.AttributeIndices()
-	if attributeIndices.Len() == 0 {
-		return ""
-	}
-
-	dictionary := profiles.Dictionary()
-	attributeTable := dictionary.AttributeTable()
-	stringTable := dictionary.StringTable()
-
-	// Iterate through attribute indices
-	for i := 0; i < attributeIndices.Len(); i++ {
-		attrIndex := attributeIndices.At(i)
-		if attrIndex < 0 || attrIndex >= int32(attributeTable.Len()) {
-			continue
-		}
-
-		attr := attributeTable.At(int(attrIndex))
-
-		// Get the key from the string table
-		keyIndex := attr.KeyStrindex()
-		if keyIndex < 0 || keyIndex >= int32(stringTable.Len()) {
-			continue
-		}
-
-		attrKey := stringTable.At(int(keyIndex))
-
-		// Check if this is the key we're looking for
-		if attrKey == key {
-			// Get the value
-			value := attr.Value()
-			return value.AsString()
-		}
-	}
-
-	return ""
+	return getSampleAttributeValueCommon(profiles, sample, key)
 }
 
 // ConvertProfilesToMetrics converts profiling data to metrics
@@ -140,42 +108,22 @@ func (c *Converter) ConvertProfilesToMetrics(ctx context.Context, profiles pprof
 	metrics := pmetric.NewMetrics()
 	resourceMetrics := metrics.ResourceMetrics().AppendEmpty()
 
-	// Process each profile
-	for i := 0; i < profiles.ResourceProfiles().Len(); i++ {
-		resourceProfile := profiles.ResourceProfiles().At(i)
-		c.logDebug("Processing resource profile", zap.Int("index", i))
+	iterateProfilesCommon(
+		profiles,
+		c.extractResourceAttributes,
+		func(resourceIndex, scopeIndex, profileIndex int, profile pprofile.Profile, resourceAttributes map[string]string) {
+			c.logDebug("Processing profile",
+				zap.Int("resource_index", resourceIndex),
+				zap.Int("scope_index", scopeIndex),
+				zap.Int("profile_index", profileIndex),
+				zap.Int("samples_count", profile.Sample().Len()))
 
-		// Extract attributes from resource
-		resourceAttributes := c.extractResourceAttributes(resourceProfile.Resource())
-		c.logDebug("Extracted resource attributes", zap.Any("attributes", resourceAttributes))
+			profileAttributes := c.extractProfileAttributes(profiles, profile, resourceAttributes)
+			c.logDebug("Extracted profile attributes", zap.Any("attributes", profileAttributes))
 
-		// Process each scope profile
-		for j := 0; j < resourceProfile.ScopeProfiles().Len(); j++ {
-			scopeProfile := resourceProfile.ScopeProfiles().At(j)
-			c.logDebug("Processing scope profile",
-				zap.Int("resource_index", i),
-				zap.Int("scope_index", j),
-				zap.String("scope_name", scopeProfile.Scope().Name()),
-				zap.String("scope_version", scopeProfile.Scope().Version()))
-
-			// Process each profile
-			for k := 0; k < scopeProfile.Profiles().Len(); k++ {
-				profile := scopeProfile.Profiles().At(k)
-				c.logDebug("Processing profile",
-					zap.Int("resource_index", i),
-					zap.Int("scope_index", j),
-					zap.Int("profile_index", k),
-					zap.Int("samples_count", profile.Sample().Len()))
-
-				// Extract profile-specific attributes
-				profileAttributes := c.extractProfileAttributes(profiles, profile, resourceAttributes)
-				c.logDebug("Extracted profile attributes", zap.Any("attributes", profileAttributes))
-
-				// Generate metrics based on configuration
-				c.generateMetricsFromProfile(profiles, profile, profileAttributes, resourceMetrics)
-			}
-		}
-	}
+			c.generateMetricsFromProfile(profiles, profile, profileAttributes, resourceMetrics)
+		},
+	)
 
 	c.logInfo("Profile to metrics conversion completed")
 	return metrics, nil
@@ -240,14 +188,45 @@ func (c *Converter) generateMetricsFromProfile(
 	attributes map[string]string,
 	resourceMetrics pmetric.ResourceMetrics,
 ) {
-	// Apply pattern filtering if enabled
-	if c.config.PatternFilter.Enabled && !c.matchesPatternFilter(attributes) {
-		return
-	}
+	// pattern_filter deprecated: no-op
 
-	// Apply process filtering
-	if !c.matchesProcessFilter(attributes) {
-		return
+	// Apply process filtering against profile samples (process.executable.name), supporting multiple patterns
+	// Also, when enabled, restrict metrics generation to matched processes only.
+	var matchedProcessNames []string
+	if c.config.ProcessFilter.Enabled {
+		if !c.profileMatchesProcessFilter(profiles, profile) {
+			return
+		}
+		// Build regexes and filter the discovered processes
+		allProcessNames := c.getUniqueProcessNames(profiles, profile)
+		var patterns []string
+		if len(c.config.ProcessFilter.Patterns) > 0 {
+			patterns = c.config.ProcessFilter.Patterns
+		} else if c.config.ProcessFilter.Pattern != "" {
+			patterns = []string{c.config.ProcessFilter.Pattern}
+		}
+		regexes := make([]*regexp.Regexp, 0, len(patterns))
+		for _, p := range patterns {
+			re, err := regexp.Compile(p)
+			if err != nil {
+				c.logWarn("Invalid process filter pattern - ignoring", zap.String("pattern", p), zap.Error(err))
+				continue
+			}
+			regexes = append(regexes, re)
+		}
+		for _, name := range allProcessNames {
+			for _, re := range regexes {
+				if re.MatchString(name) {
+					matchedProcessNames = append(matchedProcessNames, name)
+					break
+				}
+			}
+		}
+		c.logDebug("Process filter matched processes", zap.Strings("process_names", matchedProcessNames))
+		if len(matchedProcessNames) == 0 {
+			// No processes matched; nothing to emit
+			return
+		}
 	}
 
 	// Create a single scope metrics for all metrics from this profile
@@ -255,18 +234,25 @@ func (c *Converter) generateMetricsFromProfile(
 	scopeMetrics.Scope().SetName("profiletometrics")
 	scopeMetrics.Scope().SetVersion("1.0.0")
 
-	// Generate CPU time metrics if enabled
-	if c.config.Metrics.CPU.Enabled {
-		c.generateCPUTimeMetrics(profiles, profile, attributes, scopeMetrics)
-	}
-
-	// Generate memory allocation metrics if enabled
-	if c.config.Metrics.Memory.Enabled {
-		c.generateMemoryAllocationMetrics(profiles, profile, attributes, scopeMetrics)
+	// If process filter is enabled, skip unfiltered/global metrics; emit only per-process metrics
+	if !c.config.ProcessFilter.Enabled {
+		// Generate CPU time metrics if enabled
+		if c.config.Metrics.CPU.Enabled {
+			c.generateCPUTimeMetrics(profiles, profile, attributes, scopeMetrics)
+		}
+		// Generate memory allocation metrics if enabled
+		if c.config.Metrics.Memory.Enabled {
+			c.generateMemoryAllocationMetrics(profiles, profile, attributes, scopeMetrics)
+		}
+	} else {
+		c.logDebug("Process filter enabled - skipping global metrics in favor of per-process metrics")
 	}
 
 	// Generate metrics for specific processes
-	processNames := c.getUniqueProcessNames(profiles, profile)
+	processNames := matchedProcessNames
+	if !c.config.ProcessFilter.Enabled {
+		processNames = c.getUniqueProcessNames(profiles, profile)
+	}
 	for _, processName := range processNames {
 		c.logDebug("Generating metrics for process", zap.String("process_name", processName))
 		c.generateProcessMetrics(profiles, profile, attributes, scopeMetrics, processName)
@@ -296,22 +282,59 @@ func (c *Converter) matchesPatternFilter(attributes map[string]string) bool {
 
 // matchesProcessFilter checks if the profile matches the process filter
 func (c *Converter) matchesProcessFilter(attributes map[string]string) bool {
+	// Backward-compat for existing unit tests: if enabled and no process_name attribute, return false
 	if !c.config.ProcessFilter.Enabled {
-		return true // No filter configured
+		return true
+	}
+	if _, exists := attributes["process_name"]; !exists {
+		return false
+	}
+	return true
+}
+
+// profileMatchesProcessFilter checks if the profile contains any process that matches configured patterns
+func (c *Converter) profileMatchesProcessFilter(profiles pprofile.Profiles, profile pprofile.Profile) bool {
+	if !c.config.ProcessFilter.Enabled {
+		return true
 	}
 
-	processName, exists := attributes["process_name"]
-	if !exists {
-		return false // No process name attribute found
+	// Build pattern list (prefer list; fallback to single)
+	var patterns []string
+	if len(c.config.ProcessFilter.Patterns) > 0 {
+		patterns = c.config.ProcessFilter.Patterns
+	} else if c.config.ProcessFilter.Pattern != "" {
+		patterns = []string{c.config.ProcessFilter.Pattern}
+	} else {
+		return true // enabled but no patterns => allow all
 	}
 
-	// For now, simple string matching - in a real implementation you would compile and match the regex pattern
-	if c.config.ProcessFilter.Pattern == "" {
-		return true // No pattern specified, allow all
+	// Precompile regexes
+	regexes := make([]*regexp.Regexp, 0, len(patterns))
+	for _, p := range patterns {
+		re, err := regexp.Compile(p)
+		if err != nil {
+			c.logWarn("Invalid process filter pattern - ignoring", zap.String("pattern", p), zap.Error(err))
+			continue
+		}
+		regexes = append(regexes, re)
+	}
+	if len(regexes) == 0 {
+		return true // no valid patterns
 	}
 
-	// Simple contains check for now - in production, use regex compilation
-	return processName != "" // Placeholder logic
+	// Check unique process names from samples
+	processNames := c.getUniqueProcessNames(profiles, profile)
+	for _, name := range processNames {
+		for _, re := range regexes {
+			if re.MatchString(name) {
+				c.logDebug("Process filter matched", zap.String("process", name), zap.Strings("patterns", patterns))
+				return true
+			}
+		}
+	}
+
+	c.logDebug("Process filter did not match any process", zap.Strings("processes", processNames), zap.Strings("patterns", patterns))
+	return false
 }
 
 // generateGaugeMetric generates a gauge metric with the given configuration
@@ -339,13 +362,23 @@ func (c *Converter) generateGaugeMetric(
 }
 
 // generateCPUTimeMetrics generates CPU time metrics from profile data
-func (c *Converter) generateCPUTimeMetrics(profiles pprofile.Profiles, profile pprofile.Profile, attributes map[string]string, scopeMetrics pmetric.ScopeMetrics) {
+func (c *Converter) generateCPUTimeMetrics(
+	profiles pprofile.Profiles,
+	profile pprofile.Profile,
+	attributes map[string]string,
+	scopeMetrics pmetric.ScopeMetrics,
+) {
 	cpuTime := c.calculateCPUTime(profiles, profile)
 	c.generateGaugeMetric(c.config.Metrics.CPU.MetricName, "CPU time in seconds", cpuTime, attributes, scopeMetrics)
 }
 
 // generateMemoryAllocationMetrics generates memory allocation metrics from profile data
-func (c *Converter) generateMemoryAllocationMetrics(profiles pprofile.Profiles, profile pprofile.Profile, attributes map[string]string, scopeMetrics pmetric.ScopeMetrics) {
+func (c *Converter) generateMemoryAllocationMetrics(
+	profiles pprofile.Profiles,
+	profile pprofile.Profile,
+	attributes map[string]string,
+	scopeMetrics pmetric.ScopeMetrics,
+) {
 	memoryAllocation := c.calculateMemoryAllocation(profiles, profile)
 	c.generateGaugeMetric(c.config.Metrics.Memory.MetricName, "Memory allocation in bytes", memoryAllocation, attributes, scopeMetrics)
 }
@@ -358,22 +391,7 @@ func (c *Converter) generateThreadMetrics(
 	scopeMetrics pmetric.ScopeMetrics,
 	threadName string,
 ) {
-	filter := map[string]string{"thread.name": threadName}
-
-	// Add thread.name attribute
-	threadAttributes := make(map[string]string)
-	for k, v := range attributes {
-		threadAttributes[k] = v
-	}
-	threadAttributes["thread.name"] = threadName
-
-	// Generate CPU time metric with thread.name as attribute
-	cpuTime := c.calculateCPUTimeForFilter(profiles, profile, filter)
-	c.generateGaugeMetric(c.config.Metrics.CPU.MetricName, "CPU time in seconds", cpuTime, threadAttributes, scopeMetrics)
-
-	// Generate memory allocation metric with thread.name as attribute
-	memoryAllocation := c.calculateMemoryAllocationForFilter(profiles, profile, filter)
-	c.generateGaugeMetric(c.config.Metrics.Memory.MetricName, "Memory allocation in bytes", memoryAllocation, threadAttributes, scopeMetrics)
+	c.generateEntityMetrics(profiles, profile, attributes, scopeMetrics, "thread.name", "thread.name", threadName)
 }
 
 // generateProcessMetrics generates CPU time and memory metrics for processes with process.name as attribute
@@ -384,22 +402,32 @@ func (c *Converter) generateProcessMetrics(
 	scopeMetrics pmetric.ScopeMetrics,
 	processName string,
 ) {
-	filter := map[string]string{"process.executable.name": processName}
+	c.generateEntityMetrics(profiles, profile, attributes, scopeMetrics, "process.executable.name", "process.name", processName)
+}
 
-	// Add process.name attribute
-	processAttributes := make(map[string]string)
-	for k, v := range attributes {
-		processAttributes[k] = v
+// generateEntityMetrics is a generic helper used by thread and process metrics generators
+func (c *Converter) generateEntityMetrics(
+	profiles pprofile.Profiles,
+	profile pprofile.Profile,
+	baseAttributes map[string]string,
+	scopeMetrics pmetric.ScopeMetrics,
+	filterKey string,
+	attributeName string,
+	attributeValue string,
+) {
+	filter := map[string]string{filterKey: attributeValue}
+
+	attrs := make(map[string]string)
+	for k, v := range baseAttributes {
+		attrs[k] = v
 	}
-	processAttributes["process.name"] = processName
+	attrs[attributeName] = attributeValue
 
-	// Generate CPU time metric with process.name as attribute
 	cpuTime := c.calculateCPUTimeForFilter(profiles, profile, filter)
-	c.generateGaugeMetric(c.config.Metrics.CPU.MetricName, "CPU time in seconds", cpuTime, processAttributes, scopeMetrics)
+	c.generateGaugeMetric(c.config.Metrics.CPU.MetricName, "CPU time in seconds", cpuTime, attrs, scopeMetrics)
 
-	// Generate memory allocation metric with process.name as attribute
 	memoryAllocation := c.calculateMemoryAllocationForFilter(profiles, profile, filter)
-	c.generateGaugeMetric(c.config.Metrics.Memory.MetricName, "Memory allocation in bytes", memoryAllocation, processAttributes, scopeMetrics)
+	c.generateGaugeMetric(c.config.Metrics.Memory.MetricName, "Memory allocation in bytes", memoryAllocation, attrs, scopeMetrics)
 }
 
 // generateFunctionMetrics generates CPU time and memory metrics for specific functions
@@ -422,6 +450,9 @@ func (c *Converter) generateFunctionMetrics(
 	c.logDebug("Generating function-level metrics",
 		zap.Int("function_count", len(functionNames)),
 		zap.Strings("function_names", functionNames))
+
+	// Precompute function -> filename mapping
+	functionToFilename := c.getFunctionFilenameMap(profiles, profile)
 
 	// Create a metric for CPU time with function attributes
 	cpuMetricName := c.config.Metrics.CPU.MetricName
@@ -467,6 +498,13 @@ func (c *Converter) generateFunctionMetrics(
 			// Add process and function names as attributes
 			cpuDataPoint.Attributes().PutStr("process.name", processName)
 			cpuDataPoint.Attributes().PutStr("function.name", functionName)
+			if filename, ok := functionToFilename[functionName]; ok && filename != "" {
+				cpuDataPoint.Attributes().PutStr("file.name", filename)
+				c.logDebug("Attached file.name to CPU datapoint",
+					zap.String("process_name", processName),
+					zap.String("function_name", functionName),
+					zap.String("file_name", filename))
+			}
 
 			// Create memory data point with both process and function attributes
 			memoryDataPoint := memoryGauge.DataPoints().AppendEmpty()
@@ -480,6 +518,13 @@ func (c *Converter) generateFunctionMetrics(
 			// Add process and function names as attributes
 			memoryDataPoint.Attributes().PutStr("process.name", processName)
 			memoryDataPoint.Attributes().PutStr("function.name", functionName)
+			if filename, ok := functionToFilename[functionName]; ok && filename != "" {
+				memoryDataPoint.Attributes().PutStr("file.name", filename)
+				c.logDebug("Attached file.name to Memory datapoint",
+					zap.String("process_name", processName),
+					zap.String("function_name", functionName),
+					zap.String("file_name", filename))
+			}
 		}
 	}
 }
@@ -516,6 +561,35 @@ func (c *Converter) getUniqueFunctionNames(profiles pprofile.Profiles, profile p
 	c.logDebug("Extracted unique function names",
 		zap.Int("count", len(result)),
 		zap.Strings("function_names", result))
+
+	return result
+}
+
+// getFunctionFilenameMap builds a map from function name to source filename using the top location of samples
+func (c *Converter) getFunctionFilenameMap(profiles pprofile.Profiles, profile pprofile.Profile) map[string]string {
+	result := make(map[string]string)
+
+	for i := 0; i < profile.Sample().Len(); i++ {
+		sample := profile.Sample().At(i)
+		functionName := c.getSampleFunctionName(profiles, sample)
+		if functionName == "" {
+			continue
+		}
+
+		// Resolve filename from the same top location
+		filename := c.getSampleFileName(profiles, sample)
+		c.logDebug("Resolved filename for function from sample",
+			zap.Int("sample_index", i),
+			zap.String("function_name", functionName),
+			zap.String("file_name", filename))
+		if filename == "" {
+			continue
+		}
+
+		if _, exists := result[functionName]; !exists {
+			result[functionName] = filename
+		}
+	}
 
 	return result
 }
@@ -579,7 +653,11 @@ func (c *Converter) calculateFunctionMemoryAllocation(profiles pprofile.Profiles
 }
 
 // calculateFunctionCPUTimeForProcess calculates CPU time for a specific function within a specific process
-func (c *Converter) calculateFunctionCPUTimeForProcess(profiles pprofile.Profiles, profile pprofile.Profile, processName, functionName string) float64 {
+func (c *Converter) calculateFunctionCPUTimeForProcess(
+	profiles pprofile.Profiles,
+	profile pprofile.Profile,
+	processName, functionName string,
+) float64 {
 	var totalCPUTime float64
 	defaultProfileDuration := 1.0
 	sampleCount := profile.Sample().Len()
@@ -616,7 +694,11 @@ func (c *Converter) calculateFunctionCPUTimeForProcess(profiles pprofile.Profile
 }
 
 // calculateFunctionMemoryAllocationForProcess calculates memory allocation for a specific function within a specific process
-func (c *Converter) calculateFunctionMemoryAllocationForProcess(profiles pprofile.Profiles, profile pprofile.Profile, processName, functionName string) float64 {
+func (c *Converter) calculateFunctionMemoryAllocationForProcess(
+	profiles pprofile.Profiles,
+	profile pprofile.Profile,
+	processName, functionName string,
+) float64 {
 	var totalMemoryAllocation float64
 	sampleCount := profile.Sample().Len()
 
@@ -676,7 +758,7 @@ func (c *Converter) getFunctionName(profiles pprofile.Profiles, functionIndex in
 	dictionary := profiles.Dictionary()
 	functionTable := dictionary.FunctionTable()
 
-	if functionIndex >= int32(functionTable.Len()) {
+	if int(functionIndex) >= functionTable.Len() {
 		c.logDebug("Function index out of range",
 			zap.Int32("function_index", functionIndex),
 			zap.Int("function_table_len", functionTable.Len()))
@@ -687,7 +769,7 @@ func (c *Converter) getFunctionName(profiles pprofile.Profiles, functionIndex in
 	nameIndex := function.NameStrindex()
 
 	stringTable := dictionary.StringTable()
-	if nameIndex < 0 || nameIndex >= int32(stringTable.Len()) {
+	if nameIndex < 0 || int(nameIndex) >= stringTable.Len() {
 		c.logDebug("Function name index out of range",
 			zap.Int32("name_index", nameIndex),
 			zap.Int32("function_index", functionIndex),
@@ -738,6 +820,51 @@ func (c *Converter) getLocationFunctionName(profiles pprofile.Profiles, location
 	return functionName
 }
 
+// getLocationFileName gets the source filename from a location using the profiles dictionary
+func (c *Converter) getLocationFileName(profiles pprofile.Profiles, location pprofile.Location) string {
+	filename := getLocationFileNameCommon(profiles, location)
+	if filename == "" {
+		c.logDebug("Location has no lines for filename resolution")
+	} else {
+		c.logDebug("Resolved file.name from location", zap.String("file_name", filename))
+	}
+	return filename
+}
+
+// getSampleFileName gets the top frame's source filename from a sample's stack
+func (c *Converter) getSampleFileName(profiles pprofile.Profiles, sample pprofile.Sample) string {
+	stackIndex := sample.StackIndex()
+	if stackIndex < 0 {
+		return ""
+	}
+
+	dictionary := profiles.Dictionary()
+	stackTable := dictionary.StackTable()
+	if int(stackIndex) >= stackTable.Len() {
+		return ""
+	}
+
+	stack := stackTable.At(int(stackIndex))
+	locationIndices := stack.LocationIndices()
+	if locationIndices.Len() == 0 {
+		return ""
+	}
+
+	locationIndex := locationIndices.At(locationIndices.Len() - 1)
+	locationTable := dictionary.LocationTable()
+	if locationIndex < 0 || int(locationIndex) >= locationTable.Len() {
+		return ""
+	}
+
+	location := locationTable.At(int(locationIndex))
+	filename := c.getLocationFileName(profiles, location)
+	c.logDebug("Resolved file.name from sample top frame",
+		zap.Int32("stack_index", stackIndex),
+		zap.Int32("location_index", locationIndex),
+		zap.String("file_name", filename))
+	return filename
+}
+
 // getSampleFunctionName gets the top function name from a sample's stack
 func (c *Converter) getSampleFunctionName(profiles pprofile.Profiles, sample pprofile.Sample) string {
 	stackIndex := sample.StackIndex()
@@ -756,7 +883,7 @@ func (c *Converter) getSampleFunctionName(profiles pprofile.Profiles, sample ppr
 		zap.Int32("stack_index", stackIndex),
 		zap.Int("stack_table_len", stackTable.Len()))
 
-	if stackIndex >= int32(stackTable.Len()) {
+	if int(stackIndex) >= stackTable.Len() {
 		c.logDebug("Stack index out of range",
 			zap.Int32("stack_index", stackIndex),
 			zap.Int("stack_table_len", stackTable.Len()))
@@ -784,7 +911,7 @@ func (c *Converter) getSampleFunctionName(profiles pprofile.Profiles, sample ppr
 		zap.Int32("location_index", locationIndex),
 		zap.Int("location_table_len", locationTable.Len()))
 
-	if locationIndex < 0 || locationIndex >= int32(locationTable.Len()) {
+	if locationIndex < 0 || int(locationIndex) >= locationTable.Len() {
 		c.logDebug("Location index out of range",
 			zap.Int32("location_index", locationIndex),
 			zap.Int("location_table_len", locationTable.Len()))
@@ -805,52 +932,16 @@ func (c *Converter) getSampleFunctionName(profiles pprofile.Profiles, sample ppr
 // getUniqueThreadNames extracts all unique thread names from a profile
 // In the pprofile schema, thread information is stored as resource attributes
 func (c *Converter) getUniqueThreadNames(profiles pprofile.Profiles, profile pprofile.Profile) []string {
-	threadNames := make(map[string]bool)
-
-	// Iterate through samples to extract unique thread names from attributes
-	for i := 0; i < profile.Sample().Len(); i++ {
-		sample := profile.Sample().At(i)
-		threadName := c.getSampleAttributeValue(profiles, sample, "thread.name")
-		if threadName != "" {
-			threadNames[threadName] = true
-		}
-	}
-
-	var result []string
-	for threadName := range threadNames {
-		result = append(result, threadName)
-	}
-
-	c.logDebug("Extracted unique thread names",
-		zap.Int("count", len(result)),
-		zap.Strings("thread_names", result))
-
+	result := getUniqueAttributeValuesCommon(profiles, profile, "thread.name")
+	c.logDebug("Extracted unique thread names", zap.Int("count", len(result)), zap.Strings("thread_names", result))
 	return result
 }
 
 // getUniqueProcessNames extracts all unique process names from a profile
 // In the pprofile schema, process information is stored as resource attributes
 func (c *Converter) getUniqueProcessNames(profiles pprofile.Profiles, profile pprofile.Profile) []string {
-	processNames := make(map[string]bool)
-
-	// Iterate through samples to extract unique process names from attributes
-	for i := 0; i < profile.Sample().Len(); i++ {
-		sample := profile.Sample().At(i)
-		processName := c.getSampleAttributeValue(profiles, sample, "process.executable.name")
-		if processName != "" {
-			processNames[processName] = true
-		}
-	}
-
-	var result []string
-	for processName := range processNames {
-		result = append(result, processName)
-	}
-
-	c.logDebug("Extracted unique process names",
-		zap.Int("count", len(result)),
-		zap.Strings("process_names", result))
-
+	result := getUniqueAttributeValuesCommon(profiles, profile, "process.executable.name")
+	c.logDebug("Extracted unique process names", zap.Int("count", len(result)), zap.Strings("process_names", result))
 	return result
 }
 
@@ -964,7 +1055,11 @@ func (c *Converter) calculateMemoryAllocation(profiles pprofile.Profiles, profil
 }
 
 // calculateMemoryAllocationForFilter calculates memory allocation from profile samples with optional filtering
-func (c *Converter) calculateMemoryAllocationForFilter(profiles pprofile.Profiles, profile pprofile.Profile, filter map[string]string) float64 {
+func (c *Converter) calculateMemoryAllocationForFilter(
+	profiles pprofile.Profiles,
+	profile pprofile.Profile,
+	filter map[string]string,
+) float64 {
 	var totalMemoryAllocation float64
 	sampleCount := profile.Sample().Len()
 

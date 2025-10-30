@@ -2,50 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/</loc>
-         <lastmod>2025-10-27</lastmod>
-    </url>
-    <url>
-         <loc>https://henrikrexed.github.io/profiletoMetrics/api/connector-api/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/configuration/collector-config/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/configuration/connector-config/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/deployment/docker/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/deployment/kubernetes/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/development/architecture/</loc>
-         <lastmod>2025-10-27</lastmod>
-    </url>
-    <url>
-         <loc>https://henrikrexed.github.io/profiletoMetrics/development/thread-process-filtering/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/getting-started/installation/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/getting-started/overview/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
     <url>
          <loc>https://henrikrexed.github.io/profiletoMetrics/getting-started/quick-start/</loc>
-         <lastmod>2025-10-27</lastmod>
-    </url>
-    <url>
-         <loc>https://henrikrexed.github.io/profiletoMetrics/testing/unit-tests/</loc>
-         <lastmod>2025-10-27</lastmod>
+         <lastmod>2025-10-30</lastmod>
     </url>
 </urlset>

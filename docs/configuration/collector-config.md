@@ -84,7 +84,7 @@ connectors:
         value: "my-service"
     process_filter:
       enabled: true
-      pattern: "my-app.*"
+      patterns: ["my-app.*"]
 ```
 
 ## Processors
@@ -233,7 +233,7 @@ connectors:
         value: "my-service"
     process_filter:
       enabled: true
-      pattern: "my-app.*"
+      patterns: ["my-app.*"]
 
 processors:
   batch:

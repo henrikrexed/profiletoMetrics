@@ -59,42 +59,22 @@ func (tc *TraceConverter) ConvertProfilesToTraces(ctx context.Context, profiles 
 	traces := ptrace.NewTraces()
 	resourceSpans := traces.ResourceSpans().AppendEmpty()
 
-	// Process each profile
-	for i := 0; i < profiles.ResourceProfiles().Len(); i++ {
-		resourceProfile := profiles.ResourceProfiles().At(i)
-		tc.logDebug("Processing resource profile", zap.Int("index", i))
+	iterateProfilesCommon(
+		profiles,
+		tc.extractResourceAttributes,
+		func(resourceIndex, scopeIndex, profileIndex int, profile pprofile.Profile, resourceAttributes map[string]string) {
+			tc.logDebug("Processing profile",
+				zap.Int("resource_index", resourceIndex),
+				zap.Int("scope_index", scopeIndex),
+				zap.Int("profile_index", profileIndex),
+				zap.Int("samples_count", profile.Sample().Len()))
 
-		// Extract attributes from resource
-		resourceAttributes := tc.extractResourceAttributes(resourceProfile.Resource())
-		tc.logDebug("Extracted resource attributes", zap.Any("attributes", resourceAttributes))
+			profileAttributes := tc.extractProfileAttributes(profiles, profile, resourceAttributes)
+			tc.logDebug("Extracted profile attributes", zap.Any("attributes", profileAttributes))
 
-		// Process each scope profile
-		for j := 0; j < resourceProfile.ScopeProfiles().Len(); j++ {
-			scopeProfile := resourceProfile.ScopeProfiles().At(j)
-			tc.logDebug("Processing scope profile",
-				zap.Int("resource_index", i),
-				zap.Int("scope_index", j),
-				zap.String("scope_name", scopeProfile.Scope().Name()),
-				zap.String("scope_version", scopeProfile.Scope().Version()))
-
-			// Process each profile
-			for k := 0; k < scopeProfile.Profiles().Len(); k++ {
-				profile := scopeProfile.Profiles().At(k)
-				tc.logDebug("Processing profile",
-					zap.Int("resource_index", i),
-					zap.Int("scope_index", j),
-					zap.Int("profile_index", k),
-					zap.Int("samples_count", profile.Sample().Len()))
-
-				// Extract profile-specific attributes
-				profileAttributes := tc.extractProfileAttributes(profiles, profile, resourceAttributes)
-				tc.logDebug("Extracted profile attributes", zap.Any("attributes", profileAttributes))
-
-				// Generate traces based on configuration
-				tc.generateTracesFromProfile(profiles, profile, profileAttributes, resourceSpans)
-			}
-		}
-	}
+			tc.generateTracesFromProfile(profiles, profile, profileAttributes, resourceSpans)
+		},
+	)
 
 	tc.logInfo("Profile to traces conversion completed")
 	return traces, nil
@@ -297,6 +277,14 @@ func (tc *TraceConverter) createTraceFromStack(
 		span.Attributes().PutStr("function.name", functionName)
 		span.Attributes().PutStr("span.kind", "internal")
 
+		// Add filename attribute if available from the same location
+		if filename := tc.getLocationFileName(profiles, *location); filename != "" {
+			span.Attributes().PutStr("file.name", filename)
+			tc.logDebug("Attached file.name to span",
+				zap.String("function_name", functionName),
+				zap.String("file_name", filename))
+		}
+
 		// Add events for sample data
 		tc.addSampleEvents(span, samples, functionName)
 
@@ -318,7 +306,7 @@ func (tc *TraceConverter) getStackFromIndex(profiles pprofile.Profiles, stackInd
 	dictionary := profiles.Dictionary()
 	stackTable := dictionary.StackTable()
 
-	if stackIndex < 0 || stackIndex >= int32(stackTable.Len()) {
+	if stackIndex < 0 || int(stackIndex) >= stackTable.Len() {
 		return nil
 	}
 
@@ -331,7 +319,7 @@ func (tc *TraceConverter) getLocationFromIndex(profiles pprofile.Profiles, locat
 	dictionary := profiles.Dictionary()
 	locationTable := dictionary.LocationTable()
 
-	if locationIndex < 0 || locationIndex >= int32(locationTable.Len()) {
+	if locationIndex < 0 || int(locationIndex) >= locationTable.Len() {
 		return nil
 	}
 
@@ -355,6 +343,17 @@ func (tc *TraceConverter) getLocationFunctionName(profiles pprofile.Profiles, lo
 	return functionName
 }
 
+// getLocationFileName gets the source filename from a location
+func (tc *TraceConverter) getLocationFileName(profiles pprofile.Profiles, location pprofile.Location) string {
+	filename := getLocationFileNameCommon(profiles, location)
+	if filename == "" {
+		tc.logDebug("Location has no lines for filename resolution")
+	} else {
+		tc.logDebug("Resolved file.name from location", zap.String("file_name", filename))
+	}
+	return filename
+}
+
 // getFunctionName extracts the function name from a function index
 func (tc *TraceConverter) getFunctionName(profiles pprofile.Profiles, functionIndex int32) string {
 	if functionIndex < 0 {
@@ -364,7 +363,7 @@ func (tc *TraceConverter) getFunctionName(profiles pprofile.Profiles, functionIn
 	dictionary := profiles.Dictionary()
 	functionTable := dictionary.FunctionTable()
 
-	if functionIndex >= int32(functionTable.Len()) {
+	if int(functionIndex) >= functionTable.Len() {
 		return ""
 	}
 
@@ -372,7 +371,7 @@ func (tc *TraceConverter) getFunctionName(profiles pprofile.Profiles, functionIn
 	nameIndex := function.NameStrindex()
 
 	stringTable := dictionary.StringTable()
-	if nameIndex < 0 || nameIndex >= int32(stringTable.Len()) {
+	if nameIndex < 0 || int(nameIndex) >= stringTable.Len() {
 		return ""
 	}
 
@@ -403,7 +402,11 @@ func (tc *TraceConverter) calculateTotalDuration(samples []pprofile.Sample) time
 }
 
 // calculateFunctionDuration calculates the duration for a specific function
-func (tc *TraceConverter) calculateFunctionDuration(samples []pprofile.Sample, functionName string, totalDuration time.Duration) time.Duration {
+func (tc *TraceConverter) calculateFunctionDuration(
+	samples []pprofile.Sample,
+	_ string,
+	totalDuration time.Duration,
+) time.Duration {
 	// For now, distribute duration evenly across functions
 	// In a more sophisticated implementation, you could analyze the actual time spent
 	// in each function based on the sample data
@@ -460,7 +463,7 @@ func (tc *TraceConverter) getSampleFunctionName(profiles pprofile.Profiles, samp
 	dictionary := profiles.Dictionary()
 	stackTable := dictionary.StackTable()
 
-	if stackIndex >= int32(stackTable.Len()) {
+	if int(stackIndex) >= stackTable.Len() {
 		return ""
 	}
 
@@ -475,7 +478,7 @@ func (tc *TraceConverter) getSampleFunctionName(profiles pprofile.Profiles, samp
 	locationIndex := locationIndices.At(locationIndices.Len() - 1)
 	locationTable := dictionary.LocationTable()
 
-	if locationIndex < 0 || locationIndex >= int32(locationTable.Len()) {
+	if locationIndex < 0 || int(locationIndex) >= locationTable.Len() {
 		return ""
 	}
 
@@ -485,41 +488,7 @@ func (tc *TraceConverter) getSampleFunctionName(profiles pprofile.Profiles, samp
 
 // getSampleAttributeValue extracts a specific attribute value from a sample
 func (tc *TraceConverter) getSampleAttributeValue(profiles pprofile.Profiles, sample pprofile.Sample, key string) string {
-	attributeIndices := sample.AttributeIndices()
-	if attributeIndices.Len() == 0 {
-		return ""
-	}
-
-	dictionary := profiles.Dictionary()
-	attributeTable := dictionary.AttributeTable()
-	stringTable := dictionary.StringTable()
-
-	// Iterate through attribute indices
-	for i := 0; i < attributeIndices.Len(); i++ {
-		attrIndex := attributeIndices.At(i)
-		if attrIndex < 0 || attrIndex >= int32(attributeTable.Len()) {
-			continue
-		}
-
-		attr := attributeTable.At(int(attrIndex))
-
-		// Get the key from the string table
-		keyIndex := attr.KeyStrindex()
-		if keyIndex < 0 || keyIndex >= int32(stringTable.Len()) {
-			continue
-		}
-
-		attrKey := stringTable.At(int(keyIndex))
-
-		// Check if this is the key we're looking for
-		if attrKey == key {
-			// Get the value
-			value := attr.Value()
-			return value.AsString()
-		}
-	}
-
-	return ""
+	return getSampleAttributeValueCommon(profiles, sample, key)
 }
 
 // getUniqueProcessNames extracts all unique process names from a profile

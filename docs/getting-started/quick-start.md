@@ -32,7 +32,7 @@ connectors:
         value: "my-service"
     process_filter:
       enabled: true
-      pattern: "my-app.*"
+      patterns: ["my-app.*"]
 
 exporters:
   debug:
@@ -141,7 +141,7 @@ connectors:
   profiletometrics:
     process_filter:
       enabled: true
-      pattern: "my-app.*"
+      patterns: ["my-app.*"]
     thread_filter:
       enabled: true
       pattern: "worker-.*"
@@ -184,7 +184,6 @@ docker run -e OTEL_LOG_LEVEL=debug \
 
 ## Next Steps
 
-- [Configuration Guide](configuration/connector-config.md)
-- [Docker Deployment](deployment/docker.md)
-- [Kubernetes Deployment](deployment/kubernetes.md)
-- [Testing Guide](testing/unit-tests.md)
+- [Configuration Guide](../configuration/connector-config.md)
+- [Docker Deployment](../deployment/docker.md)
+- [Kubernetes Deployment](../deployment/kubernetes.md)

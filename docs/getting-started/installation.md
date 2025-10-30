@@ -187,7 +187,7 @@ service:
 
 ### Advanced Configuration
 
-See the [Configuration Guide](configuration/connector-config.md) for detailed configuration options.
+See the [Configuration Guide](../configuration/connector-config.md) for detailed configuration options.
 
 ## Verification
 
@@ -261,5 +261,5 @@ service:
 ## Next Steps
 
 - [Quick Start Guide](quick-start.md)
-- [Configuration Reference](configuration/connector-config.md)
-- [Deployment Options](deployment/docker.md)
+- [Configuration Reference](../configuration/connector-config.md)
+- [Deployment Options](../deployment/docker.md)

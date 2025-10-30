@@ -35,8 +35,9 @@ type AttributeConfig struct {
 
 // ProcessFilterConfig defines process filtering configuration
 type ProcessFilterConfig struct {
-	Enabled bool   `mapstructure:"enabled"`
-	Pattern string `mapstructure:"pattern"`
+	Enabled  bool     `mapstructure:"enabled"`
+	Pattern  string   `mapstructure:"pattern"`  // backward-compat: single pattern
+	Patterns []string `mapstructure:"patterns"` // preferred: list of patterns
 }
 
 // PatternFilterConfig defines pattern filtering configuration

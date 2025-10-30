@@ -145,27 +145,16 @@ connectors:
 
 #### Process Filtering
 
-Filter metrics based on process names:
+Filter metrics based on process names (supports multiple regex patterns):
 
 ```yaml
 connectors:
   profiletometrics:
     process_filter:
       enabled: true                     # Enable process filtering
-      pattern: "my-app.*"              # Regex pattern for process names
+      patterns: ["my-app.*"]           # One or more regex patterns for process names
 ```
 
-#### Pattern Filtering
-
-Filter metrics based on attribute patterns:
-
-```yaml
-connectors:
-  profiletometrics:
-    pattern_filter:
-      enabled: true                    # Enable pattern filtering
-      pattern: "service-.*"           # Regex pattern for attributes
-```
 
 ## Complete Configuration Example
 
@@ -209,11 +198,9 @@ connectors:
     # Filtering
     process_filter:
       enabled: true
-      pattern: "my-app.*"
+      patterns: ["my-app.*"]
     
-    pattern_filter:
-      enabled: true
-      pattern: "service-.*"
+    # pattern_filter has been removed
 
 exporters:
   debug:
@@ -275,15 +262,13 @@ connectors:
   profiletometrics:
     process_filter:
       enabled: true
-      pattern: "(my-app|worker|scheduler).*"
+      patterns: ["(my-app|worker|scheduler).*"]
     
     thread_filter:
       enabled: true
       pattern: "(main|worker|background)-.*"
     
-    pattern_filter:
-      enabled: true
-      pattern: "(service|deployment|k8s)-.*"
+    # pattern_filter has been removed
 ```
 
 ### Debug Configuration
@@ -411,7 +396,7 @@ connectors:
     
     process_filter:
       enabled: true
-      pattern: "my-app.*"
+      patterns: ["my-app.*"]
     
     thread_filter:
       enabled: true
@@ -426,10 +411,10 @@ connectors:
 
 ```yaml
 # ❌ Invalid - unescaped dots
-pattern: "service.*"
+patterns: ["service.*"]
 
 # ✅ Valid - escaped dots
-pattern: "service\\..*"
+patterns: ["service\\..*"]
 ```
 
 #### 2. Missing Required Fields
